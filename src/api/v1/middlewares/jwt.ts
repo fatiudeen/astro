@@ -1,8 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import HttpError from '@helpers/HttpError';
 import { MESSAGES, JWT_KEY } from '@config';
-import User from '@models/User';
+import userService from '@services/auth.service';
+import sessionService from '@services/session.service';
 
 // eslint-disable-next-line import/prefer-default-export
 export const authorize =
@@ -20,10 +22,16 @@ export const authorize =
     try {
       const decoded = <any>jwt.verify(token, <string>JWT_KEY);
 
-      const user = await User.findById(<string>decoded.id);
+      const user = await userService.findOne(<string>decoded.id);
 
       if (!user) {
         return next(new HttpError(MESSAGES.UNAUTHORIZED, 401));
+      }
+
+      if (user.session) {
+        const session = await sessionService.findOne({ userId: user._id });
+        if (!session) return next(new HttpError(MESSAGES.INVALID_SESSION, 401));
+        if (session.token !== token) return next(new HttpError(MESSAGES.ACTIVE_SESSION, 401));
       }
 
       if (role && user.role !== role) {

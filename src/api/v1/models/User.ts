@@ -25,6 +25,7 @@ const userSchema = new Schema<UserInterface>(
       enum: ['user', 'admin'],
       default: 'user',
     },
+    session: { type: Boolean, default: false },
     verifiedEmail: Boolean,
     verificationToken: String,
     resetToken: String,
