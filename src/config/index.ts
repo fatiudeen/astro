@@ -22,5 +22,7 @@ export const MESSAGES = {
   SHORT_PASSWORD: 'password must be at least 8 characters',
   USER_EXISTS: 'user exists',
   INVALID_RECORD: 'record does not exist',
+  INVALID_SESSION: 'user does not have an active session',
+  ACTIVE_SESSION: 'user session is active on another device. login again to reclaim session',
 };
 export const { PORT, DB_URI, JWT_KEY } = process.env;
