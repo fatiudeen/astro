@@ -22,6 +22,11 @@ export default abstract class Repository<T> {
     return this.model.findByIdAndUpdate(query, data, { new: true });
   }
 
+  upsert(query: string | Partial<T>, data: Partial<T>) {
+    if (typeof query === 'object') return this.model.findOneAndUpdate(query, data);
+    return this.model.findByIdAndUpdate(query, data, { new: true, upsert: true });
+  }
+
   updateMany(query: Partial<T>, data: Partial<T>) {
     return this.model.updateMany(query, data);
   }

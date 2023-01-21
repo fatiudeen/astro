@@ -51,6 +51,35 @@ class AuthController extends Controller<UserInterface> {
       next(error);
     }
   };
+
+  oAuthUrls = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = authService.oAuthUrls();
+      HttpResponse.send(res, { success: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { code } = req.query;
+      const redirectUri = await authService.googleLogin(<string>code);
+      res.redirect(redirectUri);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  facebookLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { code } = req.query;
+      const redirectUri = await authService.facebookLogin(<string>code);
+      res.redirect(redirectUri);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default new AuthController('user');
