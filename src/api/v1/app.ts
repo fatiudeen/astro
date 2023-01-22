@@ -6,6 +6,7 @@ import db from '@helpers/db';
 import { logger } from '@utils/logger';
 import { errorHandler } from '@middlewares/errorHandler';
 import docs from '@middlewares/docs';
+import userRoute from '@routes/user.route';
 
 class App {
   private app: Application;
@@ -19,6 +20,7 @@ class App {
   private initRoutes() {
     this.app.use('/docs', docs);
     this.app.use('/auth', authRoute.initRoutes());
+    this.app.use('/users', userRoute.initRoutes());
     this.app.get('/', (req, res) => {
       res.status(200).json({ msg: 'WELCOME TO DTMS :)' });
     });

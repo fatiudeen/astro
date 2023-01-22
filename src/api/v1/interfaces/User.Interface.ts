@@ -7,6 +7,7 @@ export interface UserInterface {
   verifiedEmail: boolean;
   verificationToken?: string;
   resetToken?: string;
+  avatar?: string;
   comparePasswords(password: string): boolean;
   getSignedToken(): string;
 }

@@ -4,7 +4,6 @@ import Service from '@services/service';
 
 class SessionService extends Service<SessionInterface> {
   // repository = SessionRepository;
-  serviceName = 'sessionService';
   externalServices = null;
 }
 

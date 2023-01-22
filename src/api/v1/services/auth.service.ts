@@ -31,6 +31,7 @@ class AuthService extends Service<UserInterface> {
   // repository = UserRepository;
   externalServices = { SessionService, Emailing };
   useSessions = false;
+
   oAuth2Client = new google.auth.OAuth2(
     <string>GOOGLE_API_CLIENT_ID,
     <string>GOOGLE_API_CLIENT_SECRET,
@@ -39,7 +40,7 @@ class AuthService extends Service<UserInterface> {
   oauth2 = google.oauth2('v2');
   appleOptions = {
     clientID: APPLE_API_CLIENT_ID || 'com.company.app',
-    redirectUri: <string>APPLE_API_REDIRECT,
+    redirectUri: `${<string>API_HOST}${<string>APPLE_API_REDIRECT}`,
     // OPTIONAL
     state: 'state', // optional, An unguessable random string. It is primarily used to protect against CSRF attacks.
     // responseMode: 'form_post', // Force set to form_post if scope includes 'email'
@@ -56,13 +57,13 @@ class AuthService extends Service<UserInterface> {
   });
   appleGetTokenOptions = {
     clientID: APPLE_API_CLIENT_ID || 'com.company.app',
-    redirectUri: <string>APPLE_API_REDIRECT,
+    redirectUri: `${<string>API_HOST}${<string>APPLE_API_REDIRECT}`,
     clientSecret: this.appleClientSecret,
   };
 
   async login(data: { email: string; password: string }) {
     try {
-      const user = await this.repository.findOne({ email: <string>data.email }).select('+password');
+      const user = await this.findOne({ email: <string>data.email }).select('+password');
       if (!user) throw new HttpError(MESSAGES.INVALID_CREDENTIALS, 401);
       const isMatch = await user.comparePasswords(data.password);
       if (!isMatch) throw new HttpError(MESSAGES.INVALID_CREDENTIALS, 401);
@@ -84,14 +85,14 @@ class AuthService extends Service<UserInterface> {
 
   async createUser(data: Partial<UserInterface>) {
     try {
-      const user = await this.repository.findOne({ email: <string>data.email }).select('+password');
+      const user = await this.findOne({ email: <string>data.email }).select('+password');
       if (user) throw new HttpError(MESSAGES.USER_EXISTS, 406);
 
       const token = generateToken();
       data.verificationToken = token;
       data.role = 'user';
       data.session = this.useSessions;
-      const result = await this.repository.create(<UserInterface>data);
+      const result = await this.create(<UserInterface>data);
       this.externalServices.Emailing.verifyEmail(result);
       return result;
     } catch (error: any) {
@@ -101,7 +102,7 @@ class AuthService extends Service<UserInterface> {
 
   async verifyEmail(token: string) {
     try {
-      const user = await this.repository.findOne({
+      const user = await this.findOne({
         verificationToken: token,
       });
 
@@ -119,7 +120,7 @@ class AuthService extends Service<UserInterface> {
   async getResetToken(email: string) {
     try {
       let resetToken: string;
-      const user = await this.repository.findOne({ email });
+      const user = await this.findOne({ email });
       if (!user) throw new HttpError(MESSAGES.INVALID_CREDENTIALS, 404);
       if (!user.resetToken) {
         resetToken = generateToken();
@@ -135,7 +136,7 @@ class AuthService extends Service<UserInterface> {
   }
   async resetPassword(token: string, password: string) {
     try {
-      const user = await this.repository.findOne({ resetToken: token }).select('+password');
+      const user = await this.findOne({ resetToken: token }).select('+password');
 
       if (!user) throw new HttpError(MESSAGES.INVALID_CREDENTIALS, 404);
       user.password = password;
@@ -157,7 +158,7 @@ class AuthService extends Service<UserInterface> {
     });
     const stringifiedParams = queryString.stringify({
       client_id: process.env.APP_ID_GOES_HERE,
-      redirect_uri: 'https://www.example.com/authenticate/facebook/',
+      redirect_uri: `${<string>API_HOST}${<string>FACEBOOK_API_REDIRECT}`,
       scope: ['email', 'user_friends'].join(','),
       response_type: 'code',
       auth_type: 'rerequest',
@@ -180,7 +181,7 @@ class AuthService extends Service<UserInterface> {
       auth: this.oAuth2Client,
     });
 
-    const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
+    const user = await this.upsert({ email: <string>email }, { email: <string>email });
     const token = user!.getSignedToken();
     return `${FRONTEND_GOOGLE_LOGIN_URI}?token=${token}`;
   }
@@ -194,7 +195,7 @@ class AuthService extends Service<UserInterface> {
         params: {
           client_id: process.env.APP_ID_GOES_HERE,
           client_secret: process.env.APP_SECRET_GOES_HERE,
-          redirect_uri: FACEBOOK_API_REDIRECT,
+          redirect_uri: `${<string>API_HOST}${<string>FACEBOOK_API_REDIRECT}`,
           code,
         },
       })
@@ -211,7 +212,7 @@ class AuthService extends Service<UserInterface> {
         },
       })
     ).data;
-    const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
+    const user = await this.upsert({ email: <string>email }, { email: <string>email });
     const token = user!.getSignedToken();
     return `${FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
   }
@@ -224,7 +225,7 @@ class AuthService extends Service<UserInterface> {
       await appleSignin.verifyIdToken(id_token)
     );
 
-    const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
+    const user = await this.upsert({ email: <string>email }, { email: <string>email });
     const token = user!.getSignedToken();
     return `${FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
   }

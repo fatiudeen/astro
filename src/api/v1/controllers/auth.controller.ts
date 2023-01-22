@@ -80,6 +80,16 @@ class AuthController extends Controller<UserInterface> {
       next(error);
     }
   };
+
+  appleLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { code } = req.query;
+      const redirectUri = await authService.appleLogin(<string>code);
+      res.redirect(redirectUri);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default new AuthController('user');

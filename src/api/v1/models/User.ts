@@ -28,6 +28,7 @@ const userSchema = new Schema<UserInterface>(
     session: { type: Boolean, default: false },
     verifiedEmail: Boolean,
     verificationToken: String,
+    avatar: String,
     resetToken: String,
   },
   { timestamps: true },

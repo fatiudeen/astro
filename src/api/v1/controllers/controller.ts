@@ -59,7 +59,7 @@ export default abstract class Controller<T> {
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.update(req.params[this.resourceId], req.body);
+      const result = await this.service.delete(req.params[this.resourceId]);
       if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
       this.HttpResponse.send(res, result);
     } catch (error) {

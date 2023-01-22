@@ -1,4 +1,4 @@
-import { check } from 'express-validator';
+import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
 
 export default {
@@ -7,6 +7,7 @@ export default {
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
   ],
   email: [check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL)],
+  code: [param('code').exists()],
   password: [
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
     check('confirmPassword').custom((value: string, { req }) => {
