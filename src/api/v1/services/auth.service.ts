@@ -25,10 +25,11 @@ import { google } from 'googleapis';
 import queryString from 'qs';
 import axios from 'axios';
 import appleSignin, { AppleIdTokenType } from 'apple-signin-auth';
+import Emailing from '@helpers/Emailing';
 
 class AuthService extends Service<UserInterface> {
   // repository = UserRepository;
-  externalServices = { SessionService };
+  externalServices = { SessionService, Emailing };
   useSessions = false;
   oAuth2Client = new google.auth.OAuth2(
     <string>GOOGLE_API_CLIENT_ID,
@@ -41,7 +42,7 @@ class AuthService extends Service<UserInterface> {
     redirectUri: <string>APPLE_API_REDIRECT,
     // OPTIONAL
     state: 'state', // optional, An unguessable random string. It is primarily used to protect against CSRF attacks.
-    responseMode: 'form_post', // Force set to form_post if scope includes 'email'
+    // responseMode: 'form_post', // Force set to form_post if scope includes 'email'
     scope: 'name%20email',
     // scope: ['name', 'email'], // optional
   };
@@ -91,7 +92,7 @@ class AuthService extends Service<UserInterface> {
       data.role = 'user';
       data.session = this.useSessions;
       const result = await this.repository.create(<UserInterface>data);
-      // TODO: send email
+      this.externalServices.Emailing.verifyEmail(result);
       return result;
     } catch (error: any) {
       throw new Error(error);
@@ -127,7 +128,7 @@ class AuthService extends Service<UserInterface> {
       } else {
         resetToken = user.resetToken;
       }
-      // TODO: send email
+      this.externalServices.Emailing.sendResetPassword(user);
     } catch (error: any) {
       throw new Error(error);
     }

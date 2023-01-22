@@ -6,6 +6,7 @@ if (process.env.CLUSTER === 'local') {
 
 export const MESSAGES = {
   DB_CONNECTED: 'database connected',
+  ADMIN_SEEDED: 'database connected',
   INTERNAL_SERVER_ERROR: 'Internal Server Error. Please try again!',
   INVALID_CREDENTIALS: 'Invalid Credentials',
   LOGIN_SUCCESS: 'Login Success',
@@ -43,4 +44,13 @@ export const {
   APPLE_API_CLIENT_SECRET,
   APPLE_TEAM_ID,
   APPLE_KEY_IDENTIFIER,
+  SENDGRID_API_KEY,
+  DOMAIN_EMAIL,
+  SEEDER_EMAIL,
+  SEEDER_PASSWORD,
+  DOCS_URL,
+  AWS_BUCKET_NAME,
+  AWS_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
 } = process.env;
