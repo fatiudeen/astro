@@ -3,10 +3,11 @@ import UserRepository from '@repositories/User.repository';
 import Service from '@services/service';
 import { logger } from '@utils/logger';
 import s3 from '@helpers/s3';
+import { OPTIONS } from '@config';
 
 class UserService extends Service<UserInterface> {
   externalServices = { s3 };
-  useS3Bucket = false;
+  useS3Bucket = OPTIONS.USE_S3;
 
   delete(data: string | Partial<UserInterface>) {
     if (this.useS3Bucket) {

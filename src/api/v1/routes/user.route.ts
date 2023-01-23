@@ -12,12 +12,20 @@ class UserRoute extends Route<UserInterface> {
     this.router
       .route('/me')
       .get(this.controller.getOne)
-      .put(this.validator(this.dto.update), this.controller.update)
+      .put(
+        this.imageProcessor.uploadOne('avatar'),
+        this.validator(this.dto.update.concat(this.dto.id)),
+        this.controller.update,
+      )
       .delete(this.controller.delete);
     this.router
       .route('/:userId')
       .get(this.validator(this.dto.id), this.controller.getOne)
-      .put(this.validator(this.dto.update.concat(this.dto.id)), this.controller.update)
+      .put(
+        this.imageProcessor.uploadOne('avatar'),
+        this.validator(this.dto.update.concat(this.dto.id)),
+        this.controller.update,
+      )
       .delete(this.validator(this.dto.id), this.controller.delete);
 
     return this.router;

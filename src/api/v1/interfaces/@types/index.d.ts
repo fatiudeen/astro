@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import { UserInterface } from '@interfaces/User.Interface';
+import { Server } from 'socket.io';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: UserInterface & { _id: string };
+      user?: UserInterface & { _id: string | Types.ObjectId };
       file?: Express.Multer.File & Express.MulterS3.File;
       files?:
         | {
@@ -14,6 +15,7 @@ declare global {
         | Multer.File[]
         | Express.MulterS3.File[]
         | undefined;
+      io: Server;
     }
   }
 }

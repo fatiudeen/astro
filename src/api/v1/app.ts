@@ -1,4 +1,6 @@
-import express, { Application } from 'express';
+import express, { Application, Request } from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import cors from 'cors';
 import morgan from 'morgan';
 import authRoute from '@routes/auth.route';
@@ -7,9 +9,12 @@ import { logger } from '@utils/logger';
 import { errorHandler } from '@middlewares/errorHandler';
 import docs from '@middlewares/docs';
 import userRoute from '@routes/user.route';
+import { OPTIONS } from '@config';
 
 class App {
   private app: Application;
+  useSocket = OPTIONS.USE_SOCKETS;
+  io?: Server;
   constructor() {
     this.app = express();
     this.initMiddlewares();
@@ -48,9 +53,28 @@ class App {
     });
   }
 
+  private initSocket() {
+    // const app = express();
+    const httpServer = createServer(this.app);
+    const io = new Server(httpServer, {
+      /* options */
+    });
+    this.app.use((req: Request) => {
+      req.io = io;
+    });
+    this.io = io;
+
+    return httpServer;
+  }
+
   public listen(port: number, connectionString: string) {
+    let server;
+    if (this.useSocket) {
+      server = this.initSocket();
+    } else server = this.app;
+
     db(connectionString);
-    this.app.listen(port, () => {
+    server.listen(port, () => {
       logger.info(`running on port ${port}`);
     });
   }

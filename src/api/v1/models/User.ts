@@ -3,7 +3,7 @@ import { model, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { UserInterface } from '@interfaces/User.Interface';
 import jwt from 'jsonwebtoken';
-import { JWT_KEY } from '@config';
+import { JWT_KEY, JWT_TIMEOUT } from '@config';
 
 const userSchema = new Schema<UserInterface>(
   {
@@ -25,7 +25,6 @@ const userSchema = new Schema<UserInterface>(
       enum: ['user', 'admin'],
       default: 'user',
     },
-    session: { type: Boolean, default: false },
     verifiedEmail: Boolean,
     verificationToken: String,
     avatar: String,
@@ -50,7 +49,7 @@ userSchema.methods.comparePasswords = async function (password: string) {
 
 userSchema.methods.getSignedToken = function () {
   // eslint-disable-next-line no-underscore-dangle
-  return jwt.sign({ id: this._id }, <string>JWT_KEY, {});
+  return jwt.sign({ id: this._id }, JWT_KEY, { expiresIn: JWT_TIMEOUT });
 };
 
 export default <Model<UserInterface>>model('user', userSchema);

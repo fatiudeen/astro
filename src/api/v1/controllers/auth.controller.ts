@@ -3,6 +3,7 @@ import HttpResponse from '@helpers/HttpResponse';
 import authService from '@services/auth.service';
 import { UserInterface } from '@interfaces/User.Interface';
 import Controller from '@controllers/controller';
+import { MESSAGES } from '@config';
 
 class AuthController extends Controller<UserInterface> {
   service = authService;
@@ -55,7 +56,8 @@ class AuthController extends Controller<UserInterface> {
   oAuthUrls = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = authService.oAuthUrls();
-      HttpResponse.send(res, { success: result });
+      HttpResponse.send(res, result);
+      0;
     } catch (error) {
       next(error);
     }
@@ -86,6 +88,17 @@ class AuthController extends Controller<UserInterface> {
       const { code } = req.query;
       const redirectUri = await authService.appleLogin(<string>code);
       res.redirect(redirectUri);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = req.headers['x-refresh-token'];
+      if (!token) throw new this.HttpError(MESSAGES.INVALID_REQUEST);
+      const result = await authService.refreshAccessToken(<string>token);
+      HttpResponse.send(res, result);
     } catch (error) {
       next(error);
     }

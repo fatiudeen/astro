@@ -12,15 +12,23 @@ import {
 } from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
 // eslint-disable-next-line object-curly-newline
-import { AWS_BUCKET_NAME, AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } from '@config';
+import {
+  AWS_BUCKET_NAME,
+  AWS_REGION,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  OPTIONS,
+} from '@config';
+import { NextFunction } from 'express';
 
 class S3 {
-  private bucket = <string>AWS_BUCKET_NAME;
-  private region = <string>AWS_REGION;
-  private accessKeyId = <string>AWS_ACCESS_KEY_ID;
-  private secretAccessKey = <string>AWS_SECRET_ACCESS_KEY;
-  s3;
-  storage;
+  private bucket = AWS_BUCKET_NAME;
+  private region = AWS_REGION;
+  private accessKeyId = AWS_ACCESS_KEY_ID;
+  private secretAccessKey = AWS_SECRET_ACCESS_KEY;
+  private s3;
+  private storage;
+  private useS3 = OPTIONS.USE_S3;
   constructor() {
     this.s3 = new S3Client({
       region: this.region,
@@ -93,6 +101,11 @@ class S3 {
   }
   // req.file
   uploadOne(fieldname: string) {
+    if (!this.useS3) {
+      return (req: Express.Request, res: Express.Response, next: NextFunction) => {
+        return next();
+      };
+    }
     return multer({
       storage: this.storage,
     }).single(fieldname);
@@ -100,6 +113,11 @@ class S3 {
 
   // req.files[0]
   uploadArray(fieldname: string) {
+    if (!this.useS3) {
+      return (req: Express.Request, res: Express.Response, next: NextFunction) => {
+        return next();
+      };
+    }
     return multer({
       storage: this.storage,
     }).array(fieldname);
@@ -107,6 +125,11 @@ class S3 {
 
   // req.files[name][0]
   uploadField(fieldname: { name: string; maxCount: number }[]) {
+    if (!this.useS3) {
+      return (req: Express.Request, res: Express.Response, next: NextFunction) => {
+        return next();
+      };
+    }
     return multer({
       storage: this.storage,
     }).fields(fieldname);

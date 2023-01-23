@@ -20,7 +20,7 @@ export const authorize =
     }
 
     try {
-      const decoded = <any>jwt.verify(token, <string>JWT_KEY);
+      const decoded = <any>jwt.verify(token, JWT_KEY);
 
       const user = await userService.findOne(<string>decoded.id);
 
@@ -28,7 +28,7 @@ export const authorize =
         return next(new HttpError(MESSAGES.UNAUTHORIZED, 401));
       }
 
-      if (user.session) {
+      if (userService.useSessions) {
         const session = await sessionService.findOne({ userId: user._id });
         if (!session) return next(new HttpError(MESSAGES.INVALID_SESSION, 401));
         if (session.token !== token) return next(new HttpError(MESSAGES.ACTIVE_SESSION, 401));

@@ -33,6 +33,7 @@ class AuthRoute extends Route<UserInterface> {
     this.router
       .route(`/${<string>GOOGLE_API_REDIRECT}`)
       .post(this.validator(this.dto.code), this.controller.googleLogin);
+    this.router.route('/refreshToken').get(this.controller.getRefreshToken);
 
     return this.router;
   }
