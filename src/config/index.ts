@@ -60,6 +60,8 @@ export const {
 } = <Record<string, string>>process.env;
 
 export const OPTIONS: Record<string, boolean> = {
+  USE_ADMIN_SEED: false,
+  USE_EMAILING: false,
   USE_SOCKETS: false,
   USE_AUTH_SESSIONS: false, // one user can log in at a time
   USE_REFRESH_TOKEN: false,
@@ -73,6 +75,12 @@ export function optionsValidation() {
   if (!PORT || !DB_URI || !JWT_KEY || !JWT_TIMEOUT) {
     throw new Error('missing env config options: PORT, DB_URI, JWT_TIMEOUT, JWT_KEY ');
   }
+  if (OPTIONS.USE_ADMIN_SEED) {
+    if (!SEEDER_EMAIL || !SEEDER_PASSWORD) {
+      throw Error('missing env config options: SEEDER_EMAIL, SEEDER_PASSWORD  ');
+    }
+  }
+
   if (OPTIONS.USE_REFRESH_TOKEN) {
     if (!REFRESH_JWT_KEY || !REFRESH_JWT_TIMEOUT) {
       throw Error('missing env config options: REFRESH_JWT_KEY, REFRESH_JWT_TIMEOUT  ');

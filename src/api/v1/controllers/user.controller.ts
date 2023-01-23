@@ -16,7 +16,7 @@ class AuthController extends Controller<UserInterface> {
       if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
       this.HttpResponse.send(res, result);
     } catch (error) {
-      logger.error(error);
+      logger.error([error]);
       next(error);
     }
   };
@@ -29,7 +29,7 @@ class AuthController extends Controller<UserInterface> {
       if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
       this.HttpResponse.send(res, result);
     } catch (error) {
-      logger.error(error);
+      logger.error([error]);
       next(error);
     }
   };
@@ -41,7 +41,7 @@ class AuthController extends Controller<UserInterface> {
       if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
       this.HttpResponse.send(res, result);
     } catch (error) {
-      logger.error(error);
+      logger.error([error]);
       next(error);
     }
   };

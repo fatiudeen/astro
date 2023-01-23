@@ -57,19 +57,6 @@ class AuthService extends Service<UserInterface> {
     scope: 'name%20email',
     // scope: ['name', 'email'], // optional
   };
-  appleClientSecret = appleSignin.getClientSecret({
-    clientID: APPLE_API_CLIENT_ID || 'com.company.app', // Apple Client ID
-    teamID: APPLE_TEAM_ID || 'teamID', // Apple Developer Team ID.
-    privateKey: APPLE_API_CLIENT_SECRET,
-    keyIdentifier: APPLE_KEY_IDENTIFIER,
-    // OPTIONAL
-    expAfter: 15777000,
-  });
-  appleGetTokenOptions = {
-    clientID: APPLE_API_CLIENT_ID || 'com.company.app',
-    redirectUri: `${API_HOST}${APPLE_API_REDIRECT}`,
-    clientSecret: this.appleClientSecret,
-  };
 
   async login(data: { email: string; password: string }) {
     try {
@@ -229,7 +216,6 @@ class AuthService extends Service<UserInterface> {
           },
         })
       ).data;
-      // console.log(data); // { access_token, token_type, expires_in }
       // eslint-disable-next-line no-unused-vars, object-curly-newline
       const { id, email, first_name, last_name } = (
         await axios<{ id: string; email: string; first_name: string; last_name: string }>({
@@ -251,7 +237,20 @@ class AuthService extends Service<UserInterface> {
 
   async appleLogin(code: string) {
     try {
-      const { id_token } = await appleSignin.getAuthorizationToken(code, this.appleGetTokenOptions);
+      const appleClientSecret = appleSignin.getClientSecret({
+        clientID: APPLE_API_CLIENT_ID || 'com.company.app', // Apple Client ID
+        teamID: APPLE_TEAM_ID || 'teamID', // Apple Developer Team ID.
+        privateKey: APPLE_API_CLIENT_SECRET,
+        keyIdentifier: APPLE_KEY_IDENTIFIER,
+        // OPTIONAL
+        expAfter: 15777000,
+      });
+      const appleGetTokenOptions = {
+        clientID: APPLE_API_CLIENT_ID || 'com.company.app',
+        redirectUri: `${API_HOST}${APPLE_API_REDIRECT}`,
+        clientSecret: appleClientSecret,
+      };
+      const { id_token } = await appleSignin.getAuthorizationToken(code, appleGetTokenOptions);
 
       // eslint-disable-next-line no-unused-vars
       const { email, name } = <AppleIdTokenType & { name: string }>(

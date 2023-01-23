@@ -39,11 +39,6 @@ class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(morgan('dev'));
     this.app.use(express.json());
-    // eslint-disable-next-line no-unused-vars
-    this.app.use((req, res, next) => {
-      req.headers.user ? (req.user = JSON.parse(<string>req.headers.user)) : undefined;
-      next();
-    });
   }
 
   private initErrorHandlers() {

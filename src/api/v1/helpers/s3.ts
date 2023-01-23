@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable no-undef */
 /* eslint-disable func-names */
 /* eslint-disable object-shorthand */
@@ -30,25 +31,29 @@ class S3 {
   private storage;
   private useS3 = OPTIONS.USE_S3;
   constructor() {
-    this.s3 = new S3Client({
-      region: this.region,
-      credentials: {
-        accessKeyId: this.accessKeyId,
-        secretAccessKey: this.secretAccessKey,
-      },
-    });
-    this.storage = multerS3({
-      s3: this.s3,
-      bucket: this.bucket,
-      contentType: multerS3.AUTO_CONTENT_TYPE,
-      acl: 'public-read',
-      metadata: function (req: Express.Request, file: Express.Multer.File, cb) {
-        cb(null, { fieldName: file.fieldname });
-      },
-      key: function (req, file, cb) {
-        cb(null, Date.now().toString());
-      },
-    });
+    if (this.useS3) {
+      this.s3 = new S3Client({
+        region: this.region,
+        credentials: {
+          accessKeyId: this.accessKeyId,
+          secretAccessKey: this.secretAccessKey,
+        },
+      });
+    }
+    this.storage = this.useS3
+      ? multerS3({
+          s3: this.s3!,
+          bucket: this.bucket,
+          contentType: multerS3.AUTO_CONTENT_TYPE,
+          acl: 'public-read',
+          metadata: function (req: Express.Request, file: Express.Multer.File, cb) {
+            cb(null, { fieldName: file.fieldname });
+          },
+          key: function (req, file, cb) {
+            cb(null, Date.now().toString());
+          },
+        })
+      : multer.memoryStorage();
   }
 
   // fileFilter (req, res, cb:) {
@@ -65,7 +70,7 @@ class S3 {
       Bucket: this.bucket,
     };
     const command = new GetObjectCommand(params);
-    return (await this.s3.send(command)).Body;
+    return (await this.s3!.send(command)).Body;
   }
 
   async addObject(key: string, body: Blob) {
@@ -75,7 +80,7 @@ class S3 {
       Body: body,
     };
     const command = new PutObjectCommand(params);
-    return (await this.s3.send(command)).VersionId;
+    return (await this.s3!.send(command)).VersionId;
   }
 
   async deleteObject(key: string | aws.S3.ObjectIdentifier[]) {
@@ -85,7 +90,7 @@ class S3 {
         Bucket: this.bucket,
       };
       const command = new DeleteObjectCommand(params);
-      return (await this.s3.send(command)).VersionId;
+      return (await this.s3!.send(command)).VersionId;
       // eslint-disable-next-line no-else-return
     } else {
       const params: aws.S3.Types.DeleteObjectsRequest = {
@@ -96,7 +101,7 @@ class S3 {
         },
       };
       const command = new DeleteObjectsCommand(params);
-      return (await this.s3.send(command)).Deleted;
+      return (await this.s3!.send(command)).Deleted;
     }
   }
   // req.file
