@@ -73,24 +73,30 @@ export const OPTIONS: Record<string, boolean> = {
 
 export function optionsValidation() {
   if (!PORT || !DB_URI || !JWT_KEY || !JWT_TIMEOUT) {
-    throw new Error('missing env config options: PORT, DB_URI, JWT_TIMEOUT, JWT_KEY ');
+    throw new Error('missing env config options: PORT, DB_URI, JWT_TIMEOUT, JWT_KEY');
   }
   if (OPTIONS.USE_ADMIN_SEED) {
     if (!SEEDER_EMAIL || !SEEDER_PASSWORD) {
-      throw Error('missing env config options: SEEDER_EMAIL, SEEDER_PASSWORD  ');
+      throw Error('missing env config options: SEEDER_EMAIL, SEEDER_PASSWORD');
+    }
+  }
+
+  if (OPTIONS.USE_EMAILING) {
+    if (!SENDGRID_API_KEY) {
+      throw Error('missing env config options: SENDGRID_API_KEY');
     }
   }
 
   if (OPTIONS.USE_REFRESH_TOKEN) {
     if (!REFRESH_JWT_KEY || !REFRESH_JWT_TIMEOUT) {
-      throw Error('missing env config options: REFRESH_JWT_KEY, REFRESH_JWT_TIMEOUT  ');
+      throw Error('missing env config options: REFRESH_JWT_KEY, REFRESH_JWT_TIMEOUT');
     }
   }
 
   if (OPTIONS.USE_S3) {
     if (!AWS_BUCKET_NAME || !AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
       throw new Error(
-        'missing env config options: AWS_BUCKET_NAME, AWS_REGION, AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY ',
+        'missing env config options: AWS_BUCKET_NAME, AWS_REGION, AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY',
       );
     }
   }
@@ -104,7 +110,7 @@ export function optionsValidation() {
       !FRONTEND_GOOGLE_LOGIN_URI
     ) {
       throw new Error(
-        'missing env config options: API_HOST, GOOGLE_API_CLIENT_ID, GOOGLE_API_CLIENT_SECRET, GOOGLE_API_REDIRECT, FRONTEND_GOOGLE_LOGIN_URI ',
+        'missing env config options: API_HOST, GOOGLE_API_CLIENT_ID, GOOGLE_API_CLIENT_SECRET, GOOGLE_API_REDIRECT, FRONTEND_GOOGLE_LOGIN_URI',
       );
     }
   }
@@ -118,7 +124,7 @@ export function optionsValidation() {
       !FRONTEND_FACEBOOK_LOGIN_URI
     ) {
       throw new Error(
-        'missing env config options: API_HOST, FACEBOOK_API_CLIENT_ID, FACEBOOK_API_CLIENT_SECRET, FACEBOOK_API_REDIRECT, FRONTEND_FACEBOOK_LOGIN_URI ',
+        'missing env config options: API_HOST, FACEBOOK_API_CLIENT_ID, FACEBOOK_API_CLIENT_SECRET, FACEBOOK_API_REDIRECT, FRONTEND_FACEBOOK_LOGIN_URI',
       );
     }
   }
