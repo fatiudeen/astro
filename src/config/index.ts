@@ -1,7 +1,8 @@
 import { config } from 'dotenv';
+import path from 'path';
 
-if (process.env.CLUSTER === 'local') {
-  config({ path: `.env.${process.env.CLUSTER}` });
+if (process.env.NODE_ENV === 'development') {
+  config({ path: `${process.env.NODE_ENV}.env` });
 } else config();
 
 export const MESSAGES = {
@@ -26,7 +27,9 @@ export const MESSAGES = {
   INVALID_SESSION: 'user does not have an active session',
   ACTIVE_SESSION: 'user session is active on another device. login again to reclaim session',
   DOC_NOT_FOUND: 'documentation url not found',
+  PAYSTACK_NOT_INITIALIZED: 'paystack not initialized',
 };
+
 export const {
   PORT,
   DB_URI,
@@ -57,7 +60,15 @@ export const {
   AWS_REGION,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
+  PAYSTACK_SECRET,
+  MULTER_STORAGE_PATH,
+  NODE_ENV,
 } = <Record<string, string>>process.env;
+
+export const CONSTANTS = {
+  DIGITALOCEAN_SPACE_ENDPOINT: '',
+  ROOT_PATH: path.join(__dirname, '..', '..', MULTER_STORAGE_PATH || ''),
+};
 
 export const OPTIONS: Record<string, boolean> = {
   USE_ADMIN_SEED: false,
@@ -65,10 +76,14 @@ export const OPTIONS: Record<string, boolean> = {
   USE_SOCKETS: false,
   USE_AUTH_SESSIONS: false, // one user can log in at a time
   USE_REFRESH_TOKEN: false,
+  USE_MULTER: false, // using multer without s3 or disk storage set default storage to memoryStorage
   USE_S3: false,
+  USE_DIGITALOCEAN_SPACE: false, // s3 must be true to use this
+  USE_MULTER_DISK_STORAGE: false, // s3 and USE_DIGITALOCEAN_SPACE  must be false to use this
   USE_OAUTH_GOOGLE: false,
   USE_OAUTH_FACEBOOK: false,
   USE_OAUTH_APPLE: false,
+  USE_PAYSTACK: false,
 };
 
 export function optionsValidation() {
@@ -87,6 +102,34 @@ export function optionsValidation() {
     }
   }
 
+  if (OPTIONS.USE_PAYSTACK) {
+    if (!PAYSTACK_SECRET) {
+      throw Error('missing env config options: PAYSTACK_SECRET');
+    }
+  }
+
+  if (OPTIONS.USE_MULTER_DISK_STORAGE) {
+    if (!OPTIONS.USE_MULTER) {
+      throw new Error('USE_MULTER option must be set to true to use USE_MULTER_DISK_STORAGE');
+    }
+
+    if (OPTIONS.USE_DIGITALOCEAN_SPACE || OPTIONS.USE_S3) {
+      throw new Error(
+        'USE_S3 and USE_DIGITALOCEAN_SPACE option must be set to false to use USE_MULTER_DISK_STORAGE',
+      );
+    }
+
+    if (!MULTER_STORAGE_PATH) {
+      throw new Error('missing env config options: MULTER_STORAGE_PATH');
+    }
+  }
+
+  if (OPTIONS.USE_DIGITALOCEAN_SPACE) {
+    if (!OPTIONS.USE_S3) {
+      throw new Error('USE_S3 option must be set to true to use USE_DIGITALOCEAN_SPACE');
+    }
+  }
+
   if (OPTIONS.USE_REFRESH_TOKEN) {
     if (!REFRESH_JWT_KEY || !REFRESH_JWT_TIMEOUT) {
       throw Error('missing env config options: REFRESH_JWT_KEY, REFRESH_JWT_TIMEOUT');
@@ -94,6 +137,9 @@ export function optionsValidation() {
   }
 
   if (OPTIONS.USE_S3) {
+    if (!OPTIONS.USE_MULTER) {
+      throw new Error('USE_MULTER option must be set to true to use USE_S3');
+    }
     if (!AWS_BUCKET_NAME || !AWS_REGION || !AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
       throw new Error(
         'missing env config options: AWS_BUCKET_NAME, AWS_REGION, AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY',

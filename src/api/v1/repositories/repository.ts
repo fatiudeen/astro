@@ -18,12 +18,14 @@ export default abstract class Repository<T> {
   }
 
   update(query: string | Partial<T>, data: Partial<T>) {
-    if (typeof query === 'object') return this.model.findOneAndUpdate(query, data);
+    if (typeof query === 'object') return this.model.findOneAndUpdate(query, data, { new: true });
     return this.model.findByIdAndUpdate(query, data, { new: true });
   }
 
   upsert(query: string | Partial<T>, data: Partial<T>) {
-    if (typeof query === 'object') return this.model.findOneAndUpdate(query, data);
+    if (typeof query === 'object') {
+      return this.model.findOneAndUpdate(query, data, { new: true, upsert: true });
+    }
     return this.model.findByIdAndUpdate(query, data, { new: true, upsert: true });
   }
 
@@ -36,15 +38,15 @@ export default abstract class Repository<T> {
   }
 
   delete(data: string | Partial<T>) {
-    if (typeof data === 'object') return this.model.findOneAndDelete(data);
+    if (typeof data === 'object') return this.model.findOneAndDelete(data, { new: true });
     return this.model.findByIdAndDelete(data, { new: true });
   }
 
-  load(id: string, data: Partial<T> | Partial<T>[]) {
-    if (Array.isArray(data)) {
-      return this.model.findByIdAndUpdate(id, { $push: { $each: data } }, { new: true });
+  load(id: string, key: string, value: any | any[]) {
+    if (Array.isArray(value)) {
+      return this.model.findByIdAndUpdate(id, { $push: { key: { $each: value } } }, { new: true });
     }
-    return this.model.findByIdAndUpdate(id, { $push: data }, { new: true });
+    return this.model.findByIdAndUpdate(id, { $push: { key: value } }, { new: true });
   }
 
   unload(id: string, data: Record<string, Record<'_id', string | Record<'$in', string[]>>>) {
@@ -53,5 +55,15 @@ export default abstract class Repository<T> {
 
   increment(id: string | Types.ObjectId, data: Record<keyof T, number>) {
     return this.model.findByIdAndUpdate(id, { $inc: data }, { new: true });
+  }
+
+  /**
+   * handles complex update queries
+   */
+  complex(query: object, data: object, options: object = { new: true }) {
+    return this.model.findOneAndUpdate(query, data, options);
+  }
+  count(data: Partial<T> = {}) {
+    return this.model.countDocuments(data);
   }
 }

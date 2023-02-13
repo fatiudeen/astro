@@ -12,4 +12,10 @@ module.exports = {
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
   setupFilesAfterEnv: ['./src/api/v1/__test__/mocks/mockRepository.ts'],
+  globals: {
+    'ts-jest': {
+      // relative path to the ts-jest-keys-transformer.js file
+      astTransformers: { before: ['ts-jest-keys-transformer.js'] },
+    },
+  },
 };

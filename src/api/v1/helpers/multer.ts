@@ -22,7 +22,6 @@ import {
   AWS_SECRET_ACCESS_KEY,
   OPTIONS,
   CONSTANTS,
-  MULTER_STORAGE_PATH,
 } from '@config';
 import { NextFunction } from 'express';
 import { logger } from '@utils/logger';
@@ -52,7 +51,7 @@ class Multer {
     if (this.useS3) {
       this.storageType = 's3';
       if (this.useDigitalOceanSpaces) {
-        this.s3config.endpoint = CONSTANTS.DIGITALOCEAN_SPACE_ENDPOINT;
+        this.s3config.endpoint = <any>new aws.Endpoint(CONSTANTS.DIGITALOCEAN_SPACE_ENDPOINT);
         this.message = 'FILE_STORAGE: using digital ocean space';
       } else {
         this.s3config.region = this.region;
@@ -62,7 +61,7 @@ class Multer {
     }
     if (this.useDiskStorage) {
       this.storageType = 'disk';
-      this.message = `FILE_STORAGE: using disk storage location: ${MULTER_STORAGE_PATH}`;
+      this.message = `FILE_STORAGE: using disk storage location: ${CONSTANTS.ROOT_PATH}`;
     }
     this.storage = this.useS3
       ? multerS3({
@@ -80,10 +79,10 @@ class Multer {
       : this.useDiskStorage
       ? multer.diskStorage({
           destination: function (req, file, cb) {
-            if (!fs.existsSync(MULTER_STORAGE_PATH)) {
-              fs.mkdirSync(MULTER_STORAGE_PATH);
+            if (!fs.existsSync(CONSTANTS.ROOT_PATH)) {
+              fs.mkdirSync(CONSTANTS.ROOT_PATH);
             }
-            cb(null, MULTER_STORAGE_PATH);
+            cb(null, CONSTANTS.ROOT_PATH);
           },
           filename: function (req, file, cb) {
             // const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
@@ -119,9 +118,9 @@ class Multer {
   async deleteObject(key: string | aws.S3.ObjectIdentifier[]) {
     if (this.useDiskStorage) {
       if (typeof key === 'string') {
-        return fsAsync.unlink(`${MULTER_STORAGE_PATH}/${key}`);
+        return fsAsync.unlink(`${CONSTANTS.ROOT_PATH}/${key}`);
       }
-      return Promise.all(key.map((k) => fsAsync.unlink(`${MULTER_STORAGE_PATH}/${k}`)));
+      return Promise.all(key.map((k) => fsAsync.unlink(`${CONSTANTS.ROOT_PATH}/${k}`)));
     }
     if (this.useS3) {
       if (typeof key === 'string') {

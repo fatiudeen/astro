@@ -13,7 +13,7 @@ class UserRoute extends Route<UserInterface> {
       .route('/me')
       .get(this.controller.getOne)
       .put(
-        this.imageProcessor.uploadOne('avatar'),
+        this.fileProcessor.uploadOne('avatar'),
         this.validator(this.dto.update.concat(this.dto.id)),
         this.controller.update,
       )
@@ -22,7 +22,7 @@ class UserRoute extends Route<UserInterface> {
       .route('/:userId')
       .get(this.validator(this.dto.id), this.controller.getOne)
       .put(
-        this.imageProcessor.uploadOne('avatar'),
+        this.fileProcessor.uploadOne('avatar'),
         this.validator(this.dto.update.concat(this.dto.id)),
         this.controller.update,
       )
@@ -31,5 +31,4 @@ class UserRoute extends Route<UserInterface> {
     return this.router;
   }
 }
-
-export default new UserRoute();
+export default new UserRoute(true);

@@ -52,4 +52,14 @@ userSchema.methods.getSignedToken = function () {
   return jwt.sign({ id: this._id }, JWT_KEY, { expiresIn: JWT_TIMEOUT });
 };
 
+// userSchema.methods.toJSON = function() {
+//   const user = this;
+//   return omit(user.toObject(), ['password']);
+// };
+
+// userSchema.methods.transform = function() {
+//   const user = this;
+//   return pick(user.toJSON(), ['id', 'email', 'name', 'age', 'role']);
+// };
+
 export default <Model<UserInterface>>model('user', userSchema);

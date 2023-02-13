@@ -5,6 +5,9 @@ import seeder from '@helpers/seeder';
 
 export default async (connectionString: string) => {
   try {
+    mongoose.set('strictQuery', true);
+    mongoose.connection.syncIndexes();
+
     await mongoose.connect(connectionString);
     logger.info(MESSAGES.DB_CONNECTED);
     if (OPTIONS.USE_ADMIN_SEED) {

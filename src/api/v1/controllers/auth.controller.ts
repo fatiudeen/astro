@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import HttpResponse from '@helpers/HttpResponse';
+/* eslint-disable no-unused-vars */
+import { Request } from 'express';
 import authService from '@services/auth.service';
 import { UserInterface } from '@interfaces/User.Interface';
 import Controller from '@controllers/controller';
@@ -8,101 +8,55 @@ import { MESSAGES } from '@config';
 class AuthController extends Controller<UserInterface> {
   service = authService;
 
-  login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this.service.login(req.body);
-      HttpResponse.send(res, result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  login = this.control(async (req: Request) => {
+    return this.service.login(req.body);
+  });
+  registration = this.control((req: Request) => {
+    return this.service.createUser(req.body);
+  });
+  verifyEmail = this.control(async (req: Request) => {
+    const result = await authService.verifyEmail(req.params.token);
+    return { message: 'user verified', user: result };
+  });
 
-  registration = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this.service.createUser(req.body);
-      HttpResponse.send(res, result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  forgotPassword = this.control(async (req: Request) => {
+    const result = await authService.getResetToken(req.body.email);
+    return { message: 'email sent', data: result };
+  });
 
-  verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await authService.verifyEmail(req.params.token);
-      HttpResponse.send(res, { message: 'user verified', user: result });
-    } catch (error) {
-      next(error);
-    }
-  };
+  resetPassword = this.control(async (req: Request) => {
+    const result = await authService.resetPassword(req.params.token, req.body.password);
+    return { success: result };
+  });
 
-  forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await authService.getResetToken(req.body.email);
-      HttpResponse.send(res, { message: 'email sent', data: result });
-    } catch (error) {
-      next(error);
-    }
-  };
+  oAuthUrls = this.control(async (req: Request) => {
+    const result = await authService.oAuthUrls();
+    return result;
+  });
 
-  resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await authService.resetPassword(req.params.token, req.body.password);
-      HttpResponse.send(res, { success: result });
-    } catch (error) {
-      next(error);
-    }
-  };
+  googleLogin = this.control(async (req: Request) => {
+    const { code } = req.query;
+    const redirectUri = await authService.googleLogin(<string>code);
+    return { redirectUri, redirect: true };
+  });
 
-  oAuthUrls = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = authService.oAuthUrls();
-      HttpResponse.send(res, result);
-      0;
-    } catch (error) {
-      next(error);
-    }
-  };
+  facebookLogin = this.control(async (req: Request) => {
+    const { code } = req.query;
+    const redirectUri = await authService.facebookLogin(<string>code);
+    return { redirectUri, redirect: true };
+  });
 
-  googleLogin = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { code } = req.query;
-      const redirectUri = await authService.googleLogin(<string>code);
-      res.redirect(redirectUri);
-    } catch (error) {
-      next(error);
-    }
-  };
+  appleLogin = this.control(async (req: Request) => {
+    const { code } = req.query;
+    const redirectUri = await authService.appleLogin(<string>code);
+    return { redirectUri, redirect: true };
+  });
 
-  facebookLogin = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { code } = req.query;
-      const redirectUri = await authService.facebookLogin(<string>code);
-      res.redirect(redirectUri);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  appleLogin = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { code } = req.query;
-      const redirectUri = await authService.appleLogin(<string>code);
-      res.redirect(redirectUri);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  getRefreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const token = req.headers['x-refresh-token'];
-      if (!token) throw new this.HttpError(MESSAGES.INVALID_REQUEST);
-      const result = await authService.refreshAccessToken(<string>token);
-      HttpResponse.send(res, result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  getRefreshToken = this.control((req: Request) => {
+    const token = req.headers['x-refresh-token'];
+    if (!token) throw new this.HttpError(MESSAGES.INVALID_REQUEST);
+    return authService.refreshAccessToken(<string>token);
+  });
 }
 
 export default new AuthController('user');

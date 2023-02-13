@@ -30,7 +30,7 @@ import { google } from 'googleapis';
 import queryString from 'qs';
 import axios from 'axios';
 import appleSignin, { AppleIdTokenType } from 'apple-signin-auth';
-import Emailing from '@helpers/Emailing';
+import Emailing from '@helpers/sendGrid';
 import jwt from 'jsonwebtoken';
 
 class AuthService extends Service<UserInterface> {
