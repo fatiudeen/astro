@@ -84,6 +84,7 @@ export const OPTIONS: Record<string, boolean> = {
   USE_OAUTH_FACEBOOK: false,
   USE_OAUTH_APPLE: false,
   USE_PAYSTACK: false,
+  USE_DAILY_VISIT_COUNTER: false,
 };
 
 export function optionsValidation() {

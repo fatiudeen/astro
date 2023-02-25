@@ -15,19 +15,25 @@ import db from '@helpers/db';
 import { logger } from '@utils/logger';
 import { errorHandler } from '@middlewares/errorHandler';
 import docs from '@middlewares/docs';
-import userRoute from '@routes/user.route';
-import { CONSTANTS, MULTER_STORAGE_PATH, NODE_ENV, OPTIONS } from '@config';
+import users from '@routes/user.route';
+import { CONSTANTS, DB_URI, JWT_KEY, MULTER_STORAGE_PATH, NODE_ENV, OPTIONS } from '@config';
 import { rateLimiter } from '@middlewares/rateLimiter';
 import Route from '@routes/route';
+import session from 'express-session';
+import visitCount from '@middlewares/visitCount';
+
+// eslint-disable-next-line import/no-extraneous-dependencies, import/no-unresolved
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 class App {
   private app: Application;
   useSocket = OPTIONS.USE_SOCKETS;
+  useVisitCounter = OPTIONS.USE_DAILY_VISIT_COUNTER;
   io?: Server;
   private apiVersion = '/api/v1';
   private routes: Record<string, Route<any>> = {
     '': authRoute,
-    users: userRoute,
+    users,
   };
   constructor() {
     this.app = express();
@@ -69,6 +75,9 @@ class App {
     if (NODE_ENV !== 'development') {
       this.app.use(`${this.apiVersion}`, rateLimiter);
     }
+    if (NODE_ENV !== 'test') {
+      this.visitCount(DB_URI);
+    }
   }
 
   private initErrorHandlers() {
@@ -90,6 +99,28 @@ class App {
     this.io = io;
 
     return httpServer;
+  }
+
+  private visitCount(connectionString: string) {
+    const Session: session.SessionOptions = {
+      secret: JWT_KEY,
+      resave: false,
+      store: new MongoDBStore({
+        uri: connectionString,
+        collection: 'cookie_sessions',
+      }),
+      rolling: true,
+      saveUninitialized: true,
+      cookie: {
+        // path: '/',
+        httpOnly: false,
+        sameSite: 'none',
+        secure: false,
+        maxAge: 1000 * 60 * 5, // one minuit
+      },
+    };
+    this.app.use(session(Session));
+    this.app.use(visitCount());
   }
 
   public listen(port: number, connectionString: string) {

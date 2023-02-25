@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import HttpError from '@helpers/HttpError';
-import { MESSAGES, JWT_KEY } from '@config';
+import { MESSAGES, JWT_KEY, OPTIONS } from '@config';
 import userService from '@services/auth.service';
 import sessionService from '@services/session.service';
 
@@ -38,6 +38,11 @@ export const authorize =
         return next(new HttpError(MESSAGES.UNAUTHORIZED, 401));
       }
       req.user = user;
+
+      if (OPTIONS.USE_DAILY_VISIT_COUNTER && !(<any>req.session).userId) {
+        (<any>req.session).userId = user._id;
+        req.session.save();
+      }
 
       return next();
     } catch (error) {

@@ -13,7 +13,7 @@ class UserService extends Service<UserInterface> {
     if (this.useS3Bucket) {
       this.findOne(data)
         .then((user) => {
-          return this.externalServices.s3.deleteObject(<string>user?.avatar?.split('/')[-1]);
+          return this.externalServices.s3.deleteObject(<string>user?.avatar?.split('/').pop());
         })
         .then((doc) => {
           logger.info(['deleted', doc]);

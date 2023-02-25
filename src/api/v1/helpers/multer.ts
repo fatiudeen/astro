@@ -105,14 +105,19 @@ class Multer {
     return (await this.s3!.send(command)).Body;
   }
 
-  async addObject(key: string, body: Blob) {
+  async addObject(body: string, contentType: string) {
+    const key = Date.now().toString();
     const params = {
       Key: key,
       Bucket: this.bucket,
-      Body: body,
+      Body: Buffer.from(body, 'base64'),
+      ACL: 'public-read',
+      ContentEncoding: 'base64',
+      ContentType: contentType,
     };
     const command = new PutObjectCommand(params);
-    return (await this.s3!.send(command)).VersionId;
+    await this.s3!.send(command);
+    return `url${key}`;
   }
 
   async deleteObject(key: string | aws.S3.ObjectIdentifier[]) {
