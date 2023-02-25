@@ -54,16 +54,32 @@ export default abstract class Controller<T> {
     }
   };
   protected paginate = async (req: Request, service: Service<T>) => {
-    const query = safeQuery(req);
-    const page: number = 'page' in query ? parseInt(query.page, 10) : 1;
-    const limit: number = 'limit' in query ? parseInt(query.limit, 10) : 10;
+    let query = safeQuery(req);
+    let page: number = 1;
+    let limit: number = 10;
+    if ('page' in query) {
+      const { page: _, ..._query } = query;
+      page = parseInt(_, 10);
+      query = _query;
+    }
+    if ('limit' in query) {
+      const { limit: _, ..._query } = query;
+      limit = parseInt(_, 10);
+      query = _query;
+    }
+    query = Object.entries(query).length > 1 ? query : {};
     const startIndex = limit * (page - 1);
     const totalDocs = await service.count();
     const totalPages = Math.floor(totalDocs / limit) + 1;
     // eslint-disable-next-line newline-per-chained-call
-    const docs = await service.find().sort({ createdAt: -1 }).skip(startIndex).limit(limit).lean();
+    const data = await service
+      .find(<T>query)
+      .sort({ createdAt: -1 })
+      .skip(startIndex)
+      .limit(limit)
+      .lean();
     return {
-      [`${this.resource}s`]: docs,
+      data,
       limit,
       totalDocs,
       page,

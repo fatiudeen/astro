@@ -12,7 +12,7 @@ class ServiceAdapter {
     });
   }
 
-  public async baseService(method: Method, url: string, _data?: object, _options?: object) {
+  public baseService = async (method: Method, url: string, _data?: object, _options?: object) => {
     try {
       const { data } = await this.serviceAdapter[method](url, _data, _options);
       let result;
@@ -25,9 +25,9 @@ class ServiceAdapter {
       const e = this.errorHandler(error);
       throw e;
     }
-  }
+  };
 
-  private errorHandler(error: AxiosError | any) {
+  private errorHandler = (error: AxiosError | any) => {
     let err!: string;
     if (error instanceof AxiosError) {
       if (error.message) {
@@ -46,6 +46,6 @@ class ServiceAdapter {
     } else err = error;
     logger.error(['axios error::::', err]);
     return err;
-  }
+  };
 }
 export default ServiceAdapter;

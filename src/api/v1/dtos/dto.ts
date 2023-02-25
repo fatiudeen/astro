@@ -1,9 +1,9 @@
 import { param, body } from 'express-validator';
-import { keys } from 'ts-transformer-keys';
+// import { keys } from 'ts-transformer-keys';
 
-export default <T extends Record<string, any>>(resource: string) => {
+export default (k: [], resource: string) => {
   // TODO:
-  const k = keys<T>();
+  // k =keys<T>()
   const create = k.map((v) => body(<string>v).exists());
   return {
     create,
