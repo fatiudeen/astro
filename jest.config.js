@@ -1,4 +1,4 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+// /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 const pathsToModuleNameMapper = require('ts-jest').pathsToModuleNameMapper;
 const fs = require('fs');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -13,7 +13,13 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
+    '^.+\\.ts?$': [
+      'ts-jest',
+      {
+        // relative path to the ts-jest-keys-transformer.js file
+        astTransformers: { before: ['ts-jest-keys-transformer.js'] },
+      },
+    ],
   },
   verbose: true,
   clearMocks: true,
@@ -22,10 +28,10 @@ module.exports = {
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
   // setupFilesAfterEnv: ['./src/api/v1/__test__/mocks/mockRepository.ts'],
-  globals: {
-    'ts-jest': {
-      // relative path to the ts-jest-keys-transformer.js file
-      astTransformers: { before: ['ts-jest-keys-transformer.js'] },
-    },
-  },
+  // globals: {
+  //   'ts-jest': {
+  //     // relative path to the ts-jest-keys-transformer.js file
+  //     astTransformers: { before: ['ts-jest-keys-transformer.js'] },
+  //   },
+  // },
 };
