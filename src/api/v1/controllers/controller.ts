@@ -73,7 +73,7 @@ export default abstract class Controller<T> {
     const totalPages = Math.floor(totalDocs / limit) + 1;
     // eslint-disable-next-line newline-per-chained-call
     const data = await service
-      .find(<T>query)
+      .find(<T>(<unknown>query))
       .sort({ createdAt: -1 })
       .skip(startIndex)
       .limit(limit)

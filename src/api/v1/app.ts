@@ -54,7 +54,7 @@ class App {
     });
     this.app.use('/docs', docs);
     this.app.get('/', (req, res) => {
-      res.status(200).json({ msg: 'WELCOME TO API :)' });
+      res.status(200).json({ message: 'WELCOME' });
     });
   }
   private initMiddlewares() {

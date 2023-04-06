@@ -40,7 +40,7 @@
       "@dtos/*": ["src/api/v1/dtos/*"],
       "@interfaces/*": ["src/api/v1/interfaces/*"],
       "@repositories/*": ["src/api/v1/repositories/*"],
-      "@models/*": ["src/api/v1/models/*"],
+      "@models/*": ["src/api/v1/models/*"]
       },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
@@ -119,7 +119,7 @@
   },
   "tsc-alias": {
     "verbose": false,
-    "resolveFullPaths": true,
+    "resolveFullPaths": true
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]

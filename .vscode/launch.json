@@ -6,6 +6,26 @@
             "request": "launch",
             "preLaunchTask": "docker-run: debug",
             "platform": "node"
+        },
+        {
+            "type": "node",
+            "name": "vscode-jest-tests.v2",
+            "request": "launch",
+            "args": [
+                "test",
+                "--",
+                "--runInBand",
+                "--watchAll=false",
+                "--testNamePattern",
+                "${jest.testNamePattern}",
+                "--runTestsByPath",
+                "${jest.testFile}"
+            ],
+            "cwd": "/Users/deen/code/projects/send-am",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "runtimeExecutable": "npm"
         }
     ]
 }
