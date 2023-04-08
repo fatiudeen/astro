@@ -1,13 +1,14 @@
 /* eslint-disable import/no-unresolved */
-import authController from '@controllers/auth.controller';
+import AuthController from '@controllers/auth.controller';
 import authDto from '@dtos/auth.dto';
 import Route from '@routes/route';
 import { UserInterface } from '@interfaces/User.Interface';
 import { GOOGLE_API_REDIRECT, APPLE_API_REDIRECT, FACEBOOK_API_REDIRECT } from '@config';
 
 class AuthRoute extends Route<UserInterface> {
-  controller = authController;
+  controller = new AuthController('user');
   dto = authDto;
+
   initRoutes() {
     this.router.post('/signin', this.validator(this.dto.login), this.controller.login);
     this.router
@@ -39,4 +40,4 @@ class AuthRoute extends Route<UserInterface> {
   }
 }
 
-export default new AuthRoute();
+export default AuthRoute;

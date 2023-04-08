@@ -1,20 +1,16 @@
 import { Model, Types } from 'mongoose';
 
-// single model methods
 export default abstract class Repository<T> {
-  model: Model<T>;
-  constructor(model: Model<T>) {
-    this.model = model;
-  }
+  protected abstract model: Model<T>;
 
-  find(data?: Partial<T>) {
-    const doc = data || {};
+  find(query?: Partial<T>) {
+    const doc = query || {};
     return this.model.find(doc);
   }
 
-  findOne(data: string | Partial<T>) {
-    if (typeof data === 'object') return this.model.findOne(data);
-    return this.model.findById(data);
+  findOne(query: string | Partial<T>) {
+    if (typeof query === 'object') return this.model.findOne(query);
+    return this.model.findById(query);
   }
 
   update(query: string | Partial<T>, data: Partial<T>) {
@@ -33,13 +29,13 @@ export default abstract class Repository<T> {
     return this.model.updateMany(query, data);
   }
 
-  create(data: T) {
+  create(data: Partial<T>) {
     return this.model.create(data);
   }
 
-  delete(data: string | Partial<T>) {
-    if (typeof data === 'object') return this.model.findOneAndDelete(data, { new: true });
-    return this.model.findByIdAndDelete(data, { new: true });
+  delete(query: string | Partial<T>) {
+    if (typeof query === 'object') return this.model.findOneAndDelete(query, { new: true });
+    return this.model.findByIdAndDelete(query, { new: true });
   }
 
   load(id: string, key: string, value: any | any[]) {
@@ -63,7 +59,7 @@ export default abstract class Repository<T> {
   complex(query: object, data: object, options: object = { new: true }) {
     return this.model.findOneAndUpdate(query, data, options);
   }
-  count(data: Partial<T> = {}) {
-    return this.model.countDocuments(data);
+  count(query: Partial<T> = {}) {
+    return this.model.countDocuments(query);
   }
 }

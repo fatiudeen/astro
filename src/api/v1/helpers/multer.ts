@@ -1,44 +1,30 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable indent */
 /* eslint-disable no-undef */
 /* eslint-disable func-names */
 /* eslint-disable object-shorthand */
 import multer from 'multer';
-import aws from 'aws-sdk';
-import {
-  S3Client,
-  S3ClientConfig,
-  GetObjectCommand,
-  PutObjectCommand,
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-} from '@aws-sdk/client-s3';
+import * as clientS3 from '@aws-sdk/client-s3';
 import multerS3 from 'multer-s3';
-// eslint-disable-next-line object-curly-newline
-import {
-  AWS_BUCKET_NAME,
-  AWS_REGION,
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY,
-  OPTIONS,
-  CONSTANTS,
-} from '@config';
+import * as Config from '@config';
 import { NextFunction } from 'express';
 import { logger } from '@utils/logger';
 import fs, { promises as fsAsync } from 'fs';
+import { Endpoint } from 'aws-sdk';
 
 class Multer {
-  private bucket = AWS_BUCKET_NAME;
-  private region = AWS_REGION;
-  private accessKeyId = AWS_ACCESS_KEY_ID;
-  private secretAccessKey = AWS_SECRET_ACCESS_KEY;
+  private bucket = Config.AWS_BUCKET_NAME;
+  private region = Config.AWS_REGION;
+  private accessKeyId = Config.AWS_ACCESS_KEY_ID;
+  private secretAccessKey = Config.AWS_SECRET_ACCESS_KEY;
   private s3;
   private storage;
-  private useMulter = OPTIONS.USE_MULTER;
-  private useS3 = OPTIONS.USE_S3;
-  private useDigitalOceanSpaces = OPTIONS.USE_DIGITALOCEAN_SPACE;
-  private useDiskStorage = OPTIONS.USE_MULTER_DISK_STORAGE;
-  private s3config: S3ClientConfig = {
+  private useMulter = Config.OPTIONS.USE_MULTER;
+  private useS3 = Config.OPTIONS.USE_S3;
+  private useDigitalOceanSpaces = Config.OPTIONS.USE_DIGITALOCEAN_SPACE;
+  private useDiskStorage = Config.OPTIONS.USE_MULTER_DISK_STORAGE;
+  private s3config: clientS3.S3ClientConfig = {
     credentials: {
       accessKeyId: this.accessKeyId,
       secretAccessKey: this.secretAccessKey,
@@ -51,17 +37,17 @@ class Multer {
     if (this.useS3) {
       this.storageType = 's3';
       if (this.useDigitalOceanSpaces) {
-        this.s3config.endpoint = <any>new aws.Endpoint(CONSTANTS.DIGITALOCEAN_SPACE_ENDPOINT);
+        this.s3config.endpoint = <any>new Endpoint(Config.CONSTANTS.DIGITALOCEAN_SPACE_ENDPOINT);
         this.message = 'FILE_STORAGE: using digital ocean space';
       } else {
         this.s3config.region = this.region;
         this.message = 'FILE_STORAGE: using aws s3';
       }
-      this.s3 = new S3Client(this.s3config);
+      this.s3 = new clientS3.S3Client(this.s3config);
     }
     if (this.useDiskStorage) {
       this.storageType = 'disk';
-      this.message = `FILE_STORAGE: using disk storage location: ${CONSTANTS.ROOT_PATH}`;
+      this.message = `FILE_STORAGE: using disk storage location: ${Config.CONSTANTS.ROOT_PATH}`;
     }
     this.storage = this.useS3
       ? multerS3({
@@ -79,10 +65,10 @@ class Multer {
       : this.useDiskStorage
       ? multer.diskStorage({
           destination: function (req, file, cb) {
-            if (!fs.existsSync(CONSTANTS.ROOT_PATH)) {
-              fs.mkdirSync(CONSTANTS.ROOT_PATH);
+            if (!fs.existsSync(Config.CONSTANTS.ROOT_PATH)) {
+              fs.mkdirSync(Config.CONSTANTS.ROOT_PATH);
             }
-            cb(null, CONSTANTS.ROOT_PATH);
+            cb(null, Config.CONSTANTS.ROOT_PATH);
           },
           filename: function (req, file, cb) {
             // const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
@@ -93,7 +79,7 @@ class Multer {
       : multer.memoryStorage();
     if (this.message) {
       logger.info([this.message]);
-    } else logger.info('FILE_STORAGE: using memory storage');
+    } else if (this.useMulter) logger.info('FILE_STORAGE: using memory storage');
   }
 
   async getObject(key: string) {
@@ -101,7 +87,7 @@ class Multer {
       Key: key,
       Bucket: this.bucket,
     };
-    const command = new GetObjectCommand(params);
+    const command = new clientS3.GetObjectCommand(params);
     return (await this.s3!.send(command)).Body;
   }
 
@@ -115,17 +101,17 @@ class Multer {
       ContentEncoding: 'base64',
       ContentType: contentType,
     };
-    const command = new PutObjectCommand(params);
+    const command = new clientS3.PutObjectCommand(params);
     await this.s3!.send(command);
     return `url${key}`;
   }
 
-  async deleteObject(key: string | aws.S3.ObjectIdentifier[]) {
+  async deleteObject(key: string | clientS3.ObjectIdentifier[]) {
     if (this.useDiskStorage) {
       if (typeof key === 'string') {
-        return fsAsync.unlink(`${CONSTANTS.ROOT_PATH}/${key}`);
+        return fsAsync.unlink(`${Config.CONSTANTS.ROOT_PATH}/${key}`);
       }
-      return Promise.all(key.map((k) => fsAsync.unlink(`${CONSTANTS.ROOT_PATH}/${k}`)));
+      return Promise.all(key.map((k) => fsAsync.unlink(`${Config.CONSTANTS.ROOT_PATH}/${k}`)));
     }
     if (this.useS3) {
       if (typeof key === 'string') {
@@ -133,18 +119,18 @@ class Multer {
           Key: key,
           Bucket: this.bucket,
         };
-        const command = new DeleteObjectCommand(params);
+        const command = new clientS3.DeleteObjectCommand(params);
         return (await this.s3!.send(command)).VersionId;
         // eslint-disable-next-line no-else-return
       } else {
-        const params: aws.S3.Types.DeleteObjectsRequest = {
+        const params: clientS3.DeleteObjectsRequest = {
           Bucket: this.bucket,
           Delete: {
             Objects: key,
             Quiet: true,
           },
         };
-        const command = new DeleteObjectsCommand(params);
+        const command = new clientS3.DeleteObjectsCommand(params);
         return (await this.s3!.send(command)).Deleted;
       }
     }

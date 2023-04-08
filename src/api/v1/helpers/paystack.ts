@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import ServiceAdapter from '@helpers/axios';
-import { PAYSTACK_SECRET, OPTIONS, MESSAGES } from '@config';
+import { PAYSTACK_SECRET } from '@config';
 import { Request } from 'express';
 import {
   PaystackInitializeResponse,
@@ -18,9 +18,10 @@ import { logger } from '@utils/logger';
 import { v4 as uuid4 } from 'uuid';
 
 class Paystack {
+  // eslint-disable-next-line no-use-before-define
   static _instance: Paystack;
 
-  private usePaystack = OPTIONS.USE_PAYSTACK;
+  // private usePaystack = OPTIONS.USE_PAYSTACK;
   private paystackService;
   private plans = {
     monthly: 'code',
@@ -37,10 +38,10 @@ class Paystack {
     this.paystackService = new ServiceAdapter('https://api.paystack.co').baseService;
   }
   initialize(plan: Plan, user: Request['user'], metaData?: object) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     // eslint-disable-next-line object-curly-newline
     const data = { email: user?.email, amount: '500000', plan: this.plans[plan], metaData };
     return <Promise<PaystackInitializeResponse>>(
@@ -48,10 +49,10 @@ class Paystack {
     );
   }
   subscribe(plan: Plan, user: Request['user']) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     const data = {
       customer: (<any>user).subscription.paystackId, // "CUS_xxxxxxxxxx",
       plan: this.plans[plan], // "PLN_xxxxxxxxxx",
@@ -67,10 +68,10 @@ class Paystack {
   }
 
   disableSubscription(plan: Plan, user: Request['user']) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     const data = {
       code: (<any>user).subscription.subscriptionCode,
       token: (<any>user).subscription.emailToken,
@@ -78,20 +79,20 @@ class Paystack {
     return this.paystackService('post', '/subscription/disable', data, this.options);
   }
   getBanks() {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     return <Promise<BankInterface[]>>(
       this.paystackService('get', '/bank?currency=NGN', this.options)
     );
   }
 
   confirmAccount(accountNumber: string, bankCode: string) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     return <Promise<AccountDetails>>(
       this.paystackService(
         'get',
@@ -102,10 +103,10 @@ class Paystack {
   }
 
   createRecipient(data: Omit<CreateRecipient, 'currency' | 'type'>) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     (<CreateRecipient>data).currency = 'NGN';
     (<CreateRecipient>data).type = 'nuban';
     return <Promise<CreateRecipientResponse>>(
@@ -118,10 +119,10 @@ class Paystack {
   // Initiate a transfer
   // Listen for transfer status
   transfer(data: Omit<TransferData, 'source' | 'reference'>) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     (<TransferData>data).reference = uuid4();
     (<TransferData>data).source = 'balance';
     return <Promise<TransferResponse>>(
@@ -129,10 +130,10 @@ class Paystack {
     );
   }
   verifyTransaction(reference: string) {
-    if (!this.usePaystack) {
-      logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
-      return null;
-    }
+    // if (!this.usePaystack) {
+    //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
+    //   return null;
+    // }
     return <Promise<VerifyTransactionResponse>>(
       this.paystackService('get', `/transaction/verify/${reference}`, this.options)
     );
@@ -163,4 +164,4 @@ class Paystack {
   }
 }
 
-export default Paystack.instance();
+export default Paystack.instance;

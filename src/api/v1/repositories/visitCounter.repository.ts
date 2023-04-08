@@ -3,7 +3,7 @@ import Repository from '@repositories/repository';
 import { VisitCounterInterface } from '@interfaces/VisitCounter.Interface';
 
 class VisitCounterRepository extends Repository<VisitCounterInterface> {
-  //   private model = User;
+  protected model = VisitCounter;
 }
 
-export default new VisitCounterRepository(VisitCounter);
+export default VisitCounterRepository;

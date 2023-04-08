@@ -3,7 +3,7 @@ import Session from '@models/Session';
 import Repository from '@repositories/repository';
 
 class SessionRepository extends Repository<SessionInterface> {
-  //   private model = Session;
+  protected model = Session;
 }
 
-export default new SessionRepository(Session);
+export default SessionRepository;

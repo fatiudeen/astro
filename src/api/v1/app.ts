@@ -10,13 +10,13 @@ import xss from 'xss-clean';
 import mongoSanitize from 'express-mongo-sanitize';
 import compression from 'compression';
 import methodOverride from 'method-override';
-import authRoute from '@routes/auth.route';
+import AuthRoute from '@routes/auth.route';
 import db from '@helpers/db';
 import { logger } from '@utils/logger';
 import { errorHandler } from '@middlewares/errorHandler';
 import docs from '@middlewares/docs';
-import users from '@routes/user.route';
-import { CONSTANTS, DB_URI, JWT_KEY, MULTER_STORAGE_PATH, NODE_ENV, OPTIONS } from '@config';
+import UsersRoute from '@routes/user.route';
+import * as Config from '@config';
 import { rateLimiter } from '@middlewares/rateLimiter';
 import Route from '@routes/route';
 import session from 'express-session';
@@ -27,13 +27,13 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 
 class App {
   private app: Application;
-  useSocket = OPTIONS.USE_SOCKETS;
-  useVisitCounter = OPTIONS.USE_DAILY_VISIT_COUNTER;
+  useSocket = Config.OPTIONS.USE_SOCKETS;
+  useAnalytics = Config.OPTIONS.USE_ANALYTICS;
   io?: Server;
   private apiVersion = '/api/v1';
   private routes: Record<string, Route<any>> = {
-    '': authRoute,
-    users,
+    '': new AuthRoute(),
+    users: new UsersRoute(true),
   };
   constructor() {
     this.app = express();
@@ -43,10 +43,10 @@ class App {
   }
 
   private initRoutes() {
-    if (OPTIONS.USE_MULTER_DISK_STORAGE) {
+    if (Config.OPTIONS.USE_MULTER_DISK_STORAGE) {
       this.app.use(
-        `${this.apiVersion}/${MULTER_STORAGE_PATH}`,
-        express.static(CONSTANTS.ROOT_PATH),
+        `${this.apiVersion}/${Config.MULTER_STORAGE_PATH}`,
+        express.static(Config.CONSTANTS.ROOT_PATH),
       );
     }
     Object.entries(this.routes).forEach(([url, route]) => {
@@ -72,11 +72,11 @@ class App {
     this.app.use(mongoSanitize());
     this.app.use(compression());
     this.app.use(methodOverride());
-    if (NODE_ENV !== 'development') {
+    if (Config.NODE_ENV !== 'development') {
       this.app.use(`${this.apiVersion}`, rateLimiter);
     }
-    if (NODE_ENV !== 'test') {
-      this.visitCount(DB_URI);
+    if (Config.NODE_ENV !== 'test' && this.useAnalytics) {
+      this.visitCount(Config.DB_URI);
     }
   }
 
@@ -103,7 +103,7 @@ class App {
 
   private visitCount(connectionString: string) {
     const Session: session.SessionOptions = {
-      secret: JWT_KEY,
+      secret: Config.JWT_KEY,
       resave: false,
       store: new MongoDBStore({
         uri: connectionString,
@@ -140,4 +140,4 @@ class App {
   }
 }
 
-export default new App();
+export default App;

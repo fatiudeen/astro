@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import path from 'path';
 
 if (process.env.NODE_ENV === 'development') {
-  config({ path: `${process.env.NODE_ENV}.env` });
+  config({ path: '.env.dev' });
 } else config();
 
 export const MESSAGES = {
@@ -84,7 +84,7 @@ export const OPTIONS: Record<string, boolean> = {
   USE_OAUTH_FACEBOOK: false,
   USE_OAUTH_APPLE: false,
   USE_PAYSTACK: false,
-  USE_DAILY_VISIT_COUNTER: false,
+  USE_ANALYTICS: false,
 };
 
 export function optionsValidation() {

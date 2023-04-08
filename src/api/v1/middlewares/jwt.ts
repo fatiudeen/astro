@@ -3,8 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import HttpError from '@helpers/HttpError';
 import { MESSAGES, JWT_KEY, OPTIONS } from '@config';
-import userService from '@services/auth.service';
-import sessionService from '@services/session.service';
+import UserRepository from '@repositories/User.repository';
+import SessionRepository from '@repositories/Session.repository';
 
 // eslint-disable-next-line import/prefer-default-export
 export const authorize =
@@ -18,6 +18,7 @@ export const authorize =
     if (!token) {
       return next(new HttpError(MESSAGES.UNAUTHORIZED, 401));
     }
+    const userService = new UserRepository();
 
     try {
       const decoded = <any>jwt.verify(token, JWT_KEY);
@@ -28,7 +29,8 @@ export const authorize =
         return next(new HttpError(MESSAGES.UNAUTHORIZED, 401));
       }
 
-      if (userService.useSessions) {
+      if (OPTIONS.USE_AUTH_SESSIONS) {
+        const sessionService = new SessionRepository();
         const session = await sessionService.findOne({ userId: user._id });
         if (!session) return next(new HttpError(MESSAGES.INVALID_SESSION, 401));
         if (session.token !== token) return next(new HttpError(MESSAGES.ACTIVE_SESSION, 401));
@@ -39,7 +41,7 @@ export const authorize =
       }
       req.user = user;
 
-      if (OPTIONS.USE_DAILY_VISIT_COUNTER && !(<any>req.session).userId) {
+      if (OPTIONS.USE_ANALYTICS && !(<any>req.session).userId) {
         (<any>req.session).userId = user._id;
         req.session.save();
       }

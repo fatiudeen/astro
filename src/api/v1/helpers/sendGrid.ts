@@ -46,4 +46,4 @@ class Emailing {
   }
 }
 
-export default new Emailing();
+export default Emailing;

@@ -1,11 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 import { Request } from 'express';
-import userService from '@services/user.service';
+import UserService from '@services/user.service';
 import { UserInterface } from '@interfaces/User.Interface';
 import Controller from '@controllers/controller';
 
 class UserController extends Controller<UserInterface> {
-  service = userService;
+  service = new UserService();
 
   getOne = this.control(async (req: Request) => {
     const params = req.params[this.resourceId] || req.user?._id!;
@@ -30,4 +30,4 @@ class UserController extends Controller<UserInterface> {
   });
 }
 
-export default new UserController('user');
+export default UserController;

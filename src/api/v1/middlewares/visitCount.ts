@@ -1,13 +1,15 @@
 /* eslint-disable no-underscore-dangle */
+import VisitCounterRepository from '@repositories/visitCounter.repository';
 import dayjs from 'dayjs';
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuid4 } from 'uuid';
-import visitCounterService from '@services/visitCounter.service';
 
 export default () => async (req: Request, res: Response, next: NextFunction) => {
   if (!(<any>req.session).token || ((<any>req.session).userId && !(<any>req.session).registered)) {
     (<any>req.session).token = uuid4();
     req.session.save();
+
+    const visitCounterService = new VisitCounterRepository();
 
     const visit = await visitCounterService.findOne({ date: dayjs().format('YYYY-MM-DD') });
     if (visit) {

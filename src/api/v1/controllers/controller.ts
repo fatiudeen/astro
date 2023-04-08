@@ -7,18 +7,20 @@ import { logger } from '@utils/logger';
 import httpResponse from '@helpers/HttpResponse';
 import Service from '@services/service';
 import httpError from '@helpers/HttpError';
-import multer from '@helpers/multer';
+import Multer from '@helpers/multer';
 import safeQuery from '@utils/safeQuery';
 import httpStatus from 'http-status';
+import { OPTIONS } from '@config';
 
 export default abstract class Controller<T> {
   protected HttpError = httpError;
   protected HttpResponse = httpResponse;
   protected resource;
   protected resourceId;
-  abstract service: Service<T>;
-  protected readonly fileProcessor = multer;
+  abstract service: Service<T, any>;
+  readonly fileProcessor = OPTIONS.USE_MULTER ? Multer : null;
   protected processFile = (req: Request) => {
+    if (!this.fileProcessor) return;
     let multerFile!: 'path' | 'location' | 'buffer';
     if (this.fileProcessor.storageType === 'disk') {
       multerFile = 'path';
@@ -53,7 +55,7 @@ export default abstract class Controller<T> {
       });
     }
   };
-  protected paginate = async (req: Request, service: Service<T>) => {
+  protected paginate = async (req: Request, service: Service<T, any>) => {
     let query = safeQuery(req);
     let page: number = 1;
     let limit: number = 10;

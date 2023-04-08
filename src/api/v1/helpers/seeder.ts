@@ -1,10 +1,11 @@
 import { SEEDER_EMAIL, SEEDER_PASSWORD } from '@config';
 import { UserInterface } from '@interfaces/User.Interface';
-import authService from '@services/auth.service';
+import UserRepository from '@repositories/User.repository';
 
 export default async () => {
   const defaultEmail = <string>SEEDER_EMAIL;
   const defaultPassword = <string>SEEDER_PASSWORD;
+  const authService = new UserRepository();
 
   try {
     const admin = await authService

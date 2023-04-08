@@ -1,10 +1,10 @@
 import { VisitCounterInterface } from '@interfaces/VisitCounter.Interface';
-import visitCounterRepository from '@repositories/visitCounter.repository';
+import VisitCounterRepository from '@repositories/visitCounter.repository';
 import Service from '@services/service';
 // import { logger } from '@utils/logger';
 
-class VisitCounter extends Service<VisitCounterInterface> {
-  externalServices = null;
+class VisitCounter extends Service<VisitCounterInterface, VisitCounterRepository> {
+  protected repository = new VisitCounterRepository();
 }
 
-export default new VisitCounter(visitCounterRepository);
+export default VisitCounter;

@@ -1,11 +1,11 @@
 /* eslint-disable import/no-unresolved */
-import userController from '@controllers/user.controller';
+import UserController from '@controllers/user.controller';
 import userDto from '@dtos/user.dto';
 import Route from '@routes/route';
 import { UserInterface } from '@interfaces/User.Interface';
 
 class UserRoute extends Route<UserInterface> {
-  controller = userController;
+  controller = new UserController('user');
   dto = userDto;
   initRoutes() {
     this.router.get('/', this.controller.get);
@@ -31,4 +31,4 @@ class UserRoute extends Route<UserInterface> {
     return this.router;
   }
 }
-export default new UserRoute(true);
+export default UserRoute;
