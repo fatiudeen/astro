@@ -51,9 +51,13 @@ export const {
   APPLE_API_CLIENT_SECRET,
   APPLE_TEAM_ID,
   APPLE_KEY_IDENTIFIER,
-  SENDGRID_API_KEY,
-  DOMAIN_EMAIL,
+  SMTP_SERVICE,
+  SMTP_HOSTNAME,
+  SMTP_PORT,
+  SMTP_USERNAME,
+  SMTP_PASSWORD,
   SEEDER_EMAIL,
+  DOMAIN_EMAIL,
   SEEDER_PASSWORD,
   DOCS_URL,
   AWS_BUCKET_NAME,
@@ -63,29 +67,33 @@ export const {
   PAYSTACK_SECRET,
   MULTER_STORAGE_PATH,
   NODE_ENV,
+  REDIS_URI,
 } = <Record<string, string>>process.env;
 
 export const CONSTANTS = {
   DIGITALOCEAN_SPACE_ENDPOINT: '',
+  ROOT: path.join(__dirname, '..', '..'),
   ROOT_PATH: path.join(__dirname, '..', '..', MULTER_STORAGE_PATH || ''),
 };
 
-export const OPTIONS: Record<string, boolean> = {
-  USE_ADMIN_SEED: false,
-  USE_EMAILING: false,
-  USE_SOCKETS: false,
-  USE_AUTH_SESSIONS: false, // one user can log in at a time
-  USE_REFRESH_TOKEN: false,
-  USE_MULTER: false, // using multer without s3 or disk storage set default storage to memoryStorage
-  USE_S3: false,
-  USE_DIGITALOCEAN_SPACE: false, // s3 must be true to use this
-  USE_MULTER_DISK_STORAGE: false, // s3 and USE_DIGITALOCEAN_SPACE  must be false to use this
-  USE_OAUTH_GOOGLE: false,
-  USE_OAUTH_FACEBOOK: false,
-  USE_OAUTH_APPLE: false,
-  USE_PAYSTACK: false,
-  USE_ANALYTICS: false,
-};
+export const OPTIONS: {
+  USE_ADMIN_SEED: boolean;
+  USE_SMTP: boolean;
+  USE_SOCKETS: boolean;
+  USE_AUTH_SESSIONS: boolean; // one user can log in at a time
+  USE_REFRESH_TOKEN: boolean;
+  USE_MULTER: boolean; // using multer without s3 or disk storage set default storage to memoryStorage
+  USE_S3: boolean;
+  USE_DIGITALOCEAN_SPACE: boolean; // s3 must be true to use this
+  USE_MULTER_DISK_STORAGE: boolean; // s3 and USE_DIGITALOCEAN_SPACE  must be false to use this
+  USE_OAUTH_GOOGLE: boolean;
+  USE_OAUTH_FACEBOOK: boolean;
+  USE_OAUTH_APPLE: boolean;
+  USE_PAYSTACK: boolean;
+  USE_ANALYTICS: boolean;
+  USE_REDIS: boolean;
+  USE_DATABASE: 'mongodb' | 'postgresql' | 'sqlite';
+} = require(CONSTANTS.ROOT + '/appConfig.json');
 
 export function optionsValidation() {
   if (!PORT || !DB_URI || !JWT_KEY || !JWT_TIMEOUT) {
@@ -97,9 +105,17 @@ export function optionsValidation() {
     }
   }
 
-  if (OPTIONS.USE_EMAILING) {
-    if (!SENDGRID_API_KEY) {
-      throw Error('missing env config options: SENDGRID_API_KEY');
+  if (OPTIONS.USE_SMTP) {
+    if (!SMTP_SERVICE || !SMTP_HOSTNAME || !SMTP_PORT || !SMTP_USERNAME || !SMTP_PASSWORD || !DOMAIN_EMAIL) {
+      throw Error(
+        'missing env config options: SMTP_SERVICE, SMTP_HOSTNAME, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, DOMAIN_EMAIL',
+      );
+    }
+  }
+
+  if (OPTIONS.USE_REDIS) {
+    if (!REDIS_URI) {
+      throw Error('missing env config options: REDIS_URI');
     }
   }
 
@@ -115,9 +131,7 @@ export function optionsValidation() {
     }
 
     if (OPTIONS.USE_DIGITALOCEAN_SPACE || OPTIONS.USE_S3) {
-      throw new Error(
-        'USE_S3 and USE_DIGITALOCEAN_SPACE option must be set to false to use USE_MULTER_DISK_STORAGE',
-      );
+      throw new Error('USE_S3 and USE_DIGITALOCEAN_SPACE option must be set to false to use USE_MULTER_DISK_STORAGE');
     }
 
     if (!MULTER_STORAGE_PATH) {

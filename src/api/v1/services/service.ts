@@ -1,6 +1,5 @@
-/* eslint-disable new-cap */
 import Repository from '@repositories/repository';
-import observer from '@services/observer';
+import observer from '@helpers/observer';
 // single model methods
 export default abstract class Service<T, R extends Repository<T>> {
   protected abstract repository: R;
@@ -15,8 +14,18 @@ export default abstract class Service<T, R extends Repository<T>> {
     }
   }
 
-  find(query?: Partial<T>) {
-    return this.repository.find(query);
+  find(
+    query?:
+      | Partial<
+          T & {
+            page?: string | number | undefined;
+            limit?: string | number | undefined;
+          }
+        >
+      | undefined,
+    paginate?: boolean,
+  ) {
+    return this.repository.find(query, (paginate = false));
   }
   findOne(query: string | Partial<T>) {
     return this.repository.findOne(query);
@@ -25,8 +34,18 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.create(data);
   }
 
-  update(query: string | Partial<T>, data: Partial<T>) {
-    return this.repository.update(query, data);
+  update(
+    query: string | Partial<T>,
+    data:
+      | Partial<T> & {
+          load?: { key: string; value: any; toSet?: boolean | undefined } | undefined;
+          unload?: { key: string; value: string | string[]; field?: string | undefined } | undefined;
+          increment?: { key: keyof T; value: number } | undefined;
+        },
+    upsert = false,
+    many = false,
+  ) {
+    return this.repository.update(query, data, upsert, many);
   }
 
   delete(query: string | Partial<T>) {

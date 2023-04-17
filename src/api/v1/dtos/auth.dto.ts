@@ -1,7 +1,9 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
+import { UserResponseDTO } from './user.dto';
+import { UserInterface } from '@interfaces/User.Interface';
 
-export default {
+export const authRequestDTO = {
   login: [
     check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
@@ -31,3 +33,16 @@ export default {
     }),
   ],
 };
+
+export class AuthResponseDTO {
+  static login = (data: { token: string; user: DocType<UserInterface> }) => {
+    const result = {
+      user: UserResponseDTO.User(data.user),
+      token: data.token,
+    };
+    return result;
+  };
+
+  static signUp = UserResponseDTO.User;
+  static User = UserResponseDTO.User;
+}

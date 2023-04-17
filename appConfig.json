@@ -1,0 +1,17 @@
+{
+    "USE_ADMIN_SEED": false,
+    "USE_SMTP": false,
+    "USE_SOCKETS": false,
+    "USE_AUTH_SESSIONS": false, 
+    "USE_REFRESH_TOKEN": false,
+    "USE_MULTER": false, 
+    "USE_DIGITALOCEAN_SPACE": false,
+    "USE_MULTER_DISK_STORAGE": false,
+    "USE_OAUTH_GOOGLE": false,
+    "USE_OAUTH_FACEBOOK": false,
+    "USE_OAUTH_APPLE": false,
+    "USE_PAYSTACK": false,
+    "USE_ANALYTICS": false,
+    "USE_REDIS": false,
+    "USE_DATABASE": "mongodb"
+}

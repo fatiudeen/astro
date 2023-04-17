@@ -20,7 +20,7 @@ import * as Config from '@config';
 import { rateLimiter } from '@middlewares/rateLimiter';
 import Route from '@routes/route';
 import session from 'express-session';
-import visitCount from '@middlewares/visitCount';
+// import visitCount from '@middlewares/visitCount';
 
 // eslint-disable-next-line import/no-extraneous-dependencies, import/no-unresolved
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -44,10 +44,7 @@ class App {
 
   private initRoutes() {
     if (Config.OPTIONS.USE_MULTER_DISK_STORAGE) {
-      this.app.use(
-        `${this.apiVersion}/${Config.MULTER_STORAGE_PATH}`,
-        express.static(Config.CONSTANTS.ROOT_PATH),
-      );
+      this.app.use(`${this.apiVersion}/${Config.MULTER_STORAGE_PATH}`, express.static(Config.CONSTANTS.ROOT_PATH));
     }
     Object.entries(this.routes).forEach(([url, route]) => {
       this.app.use(`${this.apiVersion}/${url}`, route.initRoutes());
@@ -116,11 +113,11 @@ class App {
         httpOnly: false,
         sameSite: 'none',
         secure: false,
-        maxAge: 1000 * 60 * 5, // one minuit
+        // maxAge: 1000 * 60 * 5, // one minuit
       },
     };
     this.app.use(session(Session));
-    this.app.use(visitCount());
+    // this.app.use(visitCount());
   }
 
   public listen(port: number, connectionString: string) {

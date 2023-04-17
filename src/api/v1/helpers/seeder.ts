@@ -1,18 +1,17 @@
 import { SEEDER_EMAIL, SEEDER_PASSWORD } from '@config';
 import { UserInterface } from '@interfaces/User.Interface';
 import UserRepository from '@repositories/User.repository';
+import { logger } from '@utils/logger';
 
 export default async () => {
-  const defaultEmail = <string>SEEDER_EMAIL;
-  const defaultPassword = <string>SEEDER_PASSWORD;
+  const defaultEmail = SEEDER_EMAIL;
+  const defaultPassword = SEEDER_PASSWORD;
   const authService = new UserRepository();
 
   try {
-    const admin = await authService
-      .findOne({
-        email: defaultEmail,
-      })
-      .select('+password');
+    const admin = await authService.findOne({
+      email: defaultEmail,
+    });
 
     if (!admin) {
       await authService.create(<UserInterface>{
@@ -21,10 +20,9 @@ export default async () => {
         role: 'admin',
       });
     } else {
-      admin.password = defaultPassword;
-      await admin.save();
+      authService.update(admin._id, { password: defaultPassword });
     }
   } catch (error: any) {
-    throw new Error(error);
+    logger.error([error]);
   }
 };

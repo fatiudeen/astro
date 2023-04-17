@@ -18,4 +18,12 @@ declare global {
       io: Server;
     }
   }
+
+  type DocType<T> = T & {
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
+
+export {};

@@ -3,10 +3,11 @@ import { Request } from 'express';
 import UserService from '@services/user.service';
 import { UserInterface } from '@interfaces/User.Interface';
 import Controller from '@controllers/controller';
+import { UserResponseDTO } from '@dtos/user.dto';
 
 class UserController extends Controller<UserInterface> {
   service = new UserService();
-
+  responseDTO = UserResponseDTO.User;
   getOne = this.control(async (req: Request) => {
     const params = req.params[this.resourceId] || req.user?._id!;
 

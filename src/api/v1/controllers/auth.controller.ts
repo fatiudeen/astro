@@ -1,38 +1,42 @@
 /* eslint-disable no-unused-vars */
 import { Request } from 'express';
 import AuthService from '@services/auth.service';
-import { UserInterface } from '@interfaces/User.Interface';
 import Controller from '@controllers/controller';
 import { MESSAGES } from '@config';
+import { AuthSessionInterface } from '@interfaces/AuthSession.Interface';
+import { AuthResponseDTO } from '@dtos/auth.dto';
 
-class AuthController extends Controller<UserInterface> {
+class AuthController extends Controller<AuthSessionInterface> {
+  responseDTO = undefined;
   service = new AuthService();
 
   login = this.control(async (req: Request) => {
     return this.service.login(req.body);
-  });
+  }, AuthResponseDTO.login);
+
   registration = this.control((req: Request) => {
     return this.service.createUser(req.body);
-  });
+  }, AuthResponseDTO.signUp);
+
   verifyEmail = this.control(async (req: Request) => {
     const result = await this.service.verifyEmail(req.params.token);
-    return { message: 'user verified', user: result };
-  });
+    return result;
+  }, AuthResponseDTO.User);
 
   forgotPassword = this.control(async (req: Request) => {
-    const result = await this.service.getResetToken(req.body.email);
-    return { message: 'email sent', data: result };
-  });
+    await this.service.getResetToken(req.body.email);
+    return { _message: 'Email Sent' };
+  }, undefined);
 
   resetPassword = this.control(async (req: Request) => {
-    const result = await this.service.resetPassword(req.params.token, req.body.password);
-    return { success: result };
-  });
+    await this.service.resetPassword(req.params.token, req.body.password);
+    return { _message: 'Reset Successful' };
+  }, undefined);
 
   oAuthUrls = this.control(async (req: Request) => {
     const result = await this.service.oAuthUrls();
     return result;
-  });
+  }, undefined);
 
   googleLogin = this.control(async (req: Request) => {
     const { code } = req.query;
@@ -56,7 +60,7 @@ class AuthController extends Controller<UserInterface> {
     const token = req.headers['x-refresh-token'];
     if (!token) throw new this.HttpError(MESSAGES.INVALID_REQUEST);
     return this.service.refreshAccessToken(<string>token);
-  });
+  }, undefined);
 }
 
 export default AuthController;

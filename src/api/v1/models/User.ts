@@ -1,9 +1,7 @@
 /* eslint-disable func-names */
 import { model, Schema, Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+// import bcrypt from 'bcrypt';
 import { UserInterface } from '@interfaces/User.Interface';
-import jwt from 'jsonwebtoken';
-import { JWT_KEY, JWT_TIMEOUT } from '@config';
 
 const userSchema = new Schema<UserInterface>(
   {
@@ -11,13 +9,13 @@ const userSchema = new Schema<UserInterface>(
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
 
     password: {
       type: String,
       minlength: 8,
       required: true,
-      select: false,
     },
 
     role: {
@@ -33,24 +31,24 @@ const userSchema = new Schema<UserInterface>(
   { timestamps: true },
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) next();
+// userSchema.pre('save', async function (next) {
+//   if (!this.isModified('password')) next();
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+//   const salt = await bcrypt.genSalt(10);
+//   this.password = await bcrypt.hash(this.password, salt);
 
-  next();
-});
+//   next();
+// });
 
-userSchema.methods.comparePasswords = async function (password: string) {
-  // eslint-disable-next-line no-return-await
-  return await bcrypt.compare(password, this.password);
-};
+// userSchema.methods.comparePasswords = async function (password: string) {
+//   // eslint-disable-next-line no-return-await
+//   return await bcrypt.compare(password, this.password);
+// };
 
-userSchema.methods.getSignedToken = function () {
-  // eslint-disable-next-line no-underscore-dangle
-  return jwt.sign({ id: this._id }, JWT_KEY, { expiresIn: JWT_TIMEOUT });
-};
+// userSchema.methods.getSignedToken = function () {
+//   // eslint-disable-next-line no-underscore-dangle
+//   return jwt.sign({ id: this._id }, JWT_KEY, { expiresIn: JWT_TIMEOUT });
+// };
 
 // userSchema.methods.toJSON = function() {
 //   const user = this;

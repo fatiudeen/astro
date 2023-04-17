@@ -19,6 +19,7 @@ export default abstract class Controller<T> {
   protected resourceId;
   abstract service: Service<T, any>;
   readonly fileProcessor = OPTIONS.USE_MULTER ? Multer : null;
+  abstract responseDTO?: Function;
   protected processFile = (req: Request) => {
     if (!this.fileProcessor) return;
     let multerFile!: 'path' | 'location' | 'buffer';
@@ -55,53 +56,18 @@ export default abstract class Controller<T> {
       });
     }
   };
-  protected paginate = async (req: Request, service: Service<T, any>) => {
-    let query = safeQuery(req);
-    let page: number = 1;
-    let limit: number = 10;
-    if ('page' in query) {
-      const { page: _, ..._query } = query;
-      page = parseInt(_, 10);
-      query = _query;
-    }
-    if ('limit' in query) {
-      const { limit: _, ..._query } = query;
-      limit = parseInt(_, 10);
-      query = _query;
-    }
-    query = Object.entries(query).length > 1 ? query : {};
-    const startIndex = limit * (page - 1);
-    const totalDocs = await service.count();
-    const totalPages = Math.floor(totalDocs / limit) + 1;
-    // eslint-disable-next-line newline-per-chained-call
-    const data = await service
-      .find(<T>(<unknown>query))
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit)
-      .lean();
-    return {
-      data,
-      limit,
-      totalDocs,
-      page,
-      totalPages,
-    };
-  };
+
   protected control =
-    (fn: (req: Request) => Promise<any>) =>
+    (fn: (req: Request) => Promise<any>, responseDTO?: Function) =>
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await fn(req);
         if (result.redirect) {
-          res.redirect(result.redirectUri);
-        } else {
-          let status: number = httpStatus.OK;
-          if (req.method === 'POST') {
-            status = httpStatus.CREATED;
-          }
-          this.HttpResponse.send(res, result, status);
+          return res.redirect(result.redirectUri);
         }
+        const status = req.method === 'POST' ? httpStatus.CREATED : httpStatus.OK;
+        responseDTO = responseDTO || this.responseDTO;
+        this.HttpResponse.send(res, responseDTO ? responseDTO(result) : result, status);
       } catch (error) {
         logger.error([error]);
         next(error);
@@ -118,7 +84,9 @@ export default abstract class Controller<T> {
   });
 
   get = this.control((req: Request) => {
-    return this.paginate(req, this.service);
+    return this.service.find(
+      <Partial<T & { page?: string | number | undefined; limit?: string | number | undefined }>>safeQuery(req),
+    );
   });
 
   getOne = this.control(async (req: Request) => {

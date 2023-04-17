@@ -3,22 +3,29 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
 import { UserInterface } from '@interfaces/User.Interface';
-import UserRepository from '@repositories/User.repository';
 import HttpError from '@helpers/HttpError';
 import * as Config from '@config';
 import generateToken from '@utils/generateToken';
 import Service from '@services/service';
-import SessionService from '@services/session.service';
+import AuthSessionRepository from '@repositories/AuthSession.repository';
 import { google } from 'googleapis';
 import queryString from 'qs';
 import axios from 'axios';
 import appleSignin, { AppleIdTokenType } from 'apple-signin-auth';
-import Emailing from '@helpers/sendGrid';
+import Emailing from '@helpers/mailer';
 import jwt from 'jsonwebtoken';
+import { AuthSessionInterface } from '@interfaces/AuthSession.Interface';
+import UserService from '@services/user.service';
+// import bcrypt from 'bcrypt';
+import { logger } from '@utils/logger';
+import { scrypt, randomBytes } from 'crypto';
+import { promisify } from 'util';
 
-class AuthService extends Service<UserInterface, UserRepository> {
-  protected repository = new UserRepository();
-  externalServices = { SessionService: new SessionService(), Emailing: new Emailing() };
+class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
+  protected repository = new AuthSessionRepository();
+  private readonly _userService = new UserService();
+  private readonly _emailing = Emailing;
+  // externalServices = { SessionService: new SessionService(), Emailing: new Emailing() };
   useSessions = Config.OPTIONS.USE_AUTH_SESSIONS;
   userRefreshToken = Config.OPTIONS.USE_REFRESH_TOKEN;
   useGoogle = Config.OPTIONS.USE_OAUTH_GOOGLE;
@@ -47,93 +54,86 @@ class AuthService extends Service<UserInterface, UserRepository> {
 
   async login(data: { email: string; password: string }) {
     try {
-      const user = await this.findOne({ email: <string>data.email }).select('+password');
+      const user = await this._userService.findOne({ email: <string>data.email });
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
-      const isMatch = await user.comparePasswords(data.password);
+      const isMatch = await this.comparePasswords(data.password, user);
       if (!isMatch) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
-      const token = user.getSignedToken();
+      const token = this.getSignedToken(user);
 
       // create a session
-      this.observer.run('login-event', { ...user, token });
-      // let session = await this.externalServices.SessionService.findOne({ userId: user._id });
-      // if (session) this.externalServices.SessionService.delete(session.id);
-      // session = await this.externalServices.SessionService.create({
-      //   userId: user._id,
-      //   token,
-      //   isLoggedIn: true,
-      // });
+      let session = await this.findOne({ userId: user._id });
+      if (session) this.delete(session._id);
+      session = await this.create({
+        userId: user._id,
+        token,
+        isLoggedIn: true,
+      });
       let refreshToken;
-      // if (this.userRefreshToken) {
-      //   refreshToken = session.getRefreshToken!();
-      // }
+      if (this.userRefreshToken) {
+        refreshToken = this.getRefreshToken(session);
+      }
 
       return { token, user, refreshToken };
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error) {
+      throw error;
     }
   }
 
   async createUser(data: Partial<UserInterface>) {
     try {
-      const user = await this.findOne({ email: <string>data.email }).select('+password');
+      const user = await this._userService.findOne({ email: <string>data.email });
       if (user) throw new HttpError(Config.MESSAGES.USER_EXISTS, 406);
 
       const token = generateToken();
       data.verificationToken = token;
       data.role = 'user';
-      const result = await this.create(<UserInterface>data);
-      this.externalServices.Emailing.verifyEmail(result);
+      data.password = await this.toHash(data.password!);
+      const result = await this._userService.create(data);
+      this._emailing ? this._emailing.verifyEmail(result) : logger.info(['email not enabled']);
       return result;
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error) {
+      throw error;
     }
   }
 
   async verifyEmail(token: string) {
     try {
-      const user = await this.findOne({
+      const user = await this._userService.findOne({
         verificationToken: token,
       });
 
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 406);
-
-      user.verifiedEmail = true;
-      user.verificationToken = undefined;
-      const result = await user.save();
+      const result = await this._userService.update(user._id, { verifiedEmail: true, verificationToken: undefined });
       return result;
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error) {
+      throw error;
     }
   }
 
   async getResetToken(email: string) {
     try {
       let resetToken: string;
-      const user = await this.findOne({ email });
+      const user = await this._userService.findOne({ email });
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
       if (!user.resetToken) {
-        resetToken = generateToken();
-        user.resetToken = resetToken;
-        await user.save();
+        await this._userService.update(user._id, { resetToken: generateToken() });
       } else {
         resetToken = user.resetToken;
       }
-      this.externalServices.Emailing.sendResetPassword(user);
-    } catch (error: any) {
-      throw new Error(error);
+      this._emailing ? this._emailing.sendResetPassword(user) : logger.info(['email not enabled']);
+    } catch (error) {
+      throw error;
     }
   }
   async resetPassword(token: string, password: string) {
     try {
-      const user = await this.findOne({ resetToken: token }).select('+password');
+      const user = await this._userService.findOne({ resetToken: token });
 
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
-      user.password = password;
-      user.resetToken = undefined;
-      await user.save();
-      return true;
-    } catch (error: any) {
-      throw new Error(error);
+      await this._userService.update(user._id, { resetToken: undefined, password: password });
+      return;
+    } catch (error) {
+      throw error;
     }
   }
   oAuthUrls() {
@@ -144,10 +144,7 @@ class AuthService extends Service<UserInterface, UserRepository> {
       googleLoginUrl = this.oAuth2Client!.generateAuthUrl({
         access_type: 'offline',
         prompt: 'consent',
-        scope: [
-          'https://www.googleapis.com/auth/userinfo.email',
-          'https://www.googleapis.com/auth/userinfo.profile',
-        ],
+        scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
       });
     }
 
@@ -182,8 +179,8 @@ class AuthService extends Service<UserInterface, UserRepository> {
         auth: this.oAuth2Client,
       });
 
-      const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
-      const token = user!.getSignedToken();
+      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
+      const token = this.getSignedToken(user!);
       return `${Config.FRONTEND_GOOGLE_LOGIN_URI}?token=${token}`;
     } catch (error) {
       throw error;
@@ -217,8 +214,8 @@ class AuthService extends Service<UserInterface, UserRepository> {
           },
         })
       ).data;
-      const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
-      const token = user!.getSignedToken();
+      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
+      const token = this.getSignedToken(user!);
       return `${Config.FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
     } catch (error) {
       throw error;
@@ -245,12 +242,10 @@ class AuthService extends Service<UserInterface, UserRepository> {
       const { id_token } = await appleSignin.getAuthorizationToken(code, appleGetTokenOptions);
 
       // eslint-disable-next-line no-unused-vars
-      const { email, name } = <AppleIdTokenType & { name: string }>(
-        await appleSignin.verifyIdToken(id_token)
-      );
+      const { email, name } = <AppleIdTokenType & { name: string }>await appleSignin.verifyIdToken(id_token);
 
-      const user = await this.repository.upsert({ email: <string>email }, { email: <string>email });
-      const token = user!.getSignedToken();
+      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
+      const token = this.getSignedToken(user!);
       return `${Config.FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
     } catch (error) {
       throw error;
@@ -261,16 +256,45 @@ class AuthService extends Service<UserInterface, UserRepository> {
     try {
       if (!this.userRefreshToken) throw new Error(Config.MESSAGES.INVALID_SESSION);
       const id = (<{ id: string }>jwt.verify(refreshToken, Config.REFRESH_JWT_KEY)).id;
-      const session = await this.externalServices.SessionService.findOne(id);
+      const session = await this.findOne(id);
       if (!session) throw new Error(Config.MESSAGES.INVALID_SESSION);
-      const user = await this.findOne(<string>session.userId);
-      const token = user?.getSignedToken();
-      await this.externalServices.SessionService.update(session.id, { token });
+      const user = await this._userService.findOne(<string>session.userId);
+      const token = this.getSignedToken(user!);
+      await this.update(session._id, { token });
       return { token };
     } catch (error) {
       throw error;
     }
   }
+
+  getSignedToken(user: DocType<UserInterface>) {
+    return jwt.sign({ id: user._id }, Config.JWT_KEY, { expiresIn: Config.JWT_TIMEOUT });
+  }
+
+  async newSession(user: UserInterface & { _id: string; token: string }) {
+    let session = await this.findOne({ userId: user._id });
+    if (session) this.delete(session._id);
+    session = await this.create({
+      userId: user._id,
+      token: user.token,
+      isLoggedIn: true,
+    });
+  }
+  getRefreshToken = (session: DocType<AuthSessionInterface>) => {
+    return jwt.sign({ id: session._id }, Config.REFRESH_JWT_KEY, { expiresIn: Config.REFRESH_JWT_TIMEOUT });
+  };
+
+  toHash = async (password: string) => {
+    const salt = randomBytes(8).toString('hex');
+    const buf = <Buffer>await promisify(scrypt)(password, salt, 64);
+    return `${buf.toString('hex')}.${salt}`;
+  };
+
+  comparePasswords = async (password: string, user: UserInterface) => {
+    const [hashPassword, salt] = user.password.split('.');
+    const buf = <Buffer>await promisify(scrypt)(password, salt, 64);
+    return buf.toString('hex') === hashPassword;
+  };
 }
 
 export default AuthService;

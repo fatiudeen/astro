@@ -7,6 +7,6 @@ export interface UserInterface {
   verificationToken?: string;
   resetToken?: string;
   avatar?: string;
-  comparePasswords(password: string): boolean;
-  getSignedToken(): string;
 }
+
+export interface IUserResponseDTO extends DocType<Pick<UserInterface, 'email' | 'role' | 'avatar'>> {}

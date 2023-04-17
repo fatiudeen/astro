@@ -138,7 +138,7 @@ class Multer {
     return null;
   }
   // req.file
-  uploadOne(fieldname: string) {
+  uploadOne<T extends object>(fieldname: keyof Partial<T>) {
     if (!this.useMulter) {
       return (req: Express.Request, res: Express.Response, next: NextFunction) => {
         return next();
@@ -146,11 +146,11 @@ class Multer {
     }
     return multer({
       storage: this.storage,
-    }).single(fieldname);
+    }).single(<string>fieldname);
   }
 
   // req.files[0]
-  uploadArray(fieldname: string) {
+  uploadArray<T extends object>(fieldname: keyof Partial<T>) {
     if (!this.useMulter) {
       return (req: Express.Request, res: Express.Response, next: NextFunction) => {
         return next();
@@ -158,11 +158,11 @@ class Multer {
     }
     return multer({
       storage: this.storage,
-    }).array(fieldname);
+    }).array(<string>fieldname);
   }
 
   // req.files[name][0]
-  uploadField(fieldname: { name: string; maxCount: number }[]) {
+  uploadField<T extends object>(fieldname: { name: keyof Partial<T>; maxCount: number }[]) {
     if (!this.useMulter) {
       return (req: Express.Request, res: Express.Response, next: NextFunction) => {
         return next();
@@ -170,7 +170,7 @@ class Multer {
     }
     return multer({
       storage: this.storage,
-    }).fields(fieldname);
+    }).fields(<{ name: string; maxCount: number }[]>fieldname);
   }
 }
 

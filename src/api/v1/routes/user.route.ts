@@ -1,19 +1,19 @@
 /* eslint-disable import/no-unresolved */
 import UserController from '@controllers/user.controller';
-import userDto from '@dtos/user.dto';
+import { userRequestDTO } from '@dtos/user.dto';
 import Route from '@routes/route';
 import { UserInterface } from '@interfaces/User.Interface';
 
 class UserRoute extends Route<UserInterface> {
   controller = new UserController('user');
-  dto = userDto;
+  dto = userRequestDTO;
   initRoutes() {
     this.router.get('/', this.controller.get);
     this.router
       .route('/me')
       .get(this.controller.getOne)
       .put(
-        this.fileProcessor.uploadOne('avatar'),
+        this.fileProcessor.uploadOne<UserInterface>('avatar'),
         this.validator(this.dto.update.concat(this.dto.id)),
         this.controller.update,
       )
@@ -22,7 +22,7 @@ class UserRoute extends Route<UserInterface> {
       .route('/:userId')
       .get(this.validator(this.dto.id), this.controller.getOne)
       .put(
-        this.fileProcessor.uploadOne('avatar'),
+        this.fileProcessor.uploadOne<UserInterface>('avatar'),
         this.validator(this.dto.update.concat(this.dto.id)),
         this.controller.update,
       )

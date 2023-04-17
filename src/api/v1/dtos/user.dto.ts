@@ -1,7 +1,8 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
+import { IUserResponseDTO, UserInterface } from '@interfaces/User.Interface';
 
-export default {
+export const userRequestDTO = {
   id: [param('userId').exists()],
   update: [
     check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
@@ -16,3 +17,17 @@ export default {
     }),
   ],
 };
+
+export class UserResponseDTO {
+  static User = (data: DocType<UserInterface>): IUserResponseDTO => {
+    const result: IUserResponseDTO = {
+      _id: data._id!,
+      email: data.email!,
+      role: data.role!,
+      avatar: data.avatar,
+      createdAt: data.createdAt!,
+      updatedAt: data.updatedAt!,
+    };
+    return result;
+  };
+}
