@@ -5,11 +5,11 @@ USE_DATABASE=$(cat appConfig.json | jq -r '.USE_DATABASE')
 
 # Check the value of the "USE_DATABASE" field and run the appropriate command
 if [[ "$USE_DATABASE" == "mongodb" ]]; then
-  handpick --target=mongodbDependencies --manager=npm
+  echo "unimplemented"
 elif [[ "$USE_DATABASE" == "postgresql" ]]; then
-  handpick --target=postgresqlDependencies --manager=npm
+  echo "unimplemented"
 elif [[ "$USE_DATABASE" == "sqlite" ]]; then
-  handpick --target=sqliteDependencies --manager=npm
+  echo "unimplemented"
 else
   echo "Error: Database '$USE_DATABASE' not yet supported" >&2
   rm -r node_modules

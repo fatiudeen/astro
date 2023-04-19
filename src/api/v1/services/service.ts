@@ -23,9 +23,9 @@ export default abstract class Service<T, R extends Repository<T>> {
           }
         >
       | undefined,
-    paginate?: boolean,
-  ) {
-    return this.repository.find(query, (paginate = false));
+    options?: OptionsParser<T>,
+  ): Promise<DocType<T>[]> {
+    return this.repository.find(query, options);
   }
   findOne(query: string | Partial<T>) {
     return this.repository.findOne(query);
@@ -54,5 +54,51 @@ export default abstract class Service<T, R extends Repository<T>> {
 
   count(query?: Partial<T>) {
     return this.repository.count(query);
+  }
+
+  protected paginatedFind(query?: Partial<T & { page?: number | string; limit?: number | string }>) {
+    return new Promise<{
+      data: DocType<T>[];
+      limit: number;
+      totalDocs: number;
+      page: number;
+      totalPages: number;
+    }>((resolve, reject) => {
+      query = query || {};
+      let page: number = 1;
+      let limit: number = 10;
+      if (query?.page) {
+        typeof query.page === 'string'
+          ? ((page = parseInt(query.page, 10)), delete query.page)
+          : (query.page, delete query.page);
+      }
+      if (query?.limit) {
+        typeof query.limit === 'string'
+          ? ((limit = parseInt(query.limit, 10)), delete query.limit)
+          : (query.limit, delete query.limit);
+      }
+      query = Object.entries(query).length > 1 ? query : {};
+      const startIndex = limit * (page - 1);
+      let totalDocs = 0;
+      this.count()
+        .then((_totalDocs) => {
+          totalDocs = _totalDocs;
+          return this.find(query, { sort: { createdAt: -1 }, skip: startIndex, limit });
+        })
+        .then((data) => {
+          const totalPages = Math.floor(totalDocs / limit) + 1;
+          const result = {
+            data: <DocType<T>[]>data,
+            limit,
+            totalDocs,
+            page,
+            totalPages,
+          };
+          resolve(result);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
   }
 }

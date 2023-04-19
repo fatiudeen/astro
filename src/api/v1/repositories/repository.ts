@@ -3,21 +3,7 @@
 /* eslint-disable indent */
 import { OPTIONS } from '@config';
 import redis from '@helpers/redis';
-import { Model, Query } from 'mongoose';
-
-type PopulateType = {
-  path: string;
-  model: string;
-  select?: string;
-  populate?: PopulateType | PopulateType[];
-};
-
-type OptionsParser<T> = {
-  sort?: Record<Partial<keyof DocType<T>>, 1 | -1>;
-  limit?: number;
-  projection?: [keyof DocType<T>];
-  populate?: [keyof DocType<T>] | PopulateType;
-};
+import { Model, Query, Types } from 'mongoose';
 
 export default abstract class Repository<T> {
   protected abstract model: Model<T>;
@@ -26,133 +12,82 @@ export default abstract class Repository<T> {
 
   optionsParser<Q extends Query<any, any>>(q: Q, options: OptionsParser<T>): Q {
     if (options.sort) {
-      q.sort(options.sort);
+      q.sort(<Record<Partial<keyof DocType<T>>, 1 | -1>>options.sort);
     }
 
     if (options.limit) {
       q.limit(options.limit);
     }
 
-    if (options.projection && options.projection.length > 1) {
+    if (options.skip) {
+      q.skip(options.skip);
+    }
+
+    if (options.projection && options.projection.length > 0) {
       q.projection(options.projection.join(' '));
     }
 
     if (options.populate) {
       Array.isArray(options.populate) ? q.populate(options.populate.join(' ')) : q.populate(options.populate);
     }
+
+    if (options.and && options.and.length > 0) {
+      q.and(options.and);
+    }
+
+    if (options.or && options.or.length > 0) {
+      q.or(options.or);
+    }
+
+    if (options.in) {
+      q.where(options.in.query).in(options.in.in);
+    }
+
+    if (options.all) {
+      q.where(options.all.query).all(options.all.all);
+    }
+
     return q;
   }
 
-  protected paginatedFind(query?: Partial<T & { page?: number | string; limit?: number | string }>) {
-    return new Promise<{
-      data: DocType<T>[];
-      limit: number;
-      totalDocs: number;
-      page: number;
-      totalPages: number;
-    }>((resolve, reject) => {
+  find(
+    _query?: Partial<T> | Array<string> | { [K in keyof DocType<T>]?: Array<DocType<T>[K]> },
+    options: OptionsParser<T> | undefined = undefined,
+  ) {
+    return new Promise<DocType<T>[]>((resolve, reject) => {
+      let query: Record<string, any> = _query || {};
+
+      if (Array.isArray(_query) && _query.length > 0) {
+        query = { _id: { $in: _query.map((val) => new Types.ObjectId(val)) } };
+      } else
+        for (const [felid, value] of Object.entries(query)) {
+          Array.isArray(value) ? (query[felid] = { $in: value }) : false;
+        }
       let key: string;
-      query = query || {};
-      if (this.useRedis) {
-        key = JSON.stringify({
-          ...query,
-          collection: this.model.name,
-        });
-        this.cacheClient!.get(key).then((cacheValue) => {
-          if (cacheValue) {
-            resolve(
-              <
-                {
-                  data: DocType<T>[];
-                  limit: number;
-                  totalDocs: number;
-                  page: number;
-                  totalPages: number;
-                }
-              >JSON.parse(cacheValue),
-            );
-          }
-        });
-      }
-      let page: number = 1;
-      let limit: number = 10;
-      if (query?.page) {
-        typeof query.page === 'string'
-          ? ((page = parseInt(query.page, 10)), delete query.page)
-          : (query.page, delete query.page);
-      }
-      if (query?.limit) {
-        typeof query.limit === 'string'
-          ? ((limit = parseInt(query.limit, 10)), delete query.limit)
-          : (query.limit, delete query.limit);
-      }
-      query = Object.entries(query).length > 1 ? query : {};
-      const startIndex = limit * (page - 1);
-      let totalDocs = 0;
-      this.count()
-        .then((_totalDocs) => {
-          totalDocs = _totalDocs;
-          return this.model
-            .find(<Partial<T>>query)
-            .sort({ createdAt: -1 })
-            .skip(startIndex)
-            .limit(limit)
-            .lean();
-        })
-        .then((data) => {
-          const totalPages = Math.floor(totalDocs / limit) + 1;
-          const result = {
-            data: <DocType<T>[]>data,
-            limit,
-            totalDocs,
-            page,
-            totalPages,
-          };
+      // if (this.useRedis) {
+      //   key = JSON.stringify({
+      //     ...query,
+      //     collection: this.model.name,
+      //   });
+      //   this.cacheClient!.get(key).then((cacheValue) => {
+      //     if (cacheValue) resolve(<DocType<T>[]>JSON.parse(cacheValue));
+      //   });
+      // }
+      const q = options ? this.optionsParser(this.model.find(query), options) : this.model.find(query);
+      // if (options){
+
+      // }
+      q.lean()
+        .then((r) => {
           if (this.useRedis) {
-            this.cacheClient!.set(key, JSON.stringify(result));
+            this.cacheClient!.set(key, JSON.stringify(r));
           }
-          resolve(result);
+          resolve(<DocType<T>[]>r);
         })
         .catch((e) => {
           reject(e);
         });
     });
-  }
-
-  find(
-    query?: Partial<T & { page?: number | string; limit?: number | string }>,
-    paginate = false,
-    options: OptionsParser<T> | undefined = undefined,
-  ) {
-    return paginate
-      ? this.paginatedFind(query)
-      : new Promise<DocType<T>[]>((resolve, reject) => {
-          query = query || {};
-          let key: string;
-          if (this.useRedis) {
-            key = JSON.stringify({
-              ...query,
-              collection: this.model.name,
-            });
-            this.cacheClient!.get(key).then((cacheValue) => {
-              if (cacheValue) resolve(<DocType<T>[]>JSON.parse(cacheValue));
-            });
-          }
-          const q = options ? this.optionsParser(this.model.find(query), options) : this.model.find(query);
-          // if (options){
-
-          // }
-          q.lean()
-            .then((r) => {
-              if (this.useRedis) {
-                this.cacheClient!.set(key, JSON.stringify(r));
-              }
-              resolve(<DocType<T>[]>r);
-            })
-            .catch((e) => {
-              reject(e);
-            });
-        });
   }
 
   findOne(query: string | Partial<T>) {

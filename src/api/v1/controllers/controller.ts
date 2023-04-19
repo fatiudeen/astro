@@ -34,9 +34,13 @@ export default abstract class Controller<T> {
       multerFile = 'location';
     }
     if (req.file) {
+      if (!req.file.fieldname) return;
+
       req.body[req.file.fieldname] = (<any>req.file)[multerFile];
     }
     if (req.files && Array.isArray(req.files)) {
+      if (req.files.length === 0) return;
+
       // eslint-disable-next-line no-undef
       const data = (<Express.Multer.File[]>req.files).map((file) => {
         return (<any>file)[multerFile];

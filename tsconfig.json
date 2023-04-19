@@ -122,6 +122,9 @@
     "resolveFullPaths": true
   },
   "ts-node": {
+    "transpileOnly": true,
+    "cache": true,
+    "preload": true,
     "require": ["tsconfig-paths/register"]
   }
 }

@@ -35,8 +35,17 @@ class App {
     '': new AuthRoute(),
     users: new UsersRoute(true),
   };
+  httpServer;
   constructor() {
     this.app = express();
+    if (this.useSocket) {
+      this.httpServer = createServer(this.app);
+      this.io = new Server(this.httpServer, {
+        cors: {
+          origin: '*',
+        },
+      });
+    }
     this.initMiddlewares();
     this.initRoutes();
     this.initErrorHandlers();
@@ -75,6 +84,12 @@ class App {
     if (Config.NODE_ENV !== 'test' && this.useAnalytics) {
       this.visitCount(Config.DB_URI);
     }
+    if (this.useSocket) {
+      this.app.use((req, res, next) => {
+        req.io = this.io!;
+        next();
+      });
+    }
   }
 
   private initErrorHandlers() {
@@ -82,20 +97,6 @@ class App {
     this.app.use('*', (req, res) => {
       res.status(404).json({ msg: 'Route not found' });
     });
-  }
-
-  private initSocket() {
-    // const app = express();
-    const httpServer = createServer(this.app);
-    const io = new Server(httpServer, {
-      /* options */
-    });
-    this.app.use((req: Request) => {
-      req.io = io;
-    });
-    this.io = io;
-
-    return httpServer;
   }
 
   private visitCount(connectionString: string) {
@@ -121,10 +122,7 @@ class App {
   }
 
   public listen(port: number, connectionString: string) {
-    let server;
-    if (this.useSocket) {
-      server = this.initSocket();
-    } else server = this.app;
+    const server = this.useSocket ? this.httpServer! : this.app;
 
     db(connectionString);
     server.listen(port, () => {
