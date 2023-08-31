@@ -41,7 +41,7 @@ export default abstract class Service<T, R extends Repository<T>> {
           load?: { key: string; value: any; toSet?: boolean | undefined } | undefined;
           unload?: { key: string; value: string | string[]; field?: string | undefined } | undefined;
           increment?: { key: keyof T; value: number } | undefined;
-        },
+        } & { $setOnInsert?: Partial<T> },
     upsert = false,
     many = false,
   ) {

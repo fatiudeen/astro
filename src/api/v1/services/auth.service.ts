@@ -136,7 +136,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       throw error;
     }
   }
-  oAuthUrls() {
+  oAuthUrls(state: string) {
     let googleLoginUrl;
     let facebookLoginUrl;
     let appleLoginUrl;
@@ -145,6 +145,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
         access_type: 'offline',
         prompt: 'consent',
         scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+        state,
       });
     }
 
@@ -166,7 +167,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
     return { googleLoginUrl, facebookLoginUrl, appleLoginUrl };
   }
 
-  async googleLogin(code: string) {
+  async googleLogin(code: string, state: string) {
     try {
       if (!this.oAuth2Client || !this.oauth2) return null;
       const { tokens } = await this.oAuth2Client.getToken(code);
@@ -179,9 +180,23 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
         auth: this.oAuth2Client,
       });
 
-      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
+      const user = await this._userService.update(
+        { email: <string>email },
+        {
+          email: <string>email,
+          firstName: given_name!,
+          lastName: family_name!,
+          avatar: picture || '',
+          role: 'user',
+          $setOnInsert: {
+            fromOauth: false,
+            verifiedEmail: true,
+          },
+        },
+        true,
+      );
       const token = this.getSignedToken(user!);
-      return `${Config.FRONTEND_GOOGLE_LOGIN_URI}?token=${token}`;
+      return `${state}?token=${token}`;
     } catch (error) {
       throw error;
     }
