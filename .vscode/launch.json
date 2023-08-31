@@ -16,6 +16,7 @@
                 "--",
                 "--runInBand",
                 "--watchAll=false",
+                "--no-coverage" ,
                 "--testNamePattern",
                 "${jest.testNamePattern}",
                 "--runTestsByPath",

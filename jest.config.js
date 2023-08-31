@@ -28,6 +28,8 @@ module.exports = {
   },
   verbose: true,
   clearMocks: true,
+  collectCoverage: true,
+  collectCoverageFrom: ['./src/**'],
   moduleDirectories: ['node_modules', '<rootDir>/src'],
   modulePathIgnorePatterns: ['./src/api/v1/__test__/mocks', './dist', './node_modules'],
   modulePaths: [compilerOptions.baseUrl],

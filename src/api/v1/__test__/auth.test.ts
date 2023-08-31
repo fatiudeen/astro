@@ -1,49 +1,63 @@
-// import supertest from 'supertest';
-// import app from '../app';
-// import authService from '../services/auth.service';
+import supertest from 'supertest';
+import App from '@app';
+import AuthService from '@services/auth.service';
 // import mailMock from './__mocks__/mailMock';
+import { faker } from '@faker-js/faker';
+import { logger } from '@utils/logger';
 
-// import { user } from './__mocks__/testdata';
+const instance = supertest(new App().instance());
 
-// describe('authorization', () => {
-//   describe('login', () => {
-//     describe('given a valid email and password', () => {
-//       it('should send otp return 201', async () => {
-//         await authService.signUp(user);
+const authService = new AuthService();
 
-//         const { statusCode, body } = await supertest(app).post('/api/v1/auth/login').send(user);
+describe('authorization', () => {
+  describe('login', () => {
+    describe('given a valid email and password', () => {
+      it('should send otp return 201', async () => {
+        const user = {
+          email: faker.internet.email().toLowerCase(),
+          password: faker.internet.password(),
+        };
+        await authService.createUser({ ...user });
 
-//         expect(statusCode).toBe(201);
-//         expect(body.success).toEqual(true);
-//         expect(mailMock).toHaveBeenCalled();
-//       });
-//     });
-//   });
-//   describe('sign up', () => {
-//     describe('given a valid email and password', () => {
-//       it('should return 201', async () => {
-//         const { statusCode, body } = await supertest(app).post('/api/v1/auth/sign-up').send(user);
+        const { statusCode, body } = await instance.post('/api/v1/signin').send(user);
 
-//         expect(statusCode).toBe(201);
-//         expect(body.success).toEqual(true);
-//       });
-//     });
-//   });
-//   describe('verify otp', () => {
-//     describe('given a valid otp', () => {
-//       it('should verify otp, sends jwt and return 201', async () => {
-//         await authService.signUp(user);
-//         await authService.login(user);
-//         const otp = mailMock.mock.calls[0][1].split(' ').pop();
+        expect(statusCode).toBe(201);
+        expect(body.success).toEqual(true);
+        // expect(mailMock).toHaveBeenCalled();
+      });
+    });
+  });
+  describe('sign up', () => {
+    describe('given a valid email and password', () => {
+      it('should return 201', async () => {
+        const user = {
+          email: faker.internet.email().toLowerCase(),
+          password: faker.internet.password(),
+        };
+        const { statusCode, body } = await instance
+          .post('/api/v1/signup')
+          .send({ ...user, confirmPassword: user.password });
 
-//         const { statusCode, body } = await supertest(app)
-//           .post('/api/v1/auth/verify-otp')
-//           .send({ otp });
+        expect(statusCode).toBe(201);
+        expect(body.success).toEqual(true);
+      });
+    });
+  });
+  describe('verify email', () => {
+    describe('given a valid otp', () => {
+      it('should verify otp, sends jwt and return 201', async () => {
+        const user = {
+          email: faker.internet.email().toLowerCase(),
+          password: faker.internet.password(),
+        };
+        const _user = await authService.createUser({ ...user });
 
-//         expect(statusCode).toBe(201);
-//         expect(body.success).toEqual(true);
-//         // expect(body).toContain(token);
-//       });
-//     });
-//   });
-// });
+        const { statusCode, body } = await instance.get(`/api/v1/verifyEmail/:${_user.verificationToken}`);
+
+        expect(statusCode).toBe(200);
+        expect(body.success).toEqual(true);
+        // expect(body).toContain(token);
+      });
+    });
+  });
+});

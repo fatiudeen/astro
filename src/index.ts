@@ -1,6 +1,7 @@
 /* eslint-disable import/first */
 require('@config').optionsValidation();
 
+import 'reflect-metadata';
 import App from '@app';
 import { logger } from '@utils/logger';
 import { DB_URI, PORT, OPTIONS } from '@config';

@@ -1,8 +1,8 @@
 import { config } from 'dotenv';
 import path from 'path';
 
-if (process.env.NODE_ENV === 'development') {
-  config({ path: '.env.dev' });
+if (process.env.NODE_ENV !== 'production') {
+  config({ path: `.env.${process.env.NODE_ENV}` });
 } else config();
 
 export const MESSAGES = {
@@ -21,6 +21,7 @@ export const MESSAGES = {
   PASSWORD_MATCH_ERROR: 'password does not match',
   SEED_ACCOUNT_CREATED: 'Seeded',
   INVALID_EMAIL: 'invalid email',
+  INVALID_TOKEN: 'invalid token',
   SHORT_PASSWORD: 'password must be at least 8 characters',
   USER_EXISTS: 'user exists',
   INVALID_RECORD: 'record does not exist',

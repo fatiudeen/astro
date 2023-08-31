@@ -9,6 +9,7 @@ export const authRequestDTO = {
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
   ],
   email: [check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL)],
+  token: [param('token').isString().withMessage(MESSAGES.INVALID_TOKEN)],
   code: [param('code').exists()],
   password: [
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),

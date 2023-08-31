@@ -123,8 +123,9 @@ class App {
 
   public listen(port: number, connectionString: string) {
     const server = this.useSocket ? this.httpServer! : this.app;
-
-    db(connectionString);
+    if (Config.OPTIONS.USE_DATABASE === 'mongodb') {
+      // db(connectionString);
+    }
     server.listen(port, () => {
       logger.info(`running on port ${port}`);
     });

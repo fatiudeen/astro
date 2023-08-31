@@ -22,9 +22,9 @@
       "function-paren-newline": "off",
       "operator-linebreak": "off",
       "arrow-body-style": "off",
-      "no-unused-expressions": "off",
-      "prefer-destructuring": "off",
       "no-param-reassign": "off",
+      "no-underscore-dangle": "off",
+      "no-nested-ternary": "off",
       "keyword-spacing": "off",
       "class-methods-use-this": "off",
       "prettier/prettier": ["error"]

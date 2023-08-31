@@ -20,9 +20,10 @@ declare global {
   }
 
   type DocType<T> = T & {
-    _id: string;
+    id: string;
     createdAt: string;
     updatedAt: string;
+    // cached?: boolean;
   };
 
   type PopulateType = {
