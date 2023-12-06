@@ -1,14 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable indent */
-import { OPTIONS } from '@config';
-import redis from '@helpers/redis';
+// import { OPTIONS } from '@config';
 import { Model, Query, Types } from 'mongoose';
 
 export default abstract class Repository<T> {
   protected abstract model: Model<T>;
-  protected useRedis = OPTIONS.USE_REDIS;
-  protected cacheClient = redis;
 
   optionsParser<Q extends Query<any, any>>(q: Q, options: OptionsParser<T>): Q {
     if (options.sort) {
@@ -63,25 +60,11 @@ export default abstract class Repository<T> {
         for (const [felid, value] of Object.entries(query)) {
           Array.isArray(value) ? (query[felid] = { $in: value }) : false;
         }
-      let key: string;
-      // if (this.useRedis) {
-      //   key = JSON.stringify({
-      //     ...query,
-      //     collection: this.model.name,
-      //   });
-      //   this.cacheClient!.get(key).then((cacheValue) => {
-      //     if (cacheValue) resolve(<DocType<T>[]>JSON.parse(cacheValue));
-      //   });
-      // }
-      const q = options ? this.optionsParser(this.model.find(query), options) : this.model.find(query);
-      // if (options){
 
-      // }
+      const q = options ? this.optionsParser(this.model.find(query), options) : this.model.find(query);
+
       q.lean()
         .then((r) => {
-          if (this.useRedis) {
-            this.cacheClient!.set(key, JSON.stringify(r));
-          }
           resolve(<DocType<T>[]>r);
         })
         .catch((e) => {
@@ -92,27 +75,11 @@ export default abstract class Repository<T> {
 
   findOne(query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
-      let key: string;
-      if (this.useRedis) {
-        key =
-          typeof query === 'object'
-            ? JSON.stringify({
-                ...query,
-                collection: this.model.name,
-              })
-            : query;
-        this.cacheClient!.get(key).then((cacheValue) => {
-          if (cacheValue) resolve(<DocType<T>>JSON.parse(cacheValue));
-        });
-      }
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.lean()
         .then((r) => {
           if (!r) {
             resolve(null);
-          }
-          if (this.useRedis) {
-            this.cacheClient!.set(key, JSON.stringify(r));
           }
           resolve(<DocType<T>>r);
         })
@@ -203,16 +170,6 @@ export default abstract class Repository<T> {
           if (!r) {
             resolve(null);
           }
-          if (this.useRedis) {
-            const key =
-              typeof query === 'object'
-                ? JSON.stringify({
-                    ...query,
-                    collection: this.model.name,
-                  })
-                : query;
-            this.cacheClient!.set(key, JSON.stringify(r));
-          }
           resolve(<DocType<T>>r);
         })
         .catch((e) => {
@@ -244,18 +201,6 @@ export default abstract class Repository<T> {
         .then((r) => {
           if (!r) {
             resolve(null);
-          }
-          if (this.useRedis) {
-            const key =
-              typeof query === 'object'
-                ? JSON.stringify({
-                    ...query,
-                    collection: this.model.name,
-                  })
-                : query;
-            this.cacheClient!.get(key).then((doc) => {
-              if (doc) this.cacheClient!.del(key);
-            });
           }
           resolve(<DocType<T>>r);
         })
