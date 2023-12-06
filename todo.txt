@@ -1,4 +1,0 @@
-fix prettier eslint 
-fix redis
-fix test
-add sequelize repo and db && remove dependencies of mongoose
