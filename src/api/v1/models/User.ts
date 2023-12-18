@@ -2,9 +2,11 @@
 import { model, Schema, Model } from 'mongoose';
 // import bcrypt from 'bcrypt';
 import { UserInterface } from '@interfaces/User.Interface';
+import shortUUID from 'short-uuid';
 
-const userSchema = new Schema<UserInterface>(
+const userSchema = new Schema<UserInterface & { _id: string }>(
   {
+    _id: { type: String, default: shortUUID().uuid, index: true },
     email: {
       type: String,
       required: true,
@@ -28,7 +30,15 @@ const userSchema = new Schema<UserInterface>(
     avatar: String,
     resetToken: String,
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toObject: {
+      transform(doc, ret) {
+        delete ret._id;
+        ret.id = shortUUID().fromUUID(doc._id);
+      },
+    },
+  },
 );
 
 // userSchema.pre('save', async function (next) {
@@ -60,4 +70,4 @@ const userSchema = new Schema<UserInterface>(
 //   return pick(user.toJSON(), ['id', 'email', 'name', 'age', 'role']);
 // };
 
-export default <Model<UserInterface>>model('user', userSchema);
+export default <Model<UserInterface & { _id: string }>>model('User', userSchema);

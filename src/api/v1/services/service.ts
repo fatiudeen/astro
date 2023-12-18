@@ -23,9 +23,8 @@ export default abstract class Service<T, R extends Repository<T>> {
           }
         >
       | undefined,
-    options?: OptionsParser<T>,
   ): Promise<DocType<T>[]> {
-    return this.repository.find(query, options);
+    return this.repository.find(query);
   }
   findOne(query: string | Partial<T>) {
     return this.repository.findOne(query);
@@ -83,7 +82,7 @@ export default abstract class Service<T, R extends Repository<T>> {
       this.count()
         .then((_totalDocs) => {
           totalDocs = _totalDocs;
-          return this.find(query, { sort: { createdAt: -1 }, skip: startIndex, limit });
+          return this.find(query); // TODO: { sort: { createdAt: -1 }, skip: startIndex, limit }
         })
         .then((data) => {
           const totalPages = Math.floor(totalDocs / limit) + 1;

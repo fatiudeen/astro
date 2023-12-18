@@ -3,65 +3,39 @@
 /* eslint-disable indent */
 // import { OPTIONS } from '@config';
 import { Model, Query, Types } from 'mongoose';
+import shortUUID from 'short-uuid';
 
 export default abstract class Repository<T> {
   protected abstract model: Model<T>;
 
-  optionsParser<Q extends Query<any, any>>(q: Q, options: OptionsParser<T>): Q {
-    if (options.sort) {
-      q.sort(<Record<Partial<keyof DocType<T>>, 1 | -1>>options.sort);
-    }
+  normalizeId<N extends string | Record<string, any> | Array<string>>(q: N): N {
+    if (typeof q === 'string') {
+      return shortUUID().toUUID(q).toString() as N;
+    } else if (typeof q === 'object' && '_id' in q) {
+      q._id = shortUUID()
+        .toUUID(q._id as string)
+        .toString();
 
-    if (options.limit) {
-      q.limit(options.limit);
+      return q as N;
+    } else if (Array.isArray(q)) {
+      return q.map((v) => shortUUID().toUUID(v).toString()) as N;
     }
-
-    if (options.skip) {
-      q.skip(options.skip);
-    }
-
-    if (options.projection && options.projection.length > 0) {
-      q.projection(options.projection.join(' '));
-    }
-
-    if (options.populate) {
-      Array.isArray(options.populate) ? q.populate(options.populate.join(' ')) : q.populate(options.populate);
-    }
-
-    if (options.and && options.and.length > 0) {
-      q.and(options.and);
-    }
-
-    if (options.or && options.or.length > 0) {
-      q.or(options.or);
-    }
-
-    if (options.in) {
-      q.where(options.in.query).in(options.in.in);
-    }
-
-    if (options.all) {
-      q.where(options.all.query).all(options.all.all);
-    }
-
-    return q;
+    return q as N;
   }
 
-  find(
-    _query?: Partial<T> | Array<string> | { [K in keyof DocType<T>]?: Array<DocType<T>[K]> },
-    options: OptionsParser<T> | undefined = undefined,
-  ) {
+  find(_query?: Partial<T> | Array<string> | { [K in keyof DocType<T>]?: Array<DocType<T>[K]> }) {
     return new Promise<DocType<T>[]>((resolve, reject) => {
       let query: Record<string, any> = _query || {};
+      query = this.normalizeId(query);
 
       if (Array.isArray(_query) && _query.length > 0) {
-        query = { _id: { $in: _query.map((val) => new Types.ObjectId(val)) } };
+        query = { _id: { $in: _query.map((val) => this.normalizeId(val)) } };
       } else
         for (const [felid, value] of Object.entries(query)) {
           Array.isArray(value) ? (query[felid] = { $in: value }) : false;
         }
 
-      const q = options ? this.optionsParser(this.model.find(query), options) : this.model.find(query);
+      const q = this.model.find(query);
 
       q.lean()
         .then((r) => {
@@ -73,108 +47,63 @@ export default abstract class Repository<T> {
     });
   }
 
-  findOne(query: string | Partial<T>) {
+  findOne(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
+      const query = this.normalizeId(_query);
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
-      q.lean()
-        .then((r) => {
-          if (!r) {
-            resolve(null);
-          }
-          resolve(<DocType<T>>r);
-        })
-        .catch((e) => {
-          reject(e);
-        });
+      q.then((r) => {
+        if (!r) {
+          resolve(null);
+        } else resolve(<DocType<T>>r.toObject());
+      }).catch((e) => {
+        reject(e);
+      });
     });
   }
 
-  update(
-    query: string | Partial<T>,
-    data: Partial<T> & {
-      load?: { key: string; value: any | any[]; toSet?: boolean };
-      unload?: { key: string; value: string | string[]; field?: string };
-      increment?: { key: keyof T; value: number };
-    },
-    upsert = false,
-    many = false,
-  ) {
+  findOneWithException(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
+      const query = this.normalizeId(_query);
+      const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
+      q.then((r) => {
+        if (!r) {
+          reject(new Error(this.model.modelName + ' not found'));
+        } else resolve(<DocType<T>>r.toObject());
+      }).catch((e) => {
+        reject(e);
+      });
+    });
+  }
+
+  /**
+   *  NOTE: update many will always return null
+   * @param _query
+   * @param data
+   * @param upsert
+   * @param many
+   * @returns
+   */
+  update(_query: string | Partial<T>, data: Partial<T>, upsert = false, many = false) {
+    return new Promise<DocType<T> | null>((resolve, reject) => {
+      const query = this.normalizeId(_query);
       const options = { new: true, upsert: false };
       if (upsert) {
         options.upsert = true;
       }
 
-      // const _data = { ...data.set };
-      if (data.load) {
-        const push = data.load.toSet ? '$addToSet' : '$push';
-        const _key = data.load.key;
-        if (Array.isArray(data.load.value)) {
-          Object.assign(data, {
-            [push]: {
-              [_key]: {
-                $each: data.load.value,
-              },
-            },
-          });
-        } else {
-          Object.assign(data, {
-            [push]: {
-              [_key]: data.load.value,
-            },
-          });
-        }
-        delete data.load;
-      }
-
-      if (data.unload) {
-        const _key = data.unload.key;
-        const _field = data.unload.field || '_id';
-        if (Array.isArray(data.unload.value)) {
-          Object.assign(data, {
-            $pull: {
-              [_key]: {
-                [_field]: { $in: data.unload.value },
-              },
-            },
-          });
-        } else {
-          Object.assign(data, {
-            $pull: {
-              [_key]: {
-                [_field]: data.unload.value,
-              },
-            },
-          });
-        }
-        delete data.unload;
-      }
-
-      if (data.increment) {
-        const _key = data.increment.key;
-        Object.assign(data, {
-          $inc: {
-            [_key]: data.increment.value,
-          },
-        });
-        delete data.increment;
-      }
       const q =
         typeof query === 'object'
           ? many
             ? this.model.updateMany(query, data, options)
             : this.model.findOneAndUpdate(query, data, options)
           : this.model.findByIdAndUpdate(query, data, options);
-      q.lean()
-        .then((r) => {
-          if (!r) {
-            resolve(null);
-          }
-          resolve(<DocType<T>>r);
-        })
-        .catch((e) => {
-          reject(e);
-        });
+      q.then((r) => {
+        if (!r || 'acknowledged' in r) {
+          resolve(null);
+        } else resolve(<DocType<T>>r.toObject());
+      }).catch((e) => {
+        reject(e);
+      });
     });
   }
 
@@ -189,24 +118,23 @@ export default abstract class Repository<T> {
     });
   }
 
-  delete(query: string | Partial<T>) {
+  delete(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
+      const query = this.normalizeId(_query);
       const options = { new: true };
 
       const q =
         typeof query === 'object'
           ? this.model.findOneAndDelete(query, options)
           : this.model.findByIdAndDelete(query, options);
-      q.lean()
-        .then((r) => {
-          if (!r) {
-            resolve(null);
-          }
-          resolve(<DocType<T>>r);
-        })
-        .catch((e) => {
-          reject(e);
-        });
+      q.then((r) => {
+        if (!r) {
+          resolve(null);
+        }
+        resolve(<DocType<T>>r!.toObject());
+      }).catch((e) => {
+        reject(e);
+      });
     });
   }
 
