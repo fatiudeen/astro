@@ -29,8 +29,6 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   useSessions = Config.OPTIONS.USE_AUTH_SESSIONS;
   userRefreshToken = Config.OPTIONS.USE_REFRESH_TOKEN;
   useGoogle = Config.OPTIONS.USE_OAUTH_GOOGLE;
-  useFacebook = Config.OPTIONS.USE_OAUTH_FACEBOOK;
-  useApple = Config.OPTIONS.USE_OAUTH_APPLE;
 
   oAuth2Client = this.useGoogle
     ? new google.auth.OAuth2(
@@ -40,17 +38,6 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       )
     : null;
   oauth2 = this.useGoogle ? google.oauth2('v2') : null;
-  appleOptions = this.useApple
-    ? {
-        clientID: Config.APPLE_API_CLIENT_ID || 'com.company.app',
-        redirectUri: `${Config.API_HOST}${Config.APPLE_API_REDIRECT}`,
-        // OPTIONAL
-        state: 'state', // optional, An unguessable random string. It is primarily used to protect against CSRF attacks.
-        // responseMode: 'form_post', // Force set to form_post if scope includes 'email'
-        scope: 'name%20email',
-        // scope: ['name', 'email'], // optional
-      }
-    : null;
 
   async login(data: { email: string; password: string }) {
     try {
@@ -149,22 +136,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       });
     }
 
-    if (this.useFacebook) {
-      const stringifiedParams = queryString.stringify({
-        client_id: process.env.APP_ID_GOES_HERE,
-        redirect_uri: `${Config.API_HOST}${<string>Config.FACEBOOK_API_REDIRECT}`,
-        scope: ['email', 'user_friends'].join(','),
-        response_type: 'code',
-        auth_type: 'rerequest',
-        display: 'popup',
-      });
-
-      facebookLoginUrl = `https://www.facebook.com/v4.0/dialog/oauth?${stringifiedParams}`;
-    }
-    if (this.useApple) {
-      appleLoginUrl = appleSignin.getAuthorizationUrl(this.appleOptions!);
-    }
-    return { googleLoginUrl, facebookLoginUrl, appleLoginUrl };
+    return { googleLoginUrl };
   }
 
   async googleLogin(code: string, state: string) {
@@ -197,71 +169,6 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       );
       const token = this.getSignedToken(user!);
       return `${state}?token=${token}`;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async facebookLogin(code: string) {
-    try {
-      if (!this.useFacebook) return null;
-      // eslint-disable-next-line no-unused-vars
-      const { access_token, token_type, expires_in } = (
-        await axios<{ access_token: string; token_type: string; expires_in: string }>({
-          url: 'https://graph.facebook.com/v4.0/oauth/access_token',
-          method: 'get',
-          params: {
-            client_id: Config.FACEBOOK_API_CLIENT_ID,
-            client_secret: Config.FACEBOOK_API_CLIENT_SECRET,
-            redirect_uri: `${Config.API_HOST}${Config.FACEBOOK_API_REDIRECT}`,
-            code,
-          },
-        })
-      ).data;
-      // eslint-disable-next-line no-unused-vars, object-curly-newline
-      const { id, email, first_name, last_name } = (
-        await axios<{ id: string; email: string; first_name: string; last_name: string }>({
-          url: 'https://graph.facebook.com/me',
-          method: 'get',
-          params: {
-            fields: ['id', 'email', 'first_name', 'last_name'].join(','),
-            access_token,
-          },
-        })
-      ).data;
-      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
-      const token = this.getSignedToken(user!);
-      return `${Config.FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async appleLogin(code: string) {
-    try {
-      if (!this.useApple) return null;
-
-      const appleClientSecret = appleSignin.getClientSecret({
-        clientID: Config.APPLE_API_CLIENT_ID || 'com.company.app', // Apple Client ID
-        teamID: Config.APPLE_TEAM_ID || 'teamID', // Apple Developer Team ID.
-        privateKey: Config.APPLE_API_CLIENT_SECRET,
-        keyIdentifier: Config.APPLE_KEY_IDENTIFIER,
-        // OPTIONAL
-        expAfter: 15777000,
-      });
-      const appleGetTokenOptions = {
-        clientID: Config.APPLE_API_CLIENT_ID || 'com.company.app',
-        redirectUri: `${Config.API_HOST}${Config.APPLE_API_REDIRECT}`,
-        clientSecret: appleClientSecret,
-      };
-      const { id_token } = await appleSignin.getAuthorizationToken(code, appleGetTokenOptions);
-
-      // eslint-disable-next-line no-unused-vars
-      const { email, name } = <AppleIdTokenType & { name: string }>await appleSignin.verifyIdToken(id_token);
-
-      const user = await this._userService.update({ email: <string>email }, { email: <string>email }, true);
-      const token = this.getSignedToken(user!);
-      return `${Config.FRONTEND_FACEBOOK_LOGIN_URI}?token=${token}`;
     } catch (error) {
       throw error;
     }
