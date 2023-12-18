@@ -9,9 +9,6 @@ import generateToken from '@utils/generateToken';
 import Service from '@services/service';
 import AuthSessionRepository from '@repositories/AuthSession.repository';
 import { google } from 'googleapis';
-import queryString from 'qs';
-import axios from 'axios';
-import appleSignin, { AppleIdTokenType } from 'apple-signin-auth';
 import Emailing from '@helpers/mailer';
 import jwt from 'jsonwebtoken';
 import { AuthSessionInterface } from '@interfaces/AuthSession.Interface';
@@ -23,7 +20,7 @@ import { promisify } from 'util';
 
 class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   protected repository = new AuthSessionRepository();
-  private readonly _userService = new UserService();
+  private readonly _userService = Service.instance(UserService);
   private readonly _emailing = Emailing;
   // externalServices = { SessionService: new SessionService(), Emailing: new Emailing() };
   useSessions = Config.OPTIONS.USE_AUTH_SESSIONS;
@@ -41,7 +38,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
   async login(data: { email: string; password: string }) {
     try {
-      const user = await this._userService.findOne({ email: <string>data.email });
+      const user = await this._userService().findOne({ email: <string>data.email });
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
       const isMatch = await this.comparePasswords(data.password, user);
       if (!isMatch) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
@@ -68,14 +65,14 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
   async createUser(data: Partial<UserInterface>) {
     try {
-      const user = await this._userService.findOne({ email: <string>data.email });
+      const user = await this._userService().findOne({ email: <string>data.email });
       if (user) throw new HttpError(Config.MESSAGES.USER_EXISTS, 406);
 
       const token = generateToken();
       data.verificationToken = token;
       data.role = 'user';
       data.password = await this.toHash(data.password!);
-      const result = await this._userService.create(data);
+      const result = await this._userService().create(data);
       this._emailing ? this._emailing.verifyEmail(result) : logger.info(['email not enabled']);
       return result;
     } catch (error) {
@@ -85,12 +82,12 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
   async verifyEmail(token: string) {
     try {
-      const user = await this._userService.findOne({
+      const user = await this._userService().findOne({
         verificationToken: token,
       });
 
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 406);
-      const result = await this._userService.update(user._id, { verifiedEmail: true, verificationToken: undefined });
+      const result = await this._userService().update(user._id, { verifiedEmail: true, verificationToken: undefined });
       return result;
     } catch (error) {
       throw error;
@@ -100,10 +97,10 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   async getResetToken(email: string) {
     try {
       let resetToken: string;
-      const user = await this._userService.findOne({ email });
+      const user = await this._userService().findOne({ email });
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
       if (!user.resetToken) {
-        await this._userService.update(user._id, { resetToken: generateToken() });
+        await this._userService().update(user._id, { resetToken: generateToken() });
       } else {
         resetToken = user.resetToken;
       }
@@ -114,10 +111,10 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   }
   async resetPassword(token: string, password: string) {
     try {
-      const user = await this._userService.findOne({ resetToken: token });
+      const user = await this._userService().findOne({ resetToken: token });
 
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
-      await this._userService.update(user._id, { resetToken: undefined, password: password });
+      await this._userService().update(user._id, { resetToken: undefined, password: password });
       return;
     } catch (error) {
       throw error;
@@ -152,7 +149,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
         auth: this.oAuth2Client,
       });
 
-      const user = await this._userService.update(
+      const user = await this._userService().update(
         { email: <string>email },
         {
           email: <string>email,
@@ -180,7 +177,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       const id = (<{ id: string }>jwt.verify(refreshToken, Config.REFRESH_JWT_KEY)).id;
       const session = await this.findOne(id);
       if (!session) throw new Error(Config.MESSAGES.INVALID_SESSION);
-      const user = await this._userService.findOne(<string>session.userId);
+      const user = await this._userService().findOne(<string>session.userId);
       const token = this.getSignedToken(user!);
       await this.update(session._id, { token });
       return { token };

@@ -70,4 +70,4 @@ const userSchema = new Schema<UserInterface & { _id: string }>(
 //   return pick(user.toJSON(), ['id', 'email', 'name', 'age', 'role']);
 // };
 
-export default <Model<UserInterface & { _id: string }>>model('User', userSchema);
+export default <Model<UserInterface>>(<unknown>model('User', userSchema));
