@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'development') {
 
 export const MESSAGES = {
   DB_CONNECTED: 'database connected',
-  ADMIN_SEEDED: 'database connected',
+  ADMIN_SEEDED: 'admin seeded',
   INTERNAL_SERVER_ERROR: 'Internal Server Error. Please try again!',
   INVALID_CREDENTIALS: 'Invalid Credentials',
   LOGIN_SUCCESS: 'Login Success',
