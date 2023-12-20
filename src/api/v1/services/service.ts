@@ -23,9 +23,8 @@ export default abstract class Service<T, R extends Repository<T>> {
           }
         >
       | undefined,
-    options?: OptionsParser<T>,
   ): Promise<DocType<T>[]> {
-    return this.repository.find(query, options);
+    return this.repository.find(query);
   }
   findOne(query: string | Partial<T>) {
     return this.repository.findOne(query);
@@ -83,7 +82,7 @@ export default abstract class Service<T, R extends Repository<T>> {
       this.count()
         .then((_totalDocs) => {
           totalDocs = _totalDocs;
-          return this.find(query, { sort: { createdAt: -1 }, skip: startIndex, limit });
+          return this.find(query); // TODO: { sort: { createdAt: -1 }, skip: startIndex, limit }
         })
         .then((data) => {
           const totalPages = Math.floor(totalDocs / limit) + 1;
@@ -100,5 +99,19 @@ export default abstract class Service<T, R extends Repository<T>> {
           reject(e);
         });
     });
+  }
+  static instance<T, A extends Array<any>>(obj: new (...args: A) => T) {
+    const instance = (...args: A): T => {
+      const _obj = obj as unknown as { _instance: null | T } & (new () => T);
+      if (_obj._instance) {
+        return _obj._instance;
+      }
+      _obj._instance = new obj(...args);
+      return _obj._instance;
+    };
+    if (!('_instance' in obj)) {
+      Object.assign(obj, { _instance: null, instance });
+    }
+    return (<{ _instance: null | T; instance: typeof instance } & (new (...args: A) => T)>obj).instance;
   }
 }

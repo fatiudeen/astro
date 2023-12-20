@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'development') {
 
 export const MESSAGES = {
   DB_CONNECTED: 'database connected',
-  ADMIN_SEEDED: 'database connected',
+  ADMIN_SEEDED: 'admin seeded',
   INTERNAL_SERVER_ERROR: 'Internal Server Error. Please try again!',
   INVALID_CREDENTIALS: 'Invalid Credentials',
   LOGIN_SUCCESS: 'Login Success',
@@ -42,15 +42,6 @@ export const {
   GOOGLE_API_REDIRECT,
   API_HOST,
   FRONTEND_GOOGLE_LOGIN_URI,
-  FACEBOOK_API_CLIENT_ID,
-  FACEBOOK_API_CLIENT_SECRET,
-  FACEBOOK_API_REDIRECT,
-  FRONTEND_FACEBOOK_LOGIN_URI,
-  APPLE_API_CLIENT_ID,
-  APPLE_API_REDIRECT,
-  APPLE_API_CLIENT_SECRET,
-  APPLE_TEAM_ID,
-  APPLE_KEY_IDENTIFIER,
   SMTP_SERVICE,
   SMTP_HOSTNAME,
   SMTP_PORT,
@@ -172,35 +163,6 @@ export function optionsValidation() {
     ) {
       throw new Error(
         'missing env config options: API_HOST, GOOGLE_API_CLIENT_ID, GOOGLE_API_CLIENT_SECRET, GOOGLE_API_REDIRECT, FRONTEND_GOOGLE_LOGIN_URI',
-      );
-    }
-  }
-
-  if (OPTIONS.USE_OAUTH_FACEBOOK) {
-    if (
-      !API_HOST ||
-      !FACEBOOK_API_CLIENT_ID ||
-      !FACEBOOK_API_CLIENT_SECRET ||
-      !FACEBOOK_API_REDIRECT ||
-      !FRONTEND_FACEBOOK_LOGIN_URI
-    ) {
-      throw new Error(
-        'missing env config options: API_HOST, FACEBOOK_API_CLIENT_ID, FACEBOOK_API_CLIENT_SECRET, FACEBOOK_API_REDIRECT, FRONTEND_FACEBOOK_LOGIN_URI',
-      );
-    }
-  }
-
-  if (OPTIONS.USE_OAUTH_APPLE) {
-    if (
-      !API_HOST ||
-      !APPLE_API_CLIENT_ID ||
-      !APPLE_API_REDIRECT ||
-      !APPLE_API_CLIENT_SECRET ||
-      !APPLE_TEAM_ID ||
-      !APPLE_KEY_IDENTIFIER
-    ) {
-      throw new Error(
-        'missing env config options: API_HOST, APPLE_API_CLIENT_ID, APPLE_API_REDIRECT, APPLE_API_CLIENT_SECRET, APPLE_TEAM_ID, APPLE_KEY_IDENTIFIER ',
       );
     }
   }
