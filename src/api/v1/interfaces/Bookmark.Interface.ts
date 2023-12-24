@@ -1,4 +1,6 @@
+import { Types } from 'mongoose';
+
 export interface BookmarkInterface {
-  userId: string;
-  postId: string;
+  userId: string | Types.ObjectId;
+  postId: string | Types.ObjectId;
 }

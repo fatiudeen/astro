@@ -10,15 +10,7 @@ const sessionSchema = new Schema<AuthSessionInterface>(
   },
   {
     timestamps: true,
-    _id: false,
-    toObject: {
-      transform(doc, ret) {
-        // delete ret._id;
-        // ret.id = shortUUID().fromUUID(doc._id);
-      },
-    },
   },
 );
-// sessionSchema.methods.
 
 export default <Model<AuthSessionInterface>>model('session', sessionSchema);
