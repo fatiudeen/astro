@@ -3,40 +3,24 @@
 /* eslint-disable indent */
 // import { OPTIONS } from '@config';
 import { Model, Query, Types } from 'mongoose';
-import shortUUID from 'short-uuid';
+// import shortUUID from 'short-uuid';
 
 export default abstract class Repository<T> {
   protected abstract model: Model<T>;
 
-  normalizeId<N extends string | Record<string, any> | Array<string>>(q: N): N {
-    if (typeof q === 'string') {
-      return shortUUID().toUUID(q).toString() as N;
-    } else if (typeof q === 'object' && '_id' in q) {
-      q._id = shortUUID()
-        .toUUID(q._id as string)
-        .toString();
-
-      return q as N;
-    } else if (Array.isArray(q)) {
-      return q.map((v) => shortUUID().toUUID(v).toString()) as N;
-    }
-    return q as N;
-  }
-
   find(_query?: Partial<T> | Array<string> | { [K in keyof DocType<T>]?: Array<DocType<T>[K]> }) {
     return new Promise<DocType<T>[]>((resolve, reject) => {
       let query: Record<string, any> = _query || {};
-      query = this.normalizeId(query);
+      // query = this.normalizeId(query);
 
       if (Array.isArray(_query) && _query.length > 0) {
-        query = { _id: { $in: _query.map((val) => this.normalizeId(val)) } };
+        query = { _id: { $in: _query.map((val) => val) } };
       } else
         for (const [felid, value] of Object.entries(query)) {
           Array.isArray(value) ? (query[felid] = { $in: value }) : false;
         }
 
       const q = this.model.find(query);
-
       q.lean()
         .then((r) => {
           resolve(<DocType<T>[]>r);
@@ -49,7 +33,7 @@ export default abstract class Repository<T> {
 
   findOne(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
-      const query = this.normalizeId(_query);
+      const query = _query;
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.then((r) => {
         if (!r) {
@@ -63,7 +47,7 @@ export default abstract class Repository<T> {
 
   findOneWithException(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
-      const query = this.normalizeId(_query);
+      const query = _query;
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.then((r) => {
         if (!r) {
@@ -85,7 +69,7 @@ export default abstract class Repository<T> {
    */
   update(_query: string | Partial<T>, data: Partial<T>, upsert = false, many = false) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
-      const query = this.normalizeId(_query);
+      const query = _query;
       const options = { new: true, upsert: false };
       if (upsert) {
         options.upsert = true;
@@ -120,7 +104,7 @@ export default abstract class Repository<T> {
 
   delete(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
-      const query = this.normalizeId(_query);
+      const query = _query;
       const options = { new: true };
 
       const q =
