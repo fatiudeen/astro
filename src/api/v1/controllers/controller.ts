@@ -20,6 +20,7 @@ export default abstract class Controller<T> {
   abstract service: Service<T, any>;
   readonly fileProcessor = OPTIONS.USE_MULTER ? Multer : null;
   abstract responseDTO?: Function;
+  safeQuery = safeQuery;
   protected processFile = (req: Request) => {
     if (!this.fileProcessor) return;
     let multerFile!: 'path' | 'location' | 'buffer';
@@ -77,6 +78,37 @@ export default abstract class Controller<T> {
         next(error);
       }
     };
+
+  protected paginate = async (req: Request, service: typeof this.service, param = {}) => {
+    const query = this.safeQuery(req);
+    const page: number = 'page' in query ? parseInt(query.page, 10) : 1;
+    'page' in query ? delete query.page : false;
+    const limit: number = 'limit' in query ? parseInt(query.limit, 10) : 10;
+    'limit' in query ? delete query.limit : false;
+    const startIndex = limit * (page - 1);
+    const sort = query.sortBy ? { [query.sortBy]: query.sortOrder || -1 } : { createdAt: -1 };
+    const totalDocs = await service.count(param);
+    const totalPages = Math.floor(totalDocs / limit) + 1;
+    // eslint-disable-next-line newline-per-chained-call
+    const docs = await service.PaginatedFind(param, <any>sort, startIndex, limit);
+
+    return {
+      [`${this.resource}s`]: docs,
+      limit,
+      totalDocs,
+      page,
+      totalPages,
+    };
+  };
+
+  parseSearchKey(keyword: string, fields: string[]) {
+    return {
+      $or: fields.map((v) => ({
+        [v]: { $regex: keyword, $options: 'i' },
+      })),
+    };
+  }
+
   constructor(resource: string) {
     this.resource = resource;
     this.resourceId = `${resource}Id`;
@@ -88,6 +120,12 @@ export default abstract class Controller<T> {
   });
 
   get = this.control((req: Request) => {
+    const query = this.safeQuery(req);
+    const param: Record<string, any> = {};
+    if (query.search) {
+      Object.assign(param, this.parseSearchKey(<string>query.search, ['tags']));
+      delete query.search;
+    }
     return this.service.find(
       <Partial<T & { page?: string | number | undefined; limit?: string | number | undefined }>>safeQuery(req),
     );

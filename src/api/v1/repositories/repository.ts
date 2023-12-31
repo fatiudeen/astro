@@ -31,6 +31,21 @@ export default abstract class Repository<T> {
     });
   }
 
+  PaginatedFind(_query: Partial<T>, sort: any, startIndex: number, limit: number) {
+    return new Promise<DocType<T>[]>((resolve, reject) => {
+      let query: Record<string, any> = _query || {};
+
+      const q = this.model.find(query).sort(sort).skip(startIndex).limit(limit);
+      q.lean()
+        .then((r) => {
+          resolve(<DocType<T>[]>r);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
+
   findOne(_query: string | Partial<T>) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
       const query = _query;
