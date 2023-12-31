@@ -6,6 +6,7 @@ const LikeSchema = new Schema<LikeInterface>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     postId: { type: Schema.Types.ObjectId, ref: 'Post' },
+    commentId: { type: Schema.Types.ObjectId, ref: 'Comment' },
   },
   {
     timestamps: true,

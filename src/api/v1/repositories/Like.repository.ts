@@ -4,4 +4,18 @@ import Repository from '@repositories/repository';
 
 export default class LikeRepository extends Repository<LikeInterface> {
   protected model = Like;
+  PaginatedFind(_query: Partial<LikeInterface>, sort: any, startIndex: number, limit: number) {
+    return new Promise<DocType<LikeInterface>[]>((resolve, reject) => {
+      let query: Record<string, any> = _query || {};
+
+      const q = this.model.find(query).populate('userId').sort(sort).skip(startIndex).limit(limit);
+      q.lean()
+        .then((r) => {
+          resolve(<DocType<LikeInterface>[]>(<unknown>r));
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
 }

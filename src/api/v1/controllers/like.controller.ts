@@ -8,26 +8,20 @@ import Controller from '@controllers/controller';
 class LikeController extends Controller<LikeInterface> {
   service = new LikeService();
   responseDTO = undefined; //LikeResponseDTO.Like;
-  getOne = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-
-    const result = await this.service.findOne(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
+  toggle = this.control(async (req: Request) => {
+    const result = await this.service.toggle(
+      req.user?._id!,
+      req.params.commentId || req.params.postId,
+      !!req.params.postId,
+    );
     return result;
   });
-  update = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-    const data = <LikeInterface>req.body;
-    const result = await this.service.update(params, data);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
-  });
-  delete = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
+  get = this.control((req: Request) => {
+    const param: Record<string, any> = req.params.postId
+      ? { postId: req.params.postId }
+      : { commentId: req.params.commentId };
 
-    const result = await this.service.delete(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
+    return this.paginate(req, this.service, param);
   });
 }
 
