@@ -8,27 +8,22 @@ import Controller from '@controllers/controller';
 class CommentController extends Controller<CommentInterface> {
   service = new CommentService();
   responseDTO = undefined; //CommentResponseDTO.Comment;
-  getOne = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
+  create = this.control((req: Request) => {
+    const data = req.body;
+    data.userId = req.user?._id;
+    return this.service.create(data);
+  });
 
-    const result = await this.service.findOne(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
+  get = this.control((req: Request) => {
+    const param: Record<string, any> = { userId: req.user?._id };
+    return this.paginate(req, this.service, param);
   });
-  update = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-    const data = <CommentInterface>req.body;
-    const result = await this.service.update(params, data);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
-  });
-  delete = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
 
-    const result = await this.service.delete(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
+  replies = this.control((req: Request) => {
+    const param: Record<string, any> = { userId: req.user?._id, parentId: req.params.commentId };
+    return this.paginate(req, this.service, param);
   });
+  // get one == thread
 }
 
 export default CommentController;

@@ -126,9 +126,7 @@ export default abstract class Controller<T> {
       Object.assign(param, this.parseSearchKey(<string>query.search, ['tags']));
       delete query.search;
     }
-    return this.service.find(
-      <Partial<T & { page?: string | number | undefined; limit?: string | number | undefined }>>safeQuery(req),
-    );
+    return this.paginate(req, this.service, param);
   });
 
   getOne = this.control(async (req: Request) => {

@@ -9,4 +9,6 @@ export interface CommentInterface {
   media: IMedia;
   userId: string | Types.ObjectId;
   parentId: string;
+  replies: number;
+  deleted: boolean;
 }

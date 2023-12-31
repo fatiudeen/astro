@@ -18,6 +18,7 @@ const CommentSchema = new Schema<CommentInterface>(
       },
     }),
     parentId: String,
+    deleted: Boolean,
   },
   {
     timestamps: true,
