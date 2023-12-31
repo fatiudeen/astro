@@ -8,25 +8,18 @@ import Controller from '@controllers/controller';
 class FollowController extends Controller<FollowInterface> {
   service = new FollowService();
   responseDTO = undefined; //FollowResponseDTO.Follow;
-  getOne = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-
-    const result = await this.service.findOne(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
+  toggle = this.control(async (req: Request) => {
+    const result = await this.service.toggle(req.user?._id!, req.params.userId);
     return result;
   });
-  update = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-    const data = <FollowInterface>req.body;
-    const result = await this.service.update(params, data);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
+  followers = this.control(async (req: Request) => {
+    const params = { followed: req.params.userId || req.user?._id! };
+    const result = await this.paginate(req, this.service, params);
     return result;
   });
-  delete = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-
-    const result = await this.service.delete(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
+  following = this.control(async (req: Request) => {
+    const params = { userId: req.params.userId || req.user?._id! };
+    const result = await this.paginate(req, this.service, params);
     return result;
   });
 }
