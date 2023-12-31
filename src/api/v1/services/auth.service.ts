@@ -2,7 +2,7 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
-import { UserInterface } from '@interfaces/User.Interface';
+import { UserInterface, UserRole } from '@interfaces/User.Interface';
 import HttpError from '@helpers/HttpError';
 import * as Config from '@config';
 import generateToken from '@utils/generateToken';
@@ -70,7 +70,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
       const token = generateToken();
       data.verificationToken = token;
-      data.role = 'user';
+      data.role = UserRole.USER;
       data.password = await this.toHash(data.password!);
       const result = await this._userService().create(data);
       this._emailing ? this._emailing.verifyEmail(result) : logger.info(['email not enabled']);
@@ -122,8 +122,6 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   }
   oAuthUrls(state: string) {
     let googleLoginUrl;
-    let facebookLoginUrl;
-    let appleLoginUrl;
     if (this.useGoogle) {
       googleLoginUrl = this.oAuth2Client!.generateAuthUrl({
         access_type: 'offline',
@@ -152,16 +150,16 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       const user = await this._userService().update(
         { email: <string>email },
         {
-          email: <string>email,
           firstName: given_name!,
           lastName: family_name!,
-          avatar: picture || '',
-          role: 'user',
           $setOnInsert: {
             fromOauth: false,
             verifiedEmail: true,
+            avatar: picture || '',
+            role: UserRole.USER,
+            email: <string>email,
           },
-        },
+        } as any,
         true,
       );
       const token = this.getSignedToken(user!);
