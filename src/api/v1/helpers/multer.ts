@@ -91,20 +91,20 @@ class Multer {
     return (await this.s3!.send(command)).Body;
   }
 
-  async addObject(body: string, contentType: string) {
-    const key = Date.now().toString();
-    const params = {
-      Key: key,
-      Bucket: this.bucket,
-      Body: Buffer.from(body, 'base64'),
-      ACL: 'public-read',
-      ContentEncoding: 'base64',
-      ContentType: contentType,
-    };
-    const command = new clientS3.PutObjectCommand(params);
-    await this.s3!.send(command);
-    return `url${key}`;
-  }
+  // async addObject(body: string, contentType: string) {
+  //   const key = Date.now().toString();
+  //   const params = {
+  //     Key: key,
+  //     Bucket: this.bucket,
+  //     Body: Buffer.from(body, 'base64'),
+  //     ACL: 'public-read',
+  //     ContentEncoding: 'base64',
+  //     ContentType: contentType,
+  //   };
+  //   const command = new clientS3.PutObjectCommand(params);
+  //   await this.s3!.send(command);
+  //   return `url${key}`;
+  // }
 
   async deleteObject(key: string | clientS3.ObjectIdentifier[]) {
     if (this.useDiskStorage) {

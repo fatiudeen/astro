@@ -14,6 +14,9 @@ class BookmarkService extends Service<BookmarkInterface, BookmarkRepository> {
         .findOne(postId)
         .then((post) => {
           if (!post) reject(new HttpError('invalid post'));
+          return this._postService().increment(postId, { bookmarks: 1 });
+        })
+        .then(() => {
           return this.create({ userId, postId });
         })
         .then((bookmark) => {
@@ -25,10 +28,15 @@ class BookmarkService extends Service<BookmarkInterface, BookmarkRepository> {
 
   remove(bookmarkId: string) {
     return new Promise<DocType<BookmarkInterface>>((resolve, reject) => {
+      let _bookmark;
       this.delete(bookmarkId)
         .then((bookmark) => {
           if (!bookmark) reject(new HttpError('invalid bookmark'));
-          resolve(bookmark!);
+          _bookmark = bookmark;
+          return this._postService().increment(bookmark!.postId.toString(), { bookmarks: -1 });
+        })
+        .then(() => {
+          resolve(_bookmark!);
         })
         .catch((error) => reject(error));
     });

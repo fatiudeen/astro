@@ -43,6 +43,10 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.count(query);
   }
 
+  increment(query: string | Partial<T>, data: { [key in keyof Partial<DocType<T>>]: number }) {
+    return this.repository.increment(query, data);
+  }
+
   static instance<T, A extends Array<any>>(obj: new (...args: A) => T) {
     const instance = (...args: A): T => {
       const _obj = obj as unknown as { _instance: null | T } & (new () => T);

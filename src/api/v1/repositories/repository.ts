@@ -140,4 +140,24 @@ export default abstract class Repository<T> {
   count(query: Partial<T> = {}) {
     return this.model.countDocuments(query);
   }
+
+  increment(_query: string | Partial<T>, data: { [key in keyof Partial<DocType<T>>]: number }) {
+    return new Promise<DocType<T> | null>((resolve, reject) => {
+      const query = _query;
+      const options = { new: true };
+
+      const q =
+        typeof query === 'object'
+          ? this.model.findOneAndUpdate(query, { $inc: data }, options)
+          : this.model.findByIdAndUpdate(query, { $inc: data }, options);
+      q.then((r) => {
+        if (!r) {
+          resolve(null);
+        }
+        resolve(<DocType<T>>r!.toObject());
+      }).catch((e) => {
+        reject(e);
+      });
+    });
+  }
 }
