@@ -4,4 +4,18 @@ import Repository from '@repositories/repository';
 
 export default class BookmarkRepository extends Repository<BookmarkInterface> {
   protected model = Bookmark;
+  find(_query?: Partial<BookmarkInterface>) {
+    return new Promise<DocType<BookmarkInterface>[]>((resolve, reject) => {
+      let query: Record<string, any> = _query || {};
+
+      const q = this.model.find(query).populate('postId').sort({ createdAt: -1 });
+      q.lean()
+        .then((r) => {
+          resolve(<DocType<BookmarkInterface>[]>(<unknown>r));
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
 }

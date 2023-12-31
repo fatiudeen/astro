@@ -8,24 +8,14 @@ import Controller from '@controllers/controller';
 class BookmarkController extends Controller<BookmarkInterface> {
   service = new BookmarkService();
   responseDTO = undefined; //BookmarkResponseDTO.Bookmark;
-  getOne = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-
-    const result = await this.service.findOne(params);
+  add = this.control(async (req: Request) => {
+    const result = await this.service.add(req.user?._id, req.body.postId);
     if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
     return result;
   });
-  update = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-    const data = <BookmarkInterface>req.body;
-    const result = await this.service.update(params, data);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
-  });
-  delete = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
 
-    const result = await this.service.delete(params);
+  remove = this.control(async (req: Request) => {
+    const result = await this.service.remove(req.params.bookmarkId);
     if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
     return result;
   });
