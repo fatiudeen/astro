@@ -8,26 +8,30 @@ import Controller from '@controllers/controller';
 class PostController extends Controller<PostInterface> {
   service = new PostService();
   responseDTO = undefined; //PostResponseDTO.Post;
-  getOne = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-
-    const result = await this.service.findOne(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
+  get = this.control((req: Request) => {
+    const param: Record<string, any> = req.params.userId ? { userId: req.params.postId } : { userId: req.user?._id };
+    param.currentUser = req.user?._id;
+    return this.paginate(req, this.service, param);
   });
-  update = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
-    const data = <PostInterface>req.body;
-    const result = await this.service.update(params, data);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
-  });
-  delete = this.control(async (req: Request) => {
-    const params = req.params[this.resourceId] || req.user?._id!;
 
-    const result = await this.service.delete(params);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
+  create = this.control((req: Request) => {
+    const data = req.body;
+    data.userId = req.user?._id;
+    return this.service.create(data);
+  });
+
+  disableComment = this.control((req: Request) => {
+    return this.service.update(req.params.postId, { hideComment: true });
+  });
+
+  share = this.control((req: Request) => {
+    const data = req.body;
+    data.userId = req.user?._id;
+    return this.service.share(data);
+  });
+
+  feeds = this.control((req: Request) => {
+    return this.service.feeds(req.user?._id);
   });
 }
 

@@ -22,6 +22,7 @@ export default abstract class Controller<T> {
   abstract responseDTO?: Function;
   safeQuery = safeQuery;
   protected processFile = (req: Request) => {
+    // TODO:
     if (!this.fileProcessor) return;
     let multerFile!: 'path' | 'location' | 'buffer';
     if (this.fileProcessor.storageType === 'disk') {
