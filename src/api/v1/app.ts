@@ -20,6 +20,13 @@ import * as Config from '@config';
 import { rateLimiter } from '@middlewares/rateLimiter';
 import Route from '@routes/route';
 import session from 'express-session';
+import BookmarkRoute from '@routes/bookmark.route';
+import CommentRoute from '@routes/comment.route';
+import ConversationRoute from '@routes/conversation.route';
+import FollowRoute from '@routes/follow.route';
+import LikeRoute from '@routes/like.route';
+import MessageRoute from '@routes/message.route';
+import PostRoute from '@routes/post.route';
 // import visitCount from '@middlewares/visitCount';
 
 // eslint-disable-next-line import/no-extraneous-dependencies, import/no-unresolved
@@ -34,6 +41,13 @@ class App {
   private routes: Record<string, Route<any>> = {
     '': new AuthRoute(),
     users: new UsersRoute(true),
+    bookmarks: new BookmarkRoute(true),
+    comments: new CommentRoute(true),
+    conversations: new ConversationRoute(true),
+    follow: new FollowRoute(true),
+    likes: new LikeRoute(true),
+    messages: new MessageRoute(true),
+    posts: new PostRoute(true),
   };
   httpServer;
   constructor() {
