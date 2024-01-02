@@ -11,6 +11,7 @@ import Multer from '@helpers/multer';
 import safeQuery from '@utils/safeQuery';
 import httpStatus from 'http-status';
 import { OPTIONS } from '@config';
+import { MediaTypeEnum } from '@interfaces/Common.Interface';
 
 export default abstract class Controller<T> {
   protected HttpError = httpError;
@@ -21,8 +22,16 @@ export default abstract class Controller<T> {
   readonly fileProcessor = OPTIONS.USE_MULTER ? Multer : null;
   abstract responseDTO?: Function;
   safeQuery = safeQuery;
-  protected processFile = (req: Request) => {
-    // TODO:
+  private categorizeFileType(mimeType: string) {
+    if (mimeType.startsWith('image/')) {
+      return MediaTypeEnum.IMAGE;
+    } else if (mimeType.startsWith('video/')) {
+      return MediaTypeEnum.VIDEO;
+    } else {
+      return null;
+    }
+  }
+  protected processFile = (req: Request, create = false) => {
     if (!this.fileProcessor) return;
     let multerFile!: 'path' | 'location' | 'buffer';
     if (this.fileProcessor.storageType === 'disk') {
@@ -38,27 +47,38 @@ export default abstract class Controller<T> {
     if (req.file) {
       if (!req.file.fieldname) return;
 
-      req.body[req.file.fieldname] = (<any>req.file)[multerFile];
+      req.body[req.file.fieldname] = {
+        url: (<any>req.file)[multerFile],
+        type: this.categorizeFileType(req.file.mimetype),
+      };
     }
     if (req.files && Array.isArray(req.files)) {
       if (req.files.length === 0) return;
 
       // eslint-disable-next-line no-undef
       const data = (<Express.Multer.File[]>req.files).map((file) => {
-        return (<any>file)[multerFile];
+        return { url: (<any>file)[multerFile], type: this.categorizeFileType(file.mimetype) };
       });
       const fieldname = req.files[0].fieldname;
-      (<any>req.body).$push = {
-        [fieldname]: { $each: data },
-      };
+      if (!create) {
+        (<any>req.body).$push = {
+          [fieldname]: { $each: data },
+        };
+      } else {
+        req.body[fieldname] = data;
+      }
     } else if (req.files && !Array.isArray(req.files)) {
       Object.entries(req.files).forEach(([key, value]) => {
         const data = value.map((file) => {
-          return (<any>file)[multerFile];
+          return { url: (<any>file)[multerFile], type: this.categorizeFileType(file.mimetype) };
         });
-        (<any>req.body).$push = {
-          [key]: { $each: data },
-        };
+        if (!create) {
+          (<any>req.body).$push = {
+            [key]: { $each: data },
+          };
+        } else {
+          (<any>req.body)[key] = data;
+        }
       });
     }
   };
