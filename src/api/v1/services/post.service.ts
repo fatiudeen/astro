@@ -3,17 +3,17 @@ import { IMedia } from '@interfaces/Common.Interface';
 import { PostInterface } from '@interfaces/Post.Interface';
 import PostRepository from '@repositories/Post.repository';
 import Service from '@services/service';
-import UserService from '@services/user.service';
+// import UserService from '@services/user.service';
 import FollowService from '@services/follow.service';
-import LikeService from '@services/like.service';
-import CommentService from '@services/comment.service';
+// import LikeService from '@services/like.service';
+// import CommentService from '@services/comment.service';
 
 class PostService extends Service<PostInterface, PostRepository> {
   protected repository = new PostRepository();
-  private readonly _userService = Service.instance(UserService);
+  // private readonly _userService = Service.instance(UserService);
   private readonly _followService = Service.instance(FollowService);
-  private readonly _likeService = Service.instance(LikeService);
-  private readonly _commentService = Service.instance(CommentService);
+  // private readonly _likeService = Service.instance(LikeService);
+  // private readonly _commentService = Service.instance(CommentService);
 
   delete(query: string | Partial<PostInterface>) {
     return this.repository.update(query, { deleted: true });

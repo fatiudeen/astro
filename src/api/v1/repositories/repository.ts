@@ -60,8 +60,8 @@ export default abstract class Repository<T> {
     });
   }
 
-  findOneWithException(_query: string | Partial<T>) {
-    return new Promise<DocType<T> | null>((resolve, reject) => {
+  findOneWithException(_query: string | Partial<T>): Promise<DocType<T>> {
+    return new Promise<DocType<T>>((resolve, reject) => {
       const query = _query;
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.then((r) => {
