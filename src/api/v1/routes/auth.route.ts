@@ -11,7 +11,7 @@ class AuthRoute extends Route<AuthSessionInterface> {
   initRoutes() {
     this.router.post('/signin', this.validator(this.dto.login), this.controller.login);
     this.router.route('/signup').post(this.validator(this.dto.register), this.controller.registration);
-    this.router.route('/verifyEmail').get(this.validator(this.dto.email), this.controller.verifyEmail);
+    this.router.route('/verifyEmail').get(this.controller.verifyEmail);
 
     this.router.route('/forgotPassword').post(this.validator(this.dto.email), this.controller.forgotPassword);
     this.router.route('/resetPassword/:token').post(this.validator(this.dto.password), this.controller.resetPassword);

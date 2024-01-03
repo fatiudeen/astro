@@ -2,6 +2,7 @@
 import { model, Schema, Model } from 'mongoose';
 // import bcrypt from 'bcrypt';
 import { UserInterface, UserRole, UserSex } from '@interfaces/User.Interface';
+import { IMedia, MediaTypeEnum } from '@interfaces/Common.Interface';
 
 const userSchema = new Schema<UserInterface>(
   {
@@ -25,14 +26,20 @@ const userSchema = new Schema<UserInterface>(
     },
     verifiedEmail: Boolean,
     verificationToken: String,
-    avatar: String,
+    avatar: new Schema<IMedia>({
+      url: String,
+      type: {
+        type: String,
+        enum: Object.values(MediaTypeEnum),
+      },
+    }),
     resetToken: String,
     firstName: String,
     lastName: String,
     verifiedPhoneNumber: Boolean,
     hasPassword: Boolean,
     username: { type: String, index: true, unique: true },
-    dob: Number,
+    dob: String,
     sex: {
       type: String,
       enum: Object.values(UserSex),
@@ -40,7 +47,7 @@ const userSchema = new Schema<UserInterface>(
     },
     phoneNumber: {
       countryCode: String,
-      number: Number,
+      number: String,
     },
     location: String, // TODO:
     address: String,

@@ -27,6 +27,10 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.findOne(query);
   }
 
+  findOneWithException(query: string | Partial<T>) {
+    return this.repository.findOneWithException(query);
+  }
+
   create(data: Partial<T>) {
     return this.repository.create(data);
   }

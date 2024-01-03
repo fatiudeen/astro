@@ -10,23 +10,24 @@ class CommentRoute extends Route<CommentInterface> {
   initRoutes() {
     this.router
       .route('/')
-      .get(this.controller.get)
+      // .get(this.controller.get)
       .post(
         this.fileProcessor.uploadArray<CommentInterface>('media'),
         this.validator(this.dto.create),
         this.controller.create,
       );
     this.router.route('/:commentId').delete(this.validator(this.dto.id), this.controller.delete);
+    this.router.route('/:postId').get(this.validator(this.dto.postId), this.controller.get);
     //   .get(this.controller.thread);
 
     this.router
       .route('/:commentId/replies')
-      .get(
+      .get(this.validator(this.dto.id), this.controller.replies)
+      .post(
         this.fileProcessor.uploadArray<CommentInterface>('media'),
-        this.validator(this.dto.id),
-        this.controller.replies,
-      )
-      .post(this.validator(this.dto.reply), this.controller.create);
+        this.validator(this.dto.reply),
+        this.controller.create,
+      );
 
     return this.router;
   }

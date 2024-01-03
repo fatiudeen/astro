@@ -15,7 +15,7 @@ class CommentController extends Controller<CommentInterface> {
   });
 
   get = this.control((req: Request) => {
-    const param: Record<string, any> = { userId: req.user?._id };
+    const param: Record<string, any> = { postId: req.params.postId };
     return this.paginate(req, this.service, param);
   });
 

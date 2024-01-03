@@ -15,6 +15,7 @@ class PostController extends Controller<PostInterface> {
   });
 
   create = this.control((req: Request) => {
+    this.processFile(req, true);
     const data = req.body;
     data.userId = req.user?._id;
     return this.service.create(data);

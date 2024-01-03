@@ -14,7 +14,7 @@ class UserRoute extends Route<UserInterface> {
       .get(this.controller.getOne)
       .put(
         this.fileProcessor.uploadOne<UserInterface>('avatar'),
-        this.validator(this.dto.update.concat(this.dto.id)),
+        this.validator(this.dto.update),
         this.controller.update,
       )
       .delete(this.controller.delete);

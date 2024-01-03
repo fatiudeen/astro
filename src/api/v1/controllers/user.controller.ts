@@ -13,12 +13,13 @@ class UserController extends Controller<UserInterface> {
 
     const result = await this.service.findOne(params);
     if (req.params[this.resourceId]) {
-      await this.service.updateFollowStatus(req.user?._id, result);
+      await this.service.updateFollowStatus(req.user?._id, result!);
     }
     if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
     return result;
   });
   update = this.control(async (req: Request) => {
+    this.processFile(req);
     const params = req.params[this.resourceId] || req.user?._id!;
     const data = <UserInterface>req.body;
     const result = await this.service.update(params, data);

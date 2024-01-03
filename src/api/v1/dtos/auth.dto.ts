@@ -22,7 +22,7 @@ export const authRequestDTO = {
     check('firstName').exists(),
     check('lastName').exists(),
     check('username').exists(),
-    check('dob').exists().isString().toDate(),
+    check('dob').exists().isString(),
     check('sex').exists().isIn(Object.values(UserSex)),
     check('phoneNumber.countryCode').exists(),
     check('phoneNumber.number').exists().isMobilePhone(['en-NG', 'en-US', 'en-IN']),

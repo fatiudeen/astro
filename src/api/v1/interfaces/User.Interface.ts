@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { IPhoneNumber } from '@interfaces/Common.Interface';
+import { IMedia, IPhoneNumber } from '@interfaces/Common.Interface';
 
 export enum UserRole {
   USER = 'user',
@@ -22,7 +22,7 @@ export interface UserInterface {
   verifiedPhoneNumber: boolean;
   verificationToken?: string;
   resetToken?: string;
-  avatar?: string;
+  avatar?: IMedia;
   hasPassword: boolean;
   username: string;
   dob: number;

@@ -136,6 +136,7 @@ export default abstract class Controller<T> {
   }
 
   create = this.control((req: Request) => {
+    this.processFile(req, true);
     const data = <T>req.body;
     return this.service.create(data);
   });

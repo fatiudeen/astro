@@ -10,4 +10,5 @@ export const commentRequestDTO = {
     body('parentId').optional(),
   ],
   id: [param('commentId').exists()],
+  postId: [param('postId').exists()],
 };

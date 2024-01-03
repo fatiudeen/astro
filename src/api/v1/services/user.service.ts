@@ -11,7 +11,8 @@ class UserService extends Service<UserInterface, UserRepository> {
   private readonly _followService = Service.instance(FollowService);
 
   async findOne(query: string | Partial<UserInterface>) {
-    const user = await this.repository.findOneWithException(query);
+    const user = await this.repository.findOne(query);
+    if (!user) return null;
     const [followers, following] = await Promise.all([
       this._followService().count({ followed: user?._id.toString() }),
       this._followService().count({ userId: user?._id.toString() }),

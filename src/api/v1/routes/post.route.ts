@@ -11,10 +11,14 @@ class PostRoute extends Route<PostInterface> {
     this.router
       .route('/')
       .get(this.controller.get) // by user
-      .post(this.validator(this.dto.create), this.controller.create);
-    this.router.route('/share').put(this.controller.share); // re-post
-    this.router.route('/feeds').put(this.controller.feeds); // feeds
-    this.router.route('/:userId/users').put(this.validator(this.dto.userId), this.controller.get); // by user
+      .post(
+        this.fileProcessor.uploadArray<PostInterface>('media'),
+        this.validator(this.dto.create),
+        this.controller.create,
+      );
+    this.router.route('/share').put(this.validator(this.dto.share), this.controller.share); // re-post
+    this.router.route('/feeds').get(this.controller.feeds); // feeds
+    this.router.route('/:userId/users').get(this.validator(this.dto.userId), this.controller.get); // by user
 
     this.router.route('/:postId').delete(this.validator(this.dto.postId), this.controller.delete);
     //   .get(this.controller.getOne);
