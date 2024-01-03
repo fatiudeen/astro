@@ -66,7 +66,8 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
   async createUser(data: Partial<UserInterface>) {
     try {
-      const user = await this._userService().findOne({ email: <string>data.email });
+      const userData = { $or: [{ email: <string>data.email }, { username: <string>data.username }] } as any;
+      const user = await this._userService().findOne(userData);
       if (user) throw new HttpError(Config.MESSAGES.USER_EXISTS, 406);
 
       const token = generateToken();

@@ -8,7 +8,12 @@ export default class LikeRepository extends Repository<LikeInterface> {
     return new Promise<DocType<LikeInterface>[]>((resolve, reject) => {
       let query: Record<string, any> = _query || {};
 
-      const q = this.model.find(query).populate('userId').sort(sort).skip(startIndex).limit(limit);
+      const q = this.model
+        .find(query)
+        .populate('userId', 'username avatar firstName lastName')
+        .sort(sort)
+        .skip(startIndex)
+        .limit(limit);
       q.lean()
         .then((r) => {
           resolve(<DocType<LikeInterface>[]>(<unknown>r));

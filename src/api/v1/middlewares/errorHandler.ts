@@ -3,12 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import HttpError from '@helpers/HttpError';
 
 // eslint-disable-next-line import/prefer-default-export
-export const errorHandler = (
-  err: HttpError | Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorHandler = (err: HttpError | Error, req: Request, res: Response, next: NextFunction) => {
   let error: any;
 
   if (typeof err === 'object') error = { ...err };
@@ -21,6 +16,13 @@ export const errorHandler = (
   } else {
     statusCode = 500;
   }
+
+  // if ((error.code = 11000)) {
+  //   const key = Object.keys(error.keyValue)[0];
+  //   const value = Object.values(error.keyValue)[0];
+  //   statusCode = 400;
+  //   error.message = `duplicate ${key}: ${value}`;
+  // }
 
   res.status(statusCode).json({
     success: false,

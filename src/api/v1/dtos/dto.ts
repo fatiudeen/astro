@@ -11,3 +11,9 @@ export default (k: [], resource: string) => {
     update: create.concat([param(`${resource}Id`).exists()]),
   };
 };
+
+// function <T>(data: DocType<T> |DocType<T> [], remove: [keyof DocType<T>]){
+//   if
+//   remove.forEach(v=> delete data[v])
+//   return data
+// }
