@@ -12,6 +12,5 @@ const sessionSchema = new Schema<AuthSessionInterface>(
     timestamps: true,
   },
 );
-// sessionSchema.methods.
 
 export default <Model<AuthSessionInterface>>model('session', sessionSchema);

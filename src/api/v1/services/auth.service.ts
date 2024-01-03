@@ -2,7 +2,7 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
-import { UserInterface } from '@interfaces/User.Interface';
+import { UserInterface, UserRole } from '@interfaces/User.Interface';
 import HttpError from '@helpers/HttpError';
 import * as Config from '@config';
 import generateToken from '@utils/generateToken';
@@ -36,9 +36,10 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
     : null;
   oauth2 = this.useGoogle ? google.oauth2('v2') : null;
 
-  async login(data: { email: string; password: string }) {
+  async login(data: { username: string; password: string }) {
     try {
-      const user = await this._userService().findOne({ email: <string>data.email });
+      const loginData = { $or: [{ email: <string>data.username }, { username: <string>data.username }] } as any;
+      const user = await this._userService().findOne(loginData);
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
       const isMatch = await this.comparePasswords(data.password, user);
       if (!isMatch) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
@@ -65,12 +66,13 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
 
   async createUser(data: Partial<UserInterface>) {
     try {
-      const user = await this._userService().findOne({ email: <string>data.email });
+      const userData = { $or: [{ email: <string>data.email }, { username: <string>data.username }] } as any;
+      const user = await this._userService().findOne(userData);
       if (user) throw new HttpError(Config.MESSAGES.USER_EXISTS, 406);
 
       const token = generateToken();
       data.verificationToken = token;
-      data.role = 'user';
+      data.role = UserRole.USER;
       data.password = await this.toHash(data.password!);
       const result = await this._userService().create(data);
       this._emailing ? this._emailing.verifyEmail(result) : logger.info(['email not enabled']);
@@ -122,8 +124,6 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
   }
   oAuthUrls(state: string) {
     let googleLoginUrl;
-    let facebookLoginUrl;
-    let appleLoginUrl;
     if (this.useGoogle) {
       googleLoginUrl = this.oAuth2Client!.generateAuthUrl({
         access_type: 'offline',
@@ -152,16 +152,16 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       const user = await this._userService().update(
         { email: <string>email },
         {
-          email: <string>email,
           firstName: given_name!,
           lastName: family_name!,
-          avatar: picture || '',
-          role: 'user',
           $setOnInsert: {
             fromOauth: false,
             verifiedEmail: true,
+            avatar: picture || '',
+            role: UserRole.USER,
+            email: <string>email,
           },
-        },
+        } as any,
         true,
       );
       const token = this.getSignedToken(user!);

@@ -62,7 +62,7 @@ export const {
 } = <Record<string, string>>process.env;
 
 export const CONSTANTS = {
-  DIGITALOCEAN_SPACE_ENDPOINT: '',
+  DIGITALOCEAN_SPACE_ENDPOINT: 'nyc3.digitaloceanspaces.com',
   ROOT: path.join(__dirname, '..', '..'),
   ROOT_PATH: path.join(__dirname, '..', '..', MULTER_STORAGE_PATH || ''),
 };

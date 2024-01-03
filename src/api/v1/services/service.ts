@@ -1,5 +1,6 @@
 import Repository from '@repositories/repository';
 import observer from '@helpers/observer';
+import { UserInterface } from '@interfaces/User.Interface';
 // single model methods
 export default abstract class Service<T, R extends Repository<T>> {
   protected abstract repository: R;
@@ -14,36 +15,27 @@ export default abstract class Service<T, R extends Repository<T>> {
     }
   }
 
-  find(
-    query?:
-      | Partial<
-          T & {
-            page?: string | number | undefined;
-            limit?: string | number | undefined;
-          }
-        >
-      | undefined,
-  ): Promise<DocType<T>[]> {
+  find(query: Partial<T> | Array<string> | { [K in keyof DocType<T>]?: Array<DocType<T>[K]> }): Promise<DocType<T>[]> {
     return this.repository.find(query);
   }
+
+  PaginatedFind(query: Partial<T>, sort: any, startIndex: number, limit: number): Promise<DocType<T>[]> {
+    return this.repository.PaginatedFind(query, sort, startIndex, limit);
+  }
+
   findOne(query: string | Partial<T>) {
     return this.repository.findOne(query);
   }
+
+  findOneWithException(query: string | Partial<T>) {
+    return this.repository.findOneWithException(query);
+  }
+
   create(data: Partial<T>) {
     return this.repository.create(data);
   }
 
-  update(
-    query: string | Partial<T>,
-    data:
-      | Partial<T> & {
-          load?: { key: string; value: any; toSet?: boolean | undefined } | undefined;
-          unload?: { key: string; value: string | string[]; field?: string | undefined } | undefined;
-          increment?: { key: keyof T; value: number } | undefined;
-        } & { $setOnInsert?: Partial<T> },
-    upsert = false,
-    many = false,
-  ) {
+  update(query: string | Partial<T>, data: Partial<T>, upsert = false, many = false) {
     return this.repository.update(query, data, upsert, many);
   }
 
@@ -55,51 +47,10 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.count(query);
   }
 
-  protected paginatedFind(query?: Partial<T & { page?: number | string; limit?: number | string }>) {
-    return new Promise<{
-      data: DocType<T>[];
-      limit: number;
-      totalDocs: number;
-      page: number;
-      totalPages: number;
-    }>((resolve, reject) => {
-      query = query || {};
-      let page: number = 1;
-      let limit: number = 10;
-      if (query?.page) {
-        typeof query.page === 'string'
-          ? ((page = parseInt(query.page, 10)), delete query.page)
-          : (query.page, delete query.page);
-      }
-      if (query?.limit) {
-        typeof query.limit === 'string'
-          ? ((limit = parseInt(query.limit, 10)), delete query.limit)
-          : (query.limit, delete query.limit);
-      }
-      query = Object.entries(query).length > 1 ? query : {};
-      const startIndex = limit * (page - 1);
-      let totalDocs = 0;
-      this.count()
-        .then((_totalDocs) => {
-          totalDocs = _totalDocs;
-          return this.find(query); // TODO: { sort: { createdAt: -1 }, skip: startIndex, limit }
-        })
-        .then((data) => {
-          const totalPages = Math.floor(totalDocs / limit) + 1;
-          const result = {
-            data: <DocType<T>[]>data,
-            limit,
-            totalDocs,
-            page,
-            totalPages,
-          };
-          resolve(result);
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    });
+  increment(query: string | Partial<T>, data: { [key in keyof Partial<DocType<T>>]: number }) {
+    return this.repository.increment(query, data);
   }
+
   static instance<T, A extends Array<any>>(obj: new (...args: A) => T) {
     const instance = (...args: A): T => {
       const _obj = obj as unknown as { _instance: null | T } & (new () => T);

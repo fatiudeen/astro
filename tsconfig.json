@@ -39,6 +39,7 @@
       "@middlewares/*": ["src/api/v1/middlewares/*"],
       "@dtos/*": ["src/api/v1/dtos/*"],
       "@interfaces/*": ["src/api/v1/interfaces/*"],
+      "@events/*": ["src/api/v1/events/*"],
       "@repositories/*": ["src/api/v1/repositories/*"],
       "@models/*": ["src/api/v1/models/*"]
       },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */

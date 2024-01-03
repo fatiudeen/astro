@@ -1,12 +1,11 @@
 /* eslint-disable func-names */
 import { model, Schema, Model } from 'mongoose';
 // import bcrypt from 'bcrypt';
-import { UserInterface } from '@interfaces/User.Interface';
-import shortUUID from 'short-uuid';
+import { UserInterface, UserRole, UserSex } from '@interfaces/User.Interface';
+import { IMedia, MediaTypeEnum } from '@interfaces/Common.Interface';
 
-const userSchema = new Schema<UserInterface & { _id: string }>(
+const userSchema = new Schema<UserInterface>(
   {
-    _id: { type: String, default: shortUUID().uuid, index: true },
     email: {
       type: String,
       required: true,
@@ -22,52 +21,61 @@ const userSchema = new Schema<UserInterface & { _id: string }>(
 
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: Object.values(UserRole),
+      default: UserRole.USER,
     },
     verifiedEmail: Boolean,
     verificationToken: String,
-    avatar: String,
+    avatar: new Schema<IMedia>({
+      url: String,
+      type: {
+        type: String,
+        enum: Object.values(MediaTypeEnum),
+      },
+    }),
     resetToken: String,
+    firstName: String,
+    lastName: String,
+    verifiedPhoneNumber: Boolean,
+    hasPassword: Boolean,
+    username: { type: String, index: true, unique: true },
+    dob: String,
+    sex: {
+      type: String,
+      enum: Object.values(UserSex),
+      default: UserSex.OTHERS,
+    },
+    phoneNumber: {
+      countryCode: String,
+      number: String,
+    },
+    location: String, // TODO:
+    address: String,
+    followers: Number,
+    following: Number,
+    isFollower: Boolean,
+    isFollowing: Boolean,
+    winningStreak: Number,
+    online: Boolean,
+    socketId: String,
+    totalWinning: Number,
+    totalGames: Number,
+    profile: {
+      about: String,
+      league: String,
+      frequency: String,
+      betPerformance: String,
+    },
   },
   {
     timestamps: true,
     toObject: {
       transform(doc, ret) {
-        delete ret._id;
-        ret.id = shortUUID().fromUUID(doc._id);
+        // delete ret._id;
+        // ret.id = shortUUID().fromUUID(doc._id);
       },
     },
   },
 );
 
-// userSchema.pre('save', async function (next) {
-//   if (!this.isModified('password')) next();
-
-//   const salt = await bcrypt.genSalt(10);
-//   this.password = await bcrypt.hash(this.password, salt);
-
-//   next();
-// });
-
-// userSchema.methods.comparePasswords = async function (password: string) {
-//   // eslint-disable-next-line no-return-await
-//   return await bcrypt.compare(password, this.password);
-// };
-
-// userSchema.methods.getSignedToken = function () {
-//   // eslint-disable-next-line no-underscore-dangle
-//   return jwt.sign({ id: this._id }, JWT_KEY, { expiresIn: JWT_TIMEOUT });
-// };
-
-// userSchema.methods.toJSON = function() {
-//   const user = this;
-//   return omit(user.toObject(), ['password']);
-// };
-
-// userSchema.methods.transform = function() {
-//   const user = this;
-//   return pick(user.toJSON(), ['id', 'email', 'name', 'age', 'role']);
-// };
-
-export default <Model<UserInterface>>(<unknown>model('User', userSchema));
+export default <Model<UserInterface>>model('User', userSchema);
