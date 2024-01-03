@@ -1,13 +1,10 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
 import { UserResponseDTO } from './user.dto';
-import { UserInterface } from '@interfaces/User.Interface';
+import { UserInterface, UserSex } from '@interfaces/User.Interface';
 
 export const authRequestDTO = {
-  login: [
-    check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
-    check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
-  ],
+  login: [check('username').exists(), check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD)],
   email: [check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL)],
   code: [param('code').exists()],
   password: [
@@ -22,6 +19,17 @@ export const authRequestDTO = {
   ],
   register: [
     check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
+    check('firstName').exists(),
+    check('lastName').exists(),
+    check('username').exists(),
+    check('dob').exists().isString().toDate(),
+    check('sex').exists().isIn(Object.values(UserSex)),
+    check('phoneNumber.countryCode').exists(),
+    check('phoneNumber.number').exists().isMobilePhone(['en-NG', 'en-US', 'en-IN']),
+    check('profile.about').exists(),
+    check('profile.league').exists(),
+    check('profile.frequency').exists(),
+    check('profile.betPerformance').exists(),
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
     check('confirmPassword').custom((value: string, { req }) => {
       if (value !== req.body.password) {

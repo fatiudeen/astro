@@ -25,7 +25,7 @@ export interface UserInterface {
   avatar?: string;
   hasPassword: boolean;
   username: string;
-  age: number;
+  dob: number;
   sex: UserSex;
   phoneNumber: IPhoneNumber;
   location: string; // TODO:

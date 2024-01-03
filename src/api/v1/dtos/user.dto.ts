@@ -1,6 +1,6 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
-import { IUserResponseDTO, UserInterface } from '@interfaces/User.Interface';
+import { UserInterface } from '@interfaces/User.Interface';
 
 export const userRequestDTO = {
   id: [param('userId').exists()],
@@ -19,8 +19,8 @@ export const userRequestDTO = {
 };
 
 export class UserResponseDTO {
-  static User = (data: DocType<UserInterface>): IUserResponseDTO => {
-    const result: IUserResponseDTO = {
+  static User = (data: DocType<UserInterface>) => {
+    const result = {
       _id: data._id!,
       email: data.email!,
       role: data.role!,

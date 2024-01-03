@@ -31,15 +31,15 @@ const userSchema = new Schema<UserInterface>(
     lastName: String,
     verifiedPhoneNumber: Boolean,
     hasPassword: Boolean,
-    username: String,
-    age: Number,
+    username: { type: String, index: true, unique: true },
+    dob: Number,
     sex: {
       type: String,
       enum: Object.values(UserSex),
       default: UserSex.OTHERS,
     },
     phoneNumber: {
-      areaCode: String,
+      countryCode: String,
       number: Number,
     },
     location: String, // TODO:

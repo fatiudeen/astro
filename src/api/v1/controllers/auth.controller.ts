@@ -34,25 +34,13 @@ class AuthController extends Controller<AuthSessionInterface> {
   }, undefined);
 
   oAuthUrls = this.control(async (req: Request) => {
-    const result = await this.service.oAuthUrls();
+    const result = await this.service.oAuthUrls(<string>req.query.state);
     return result;
   }, undefined);
 
   googleLogin = this.control(async (req: Request) => {
-    const { code } = req.query;
-    const redirectUri = await this.service.googleLogin(<string>code);
-    return { redirectUri, redirect: true };
-  });
-
-  facebookLogin = this.control(async (req: Request) => {
-    const { code } = req.query;
-    const redirectUri = await this.service.facebookLogin(<string>code);
-    return { redirectUri, redirect: true };
-  });
-
-  appleLogin = this.control(async (req: Request) => {
-    const { code } = req.query;
-    const redirectUri = await this.service.appleLogin(<string>code);
+    const { code, state } = req.query;
+    const redirectUri = await this.service.googleLogin(<string>code, <string>state);
     return { redirectUri, redirect: true };
   });
 

@@ -9,7 +9,7 @@ export type IMedia = {
 };
 
 export type IPhoneNumber = {
-  areaCode: string;
+  countryCode: string;
   number: string;
 };
 

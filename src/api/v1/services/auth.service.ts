@@ -36,9 +36,10 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
     : null;
   oauth2 = this.useGoogle ? google.oauth2('v2') : null;
 
-  async login(data: { email: string; password: string }) {
+  async login(data: { username: string; password: string }) {
     try {
-      const user = await this._userService().findOne({ email: <string>data.email });
+      const loginData = { $or: [{ email: <string>data.username }, { username: <string>data.username }] } as any;
+      const user = await this._userService().findOne(loginData);
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
       const isMatch = await this.comparePasswords(data.password, user);
       if (!isMatch) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);

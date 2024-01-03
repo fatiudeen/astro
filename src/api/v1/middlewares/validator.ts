@@ -7,7 +7,6 @@ export const validator = (dtos: ValidationChain[], allowExtraFields = true) => [
   ...dtos,
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
       const error = errors.array();
       throw new HttpError('user input validation error', 400, error);
