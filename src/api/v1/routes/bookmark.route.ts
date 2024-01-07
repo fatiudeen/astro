@@ -8,9 +8,8 @@ class BookmarkRoute extends Route<BookmarkInterface> {
   controller = new BookmarkController('bookmark');
   dto = bookmarkRequestDTO;
   initRoutes() {
-    this.router.route('/').get(this.controller.get).post(this.validator(this.dto.add), this.controller.add);
-    this.router.route('/:bookmarkId').delete(this.validator(this.dto.remove), this.controller.remove);
-
+    this.router.get('/', this.controller.get);
+    this.router.route('/:postId').put(this.validator(this.dto.postId), this.controller.toggle);
     return this.router;
   }
 }

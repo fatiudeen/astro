@@ -83,7 +83,7 @@ export default class PostRepository extends Repository<PostInterface> {
           as: 'postComment',
         },
       });
-      set.comment = { $size: '$postComment' };
+      set.comments = { $size: '$postComment' };
     }
 
     if (bookmarks) {
@@ -114,27 +114,32 @@ export default class PostRepository extends Repository<PostInterface> {
     });
   };
 
-  populateSharedPost = (q: Array<Record<string, any>>) => {
+  populateSharedPost = (q: Array<Record<string, any>>, user?: string) => {
     const p: Array<any> = [];
-    this.populate(p, true, true, true, true, true),
-      q.push(
-        {
-          $lookup: {
-            from: 'posts',
-            localField: 'sharedPost',
-            foreignField: '_id',
-            pipeline: p,
-            as: 'sharedPost',
-          },
+    if (user) {
+      this.userLike(p, user);
+    }
+    this.populate(p, true, true, true, true, true);
+    this.project(p);
+
+    q.push(
+      {
+        $lookup: {
+          from: 'posts',
+          localField: 'sharedPost',
+          foreignField: '_id',
+          pipeline: p,
+          as: 'sharedPost',
         },
-        {
-          $unwind: {
-            path: '$sharedPost',
-            // includeArrayIndex: <string>,
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: '$sharedPost',
+          // includeArrayIndex: <string>,
+          preserveNullAndEmptyArrays: true,
         },
-      );
+      },
+    );
   };
 
   project = (q: Array<Record<string, any>>) => {
@@ -162,6 +167,8 @@ export default class PostRepository extends Repository<PostInterface> {
         deleted: 1,
         sharedPost: 1,
         content: 1,
+        createdAt: 1,
+        updatedAt: 1,
       },
     });
   };
@@ -174,6 +181,13 @@ export default class PostRepository extends Repository<PostInterface> {
         currentUser = query.currentUser;
         delete query.currentUser;
       }
+
+      if ('userId' in query) {
+        query.userId = new Types.ObjectId(query.userId);
+      }
+      // if ('deleted' in query) {
+      //   query.deleted = { $ne: true };
+      // }
       let sort = _sort || { createAt: -1 };
 
       const q = [
@@ -195,7 +209,7 @@ export default class PostRepository extends Repository<PostInterface> {
       }
       this.populate(q, true, true, true, true, true);
 
-      this.populateSharedPost(q);
+      this.populateSharedPost(q, currentUser);
 
       this.project(q);
 
@@ -282,7 +296,7 @@ export default class PostRepository extends Repository<PostInterface> {
   getInfluentialFollowedUsersPosts(userId: string, users: string[]) {
     const q: any = [
       {
-        $match: { userId: { $in: users } },
+        $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
       },
     ];
     this.userLike(q, userId);
