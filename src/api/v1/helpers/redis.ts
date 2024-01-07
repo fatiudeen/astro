@@ -6,7 +6,7 @@ class Redis {
   client() {
     const client = createClient({ url: REDIS_URI });
 
-    client.on('error', (err) => logger.error(['Redis Client Error', err]));
+    client.on('error', (err: any) => logger.error(['Redis Client Error', err]));
     client.connect().then();
     return client;
   }
