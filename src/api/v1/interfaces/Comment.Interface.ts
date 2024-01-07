@@ -11,4 +11,6 @@ export interface CommentInterface {
   parentId: string;
   replies: number;
   deleted: boolean;
+  currentUser: boolean;
+  // thread:
 }
