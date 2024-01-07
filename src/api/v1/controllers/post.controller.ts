@@ -9,7 +9,7 @@ class PostController extends Controller<PostInterface> {
   service = new PostService();
   responseDTO = undefined; //PostResponseDTO.Post;
   get = this.control((req: Request) => {
-    const param: Record<string, any> = req.params.userId ? { userId: req.params.postId } : { userId: req.user?._id };
+    const param: Record<string, any> = req.params.userId ? { userId: req.params.userId } : { userId: req.user?._id };
     param.currentUser = req.user?._id;
     return this.paginate(req, this.service, param);
   });

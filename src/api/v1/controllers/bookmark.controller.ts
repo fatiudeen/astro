@@ -8,15 +8,8 @@ import Controller from '@controllers/controller';
 class BookmarkController extends Controller<BookmarkInterface> {
   service = new BookmarkService();
   responseDTO = undefined; //BookmarkResponseDTO.Bookmark;
-  add = this.control(async (req: Request) => {
-    const result = await this.service.add(req.user?._id, req.body.postId);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
-    return result;
-  });
-
-  remove = this.control(async (req: Request) => {
-    const result = await this.service.remove(req.params.bookmarkId);
-    if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
+  toggle = this.control(async (req: Request) => {
+    const result = await this.service.toggle(req.user?._id!, req.params.postId);
     return result;
   });
 }

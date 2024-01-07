@@ -7,6 +7,7 @@ import HttpError from '@helpers/HttpError';
 class CommentService extends Service<CommentInterface, CommentRepository> {
   protected repository = new CommentRepository();
   private readonly _postService = Service.instance(PostService);
+
   create(data: CommentInterface) {
     return new Promise<DocType<CommentInterface>>((resolve, reject) => {
       this._postService()
@@ -14,7 +15,7 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
         .then((post) => {
           if (!post) reject(new HttpError('invalid post'));
           if (post?.hideComment) reject(new HttpError('commenting is disabled on this post'));
-          return this.create(data);
+          return this.repository.create(data);
         })
         .then((comment) => {
           resolve(comment!);
@@ -22,5 +23,48 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
         .catch((error) => reject(error));
     });
   }
+
+  createReply(data: CommentInterface) {
+    return new Promise<DocType<CommentInterface>>((resolve, reject) => {
+      this.findOne(data.parentId.toString())
+        .then((comment) => {
+          if (!comment) reject(new HttpError('invalid comment'));
+          return this.repository.create(data);
+        })
+        .then((comment) => {
+          resolve(comment!);
+        })
+        .catch((error) => reject(error));
+    });
+  }
+  delete(query: string | Partial<CommentInterface>) {
+    return this.repository.update(query, { deleted: true });
+  }
+
+  // getThread(comment: DocType<CommentInterface>){
+  //   if (comment.postId){
+  //     // get post
+  //     return comment
+  //   }
+
+  //   this.getThread()
+  // }
+
+  // findOne(query: string | Partial<CommentInterface>) {
+  //   return new Promise<DocType<CommentInterface>>((resolve, reject) => {
+  //     this.findOne(query)
+  //       .then((comment) => {
+  //         if (!comment) reject(new HttpError('invalid comment'));
+  //         if (comment.postId){
+
+  //         }
+  //       })
+  //       .then((comment) => {
+  //         resolve(comment!);
+  //       })
+  //       .catch((error) => reject(error));
+  //   });
+  //   // return this.repository.findOne(query);
+  // }
 }
 export default CommentService;

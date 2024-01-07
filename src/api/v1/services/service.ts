@@ -23,7 +23,7 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.PaginatedFind(query, sort, startIndex, limit);
   }
 
-  findOne(query: string | Partial<T>) {
+  findOne(query: string | Partial<T>): Promise<DocType<T> | null> {
     return this.repository.findOne(query);
   }
 

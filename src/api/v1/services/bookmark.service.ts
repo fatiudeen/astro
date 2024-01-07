@@ -8,35 +8,21 @@ class BookmarkService extends Service<BookmarkInterface, BookmarkRepository> {
   protected repository = new BookmarkRepository();
   private readonly _postService = Service.instance(PostService);
 
-  add(userId: string, postId: string) {
+  toggle(userId: string, postId: string) {
     return new Promise<DocType<BookmarkInterface>>((resolve, reject) => {
-      this._postService()
-        .findOne(postId)
+      const q = this._postService(); //: this._commentService();
+      const data = { userId, postId };
+      q.findOne(postId)
         .then((post) => {
           if (!post) reject(new HttpError('invalid post'));
-          return this._postService().increment(postId, { bookmarks: 1 });
-        })
-        .then(() => {
-          return this.create({ userId, postId });
+          return this.findOne(data);
         })
         .then((bookmark) => {
-          resolve(bookmark!);
+          if (!bookmark) return this.create(data);
+          return this.delete(bookmark._id);
         })
-        .catch((error) => reject(error));
-    });
-  }
-
-  remove(bookmarkId: string) {
-    return new Promise<DocType<BookmarkInterface>>((resolve, reject) => {
-      let _bookmark;
-      this.delete(bookmarkId)
-        .then((bookmark) => {
-          if (!bookmark) reject(new HttpError('invalid bookmark'));
-          _bookmark = bookmark;
-          return this._postService().increment(bookmark!.postId.toString(), { bookmarks: -1 });
-        })
-        .then(() => {
-          resolve(_bookmark!);
+        .then((data) => {
+          resolve(data!);
         })
         .catch((error) => reject(error));
     });

@@ -17,7 +17,7 @@ export const postRequestDTO = {
     body('hiddenComment').not().exists(),
     body('deleted').not().exists(),
     body('sharedPost').exists(),
-    body('content').not().exists(),
+    body('content').exists(),
   ],
 };
 

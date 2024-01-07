@@ -9,7 +9,9 @@ export default class MessageRepository extends Repository<MessageInterface> {
     return new Promise<DocType<MessageInterface>[]>((resolve, reject) => {
       let query: Record<string, any> = _query || {};
 
-      const q = this.model.find(query).populate('from to').sort({ createdAt: -1 });
+      const q = this.model.find(query).sort({ createdAt: -1 });
+      q.populate('from', 'username avatar firstName lastName');
+      q.populate('to', 'username avatar firstName lastName');
       q.lean()
         .then((r) => {
           resolve(<DocType<MessageInterface>[]>(<unknown>r));
