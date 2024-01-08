@@ -12,6 +12,12 @@ class BookmarkController extends Controller<BookmarkInterface> {
     const result = await this.service.toggle(req.user?._id!, req.params.postId);
     return result;
   });
+
+  get = this.control((req: Request) => {
+    const param: Record<string, any> = { userId: req.user?._id };
+    param.currentUser = req.user?._id;
+    return this.paginate(req, this.service, param);
+  });
 }
 
 export default BookmarkController;
