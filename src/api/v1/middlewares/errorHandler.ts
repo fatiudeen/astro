@@ -17,6 +17,10 @@ export const errorHandler = (err: HttpError | Error, req: Request, res: Response
     statusCode = 500;
   }
 
+  if (error.name == 'TokenExpiredError' || error.name == 'JsonWebTokenError') {
+    statusCode = 401;
+  }
+
   // if ((error.code = 11000)) {
   //   const key = Object.keys(error.keyValue)[0];
   //   const value = Object.values(error.keyValue)[0];

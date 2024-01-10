@@ -161,4 +161,54 @@ export default class CommentRepository extends Repository<CommentInterface> {
       });
     });
   }
+
+  findOneThread(_query: string | Partial<CommentInterface>) {
+    return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
+      let query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
+      let currentUser;
+      if ('currentUser' in query) {
+        currentUser = query.currentUser;
+        delete query.currentUser;
+      }
+
+      if ('_id' in query) {
+        query._id = new Types.ObjectId(query._id);
+      }
+
+      const q = [
+        {
+          $match: query,
+        },
+        {
+          $graphLookup: {
+            from: 'comments',
+            startWith: '$parentId',
+            connectFromField: 'parentId',
+            connectToField: '_id',
+            as: 'thread',
+            //  maxDepth: <number>,
+            //  depthField: <string>,
+            //  restrictSearchWithMatch: <document>
+          },
+        },
+      ];
+
+      if (currentUser) {
+        this.userLike(q, currentUser);
+      }
+      this.populate(q, true, true, true);
+
+      // this.populateSharedPost(q);
+      // this.project(q);
+
+      this.model
+        .aggregate<CommentInterface>(q)
+        .then((r) => {
+          resolve(<DocType<CommentInterface>[]>(<unknown>r));
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
 }

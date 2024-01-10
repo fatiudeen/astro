@@ -82,6 +82,10 @@ class PostService extends Service<PostInterface, PostRepository> {
         .catch((error) => reject(error));
     });
   }
+
+  findOneWithAllData(query: string | Partial<PostInterface>) {
+    return this.repository.findOneWithAllData(query);
+  }
 }
 
 export default PostService;

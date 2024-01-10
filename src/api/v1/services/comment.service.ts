@@ -41,30 +41,40 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
     return this.repository.update(query, { deleted: true });
   }
 
-  // getThread(comment: DocType<CommentInterface>){
-  //   if (comment.postId){
-  //     // get post
-  //     return comment
-  //   }
+  async getThread(comment: DocType<CommentInterface>, currentUser: string) {
+    const thread: DocType<CommentInterface>[] = [];
 
-  //   this.getThread()
-  // }
+    const recursion = async (comment: DocType<CommentInterface>) => {
+      if (comment.postId) {
+        const post = await this._postService().findOneWithAllData({
+          _id: comment.postId,
+          currentUser,
+        } as any);
+        thread.push(post as any);
+        return thread;
+      }
+      thread.push(comment);
+      const c = await this.repository.findOne(comment.parentId);
+      recursion(c!);
+    };
+    await recursion(comment);
+    return thread;
+  }
 
-  // findOne(query: string | Partial<CommentInterface>) {
-  //   return new Promise<DocType<CommentInterface>>((resolve, reject) => {
-  //     this.findOne(query)
-  //       .then((comment) => {
-  //         if (!comment) reject(new HttpError('invalid comment'));
-  //         if (comment.postId){
-
-  //         }
-  //       })
-  //       .then((comment) => {
-  //         resolve(comment!);
-  //       })
-  //       .catch((error) => reject(error));
-  //   });
-  //   // return this.repository.findOne(query);
-  // }
+  thread(query: string | Partial<CommentInterface>) {
+    return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
+      this.findOne(query)
+        .then((comment) => {
+          if (!comment) reject(new HttpError('invalid comment'));
+          return this.getThread(comment!, (query as any).currentUser);
+          // return this.repository.findOneThread(query);
+        })
+        .then((thread) => {
+          resolve(thread!);
+        })
+        .catch((error) => reject(error));
+    });
+    // return this.repository.findOne(query);
+  }
 }
 export default CommentService;

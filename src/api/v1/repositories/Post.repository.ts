@@ -331,6 +331,7 @@ export default class PostRepository extends Repository<PostInterface> {
           $match: query,
         },
       ];
+
       if (currentUser) {
         this.userLike(q, currentUser);
       }
