@@ -28,7 +28,7 @@ class CommentController extends Controller<CommentInterface> {
   // get one == thread
   getOne = this.control(async (req: Request) => {
     const param = { _id: req.params[this.resourceId], currentUser: req.user?._id };
-    const result = await this.service.findOne(param);
+    const result = await this.service.thread(param);
     if (!result) throw new this.HttpError(`${this.resource} not found`, 404);
     return result;
   });

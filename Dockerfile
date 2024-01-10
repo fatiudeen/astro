@@ -12,6 +12,7 @@ WORKDIR /usr/src/app
 USER root
 COPY package*.json ./
 RUN npm install --production --silent && mv node_modules ../
+COPY appConfig.json ../ 
 COPY --from=builder /usr/src/app/dist /usr/src/app/
 EXPOSE 9000
 # RUN chown -R node /usr/src/app

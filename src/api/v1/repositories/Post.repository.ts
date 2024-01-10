@@ -153,9 +153,6 @@ export default class PostRepository extends Repository<PostInterface> {
           firstName: '$userData.firstName',
           lastName: '$userData.lastName',
         },
-        // postLikes: 0,
-        // postComment: 0,
-        // sharedPosts: 0,
         liked: 1,
         media: 1,
         hideComment: 1,
@@ -334,6 +331,7 @@ export default class PostRepository extends Repository<PostInterface> {
           $match: query,
         },
       ];
+
       if (currentUser) {
         this.userLike(q, currentUser);
       }
