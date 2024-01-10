@@ -2,7 +2,7 @@ import { Router } from 'express';
 import Controller from '@controllers/controller';
 import { validator } from '@middlewares/validator';
 import { ValidationChain } from 'express-validator';
-import Multer from '@helpers/multer';
+import Multer from '@helpers/fileProcessor';
 import { authorize } from '@middlewares/jwt';
 // import dto from '@dtos/dto';
 
