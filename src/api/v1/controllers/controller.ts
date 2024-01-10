@@ -7,7 +7,7 @@ import { logger } from '@utils/logger';
 import httpResponse from '@helpers/HttpResponse';
 import Service from '@services/service';
 import httpError from '@helpers/HttpError';
-import Multer from '@helpers/multer';
+import Multer from '@helpers/fileProcessor';
 import safeQuery from '@utils/safeQuery';
 import httpStatus from 'http-status';
 import { OPTIONS } from '@config';
