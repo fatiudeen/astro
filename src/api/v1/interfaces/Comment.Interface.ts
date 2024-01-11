@@ -8,9 +8,9 @@ export interface CommentInterface {
   text: string;
   media: IMedia;
   userId: string | Types.ObjectId;
-  parentId: string;
+  parentId: string | Types.ObjectId;
   replies: number;
   deleted: boolean;
-  currentUser: boolean;
+  currentUser: string;
   // thread:
 }
