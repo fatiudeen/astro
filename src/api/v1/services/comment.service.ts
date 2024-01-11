@@ -41,36 +41,22 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
     return this.repository.update(query, { deleted: true });
   }
 
-  async getThread(comment: DocType<CommentInterface>, currentUser: string) {
-    const thread: DocType<CommentInterface>[] = [];
-
-    const recursion = async (comment: DocType<CommentInterface>) => {
-      if (comment.postId) {
-        const post = await this._postService().findOneWithAllData({
-          _id: comment.postId,
-          currentUser,
-        } as any);
-        thread.push(post as any);
-        return thread;
-      }
-      thread.push(comment);
-      const c = await this.repository.findOne(comment.parentId);
-      recursion(c!);
-    };
-    await recursion(comment);
-    return thread;
-  }
-
-  thread(query: string | Partial<CommentInterface>) {
-    return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
+  thread(query: Partial<CommentInterface>) {
+    return new Promise((resolve, reject) => {
       this.findOne(query)
         .then((comment) => {
           if (!comment) reject(new HttpError('invalid comment'));
-          return this.getThread(comment!, (query as any).currentUser);
-          // return this.repository.findOneThread(query);
+          // return this.getThread(comment!, (query as any).currentUser);
+          return this.repository.findThreadId(query);
         })
-        .then((thread) => {
-          resolve(thread!);
+        .then(({ post, comments }) => {
+          return Promise.all([
+            this._postService().findOneWithAllData({ _id: post, currentUser: query.currentUser } as any),
+            this.repository.find(comments, query.currentUser),
+          ]);
+        })
+        .then(([post, comments]) => {
+          resolve({ post, comments });
         })
         .catch((error) => reject(error));
     });

@@ -17,7 +17,7 @@ const CommentSchema = new Schema<CommentInterface>(
         enum: Object.values(MediaTypeEnum),
       },
     }),
-    parentId: String,
+    parentId: { type: Schema.Types.ObjectId, ref: 'Comment' },
     deleted: Boolean,
   },
   {

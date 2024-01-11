@@ -97,6 +97,9 @@ export default class CommentRepository extends Repository<CommentInterface> {
         parentId: 1,
         replies: 1,
         user: 1,
+        thread: 1,
+        createdAt: 1,
+        updatedAt: 1,
       },
     });
   };
@@ -199,10 +202,115 @@ export default class CommentRepository extends Repository<CommentInterface> {
       this.populate(q, true, true, true);
 
       // this.populateSharedPost(q);
-      // this.project(q);
+      this.project(q);
 
       this.model
         .aggregate<CommentInterface>(q)
+        .then((r) => {
+          resolve(<DocType<CommentInterface>[]>(<unknown>r));
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
+
+  findThreadId(_query: string | Partial<CommentInterface>) {
+    return new Promise<{ post: string; comments: string[] }>((resolve, reject) => {
+      let query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
+
+      if ('_id' in query) {
+        query._id = new Types.ObjectId(query._id);
+      }
+
+      if ('currentUser' in query) {
+        delete query.currentUser;
+      }
+
+      const q = [
+        {
+          $match: query,
+        },
+        {
+          $graphLookup: {
+            from: 'comments',
+            startWith: '$parentId',
+            connectFromField: 'parentId',
+            connectToField: '_id',
+            as: 'thread',
+            //  maxDepth: <number>,
+            //  depthField: <string>,
+            //  restrictSearchWithMatch: <document>
+          },
+        },
+        {
+          $project: {
+            thread: 1,
+          },
+        },
+      ];
+
+      this.model
+        .aggregate(q)
+        .then((r) => {
+          const ids = [];
+          let post;
+          ids.push(r[0]._id);
+          r[0].thread.forEach((v: any) => {
+            if (v.postId) {
+              post = v.postId;
+            }
+            ids.push(v._id);
+          });
+          resolve({ post: post as unknown as string, comments: ids });
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
+
+  find(
+    _query?:
+      | Partial<CommentInterface>
+      | Array<string>
+      | { [K in keyof DocType<CommentInterface>]?: Array<DocType<CommentInterface>[K]> },
+    currentUser?: string,
+  ) {
+    return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
+      let query: Record<string, any> = _query || {};
+
+      if (Array.isArray(_query) && _query.length > 0) {
+        query = { _id: { $in: _query.map((val) => new Types.ObjectId(val)) } };
+      } else
+        for (const [felid, value] of Object.entries(query)) {
+          Array.isArray(value) ? (query[felid] = { $in: value }) : false;
+        }
+
+      if ('userId' in query) {
+        query.userId = new Types.ObjectId(query.userId);
+      }
+
+      if ('postId' in query) {
+        query.postId = new Types.ObjectId(query.postId);
+      }
+      const q = [
+        {
+          $match: query,
+        },
+        {
+          $sort: { createdAt: 1 },
+        },
+      ] as any[];
+      if (currentUser) {
+        this.userLike(q, currentUser);
+      }
+
+      this.populate(q, true, true, true);
+      this.project(q);
+
+      this.model
+        .aggregate(q)
         .then((r) => {
           resolve(<DocType<CommentInterface>[]>(<unknown>r));
         })
