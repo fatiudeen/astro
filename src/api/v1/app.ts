@@ -74,7 +74,9 @@ class App {
     });
     this.app.use('/docs', docs);
     this.app.get('/', (req, res) => {
-      res.status(200).json({ message: 'WELCOME' });
+      res
+        .status(200)
+        .json({ message: 'We both know you are not supposed to be here, but since you are, have a cup of coffee ☕' });
     });
   }
   private initMiddlewares() {
