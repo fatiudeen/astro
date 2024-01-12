@@ -28,7 +28,7 @@ class FollowService extends Service<FollowInterface, FollowRepository> {
   }
 
   async getFollowedUsers(userId: string) {
-    return (await this.find({ userId })).map((v) => v.followed.toString());
+    return (await this.find({ userId })).map((v) => (<any>v.followed)._id.toString());
   }
 }
 

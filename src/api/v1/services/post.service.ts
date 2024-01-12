@@ -61,23 +61,26 @@ class PostService extends Service<PostInterface, PostRepository> {
     return timeDecay * engagementScore;
   }
 
-  async sortPosts(posts: DocType<PostInterface>[]) {
+  sortPosts(posts: DocType<PostInterface>[]) {
     return posts.sort((a, b) => this.calculateRelevanceScore(b) - this.calculateRelevanceScore(a));
   }
 
-  feeds(userId: string) {
-    return new Promise<DocType<PostInterface>[]>((resolve, reject) => {
+  feeds(userId: string, startIndex: number, limit: number) {
+    return new Promise<{ feeds: DocType<PostInterface>[]; count: number }>((resolve, reject) => {
       this._followService()
         .getFollowedUsers(userId)
         .then((users) => {
           return this.sortUserByInfluence(users);
         })
         .then((users) => {
-          return this.repository.getInfluentialFollowedUsersPosts(userId, users);
+          return Promise.all([
+            this.repository.getInfluentialFollowedUsersPosts(userId, users, startIndex, limit),
+            this.repository.countPosts(users),
+          ]);
         })
-        .then((posts) => {
+        .then(([posts, count]) => {
           const feeds = this.sortPosts(posts);
-          resolve(feeds);
+          resolve({ feeds, count });
         })
         .catch((error) => reject(error));
     });
