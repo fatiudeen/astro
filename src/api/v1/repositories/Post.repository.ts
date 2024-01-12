@@ -224,7 +224,7 @@ export default class PostRepository extends Repository<PostInterface> {
   async countUserLikes(userId: string) {
     const result = await this.model.aggregate([
       {
-        $match: { userId },
+        $match: { userId: new Types.ObjectId(userId) },
       },
       {
         $lookup: {
@@ -241,13 +241,13 @@ export default class PostRepository extends Repository<PostInterface> {
         },
       },
     ]);
-    return result[0].likes as number;
+    return (result[0]?.likes || 0) as number;
   }
 
   async countUserComments(userId: string) {
     const result = await this.model.aggregate([
       {
-        $match: { userId },
+        $match: { userId: new Types.ObjectId(userId) },
       },
       {
         $lookup: {
@@ -264,7 +264,7 @@ export default class PostRepository extends Repository<PostInterface> {
         },
       },
     ]);
-    return result[0].comments as number;
+    return (result[0]?.comments || 0) as number;
   }
 
   async countUserSharedPosts(userId: string) {
@@ -287,10 +287,10 @@ export default class PostRepository extends Repository<PostInterface> {
         },
       },
     ]);
-    return result[0].shared as number;
+    return (result[0]?.shared || 0) as number;
   }
 
-  getInfluentialFollowedUsersPosts(userId: string, users: string[]) {
+  getInfluentialFollowedUsersPosts(userId: string, users: string[], startIndex: number, limit: number) {
     const q: any = [
       {
         $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
@@ -311,10 +311,29 @@ export default class PostRepository extends Repository<PostInterface> {
           },
         },
       },
+      {
+        $skip: startIndex,
+      },
       { $sort: { influenceScore: -1, timestamp: -1 } },
-      { $limit: 10 },
+      { $limit: limit },
     );
     return <DocType<PostInterface>[]>(<unknown>this.model.aggregate(q));
+  }
+
+  async countPosts(users: string[]) {
+    const q: any = [
+      {
+        $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ];
+    const result = await this.model.aggregate(q);
+    return result[0]?.count || 0;
   }
 
   findOneWithAllData(_query: string | Partial<PostInterface>) {
