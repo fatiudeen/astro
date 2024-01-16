@@ -317,6 +317,7 @@ export default class PostRepository extends Repository<PostInterface> {
       { $sort: { influenceScore: -1, timestamp: -1 } },
       { $limit: limit },
     );
+    this.project(q);
     return <DocType<PostInterface>[]>(<unknown>this.model.aggregate(q));
   }
 
