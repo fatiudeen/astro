@@ -1,6 +1,6 @@
 {
     "USE_ADMIN_SEED": true,
-    "USE_SMTP": false,
+    "USE_SMTP": true,
     "USE_S3": true,
     "USE_SOCKETS": true,
     "USE_AUTH_SESSIONS": true,

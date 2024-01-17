@@ -22,6 +22,7 @@ export interface UserInterface {
   verifiedPhoneNumber: boolean;
   verificationToken?: string;
   resetToken?: string;
+  resetTokenExpiry?: Date;
   avatar?: IMedia;
   hasPassword: boolean;
   username: string;

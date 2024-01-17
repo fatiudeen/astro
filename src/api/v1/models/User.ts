@@ -66,6 +66,7 @@ const userSchema = new Schema<UserInterface>(
       frequency: String,
       betPerformance: String,
     },
+    resetTokenExpiry: Date,
   },
   {
     timestamps: true,

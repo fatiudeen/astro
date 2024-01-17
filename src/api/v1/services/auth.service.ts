@@ -43,6 +43,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
       const isMatch = await this.comparePasswords(data.password, user);
       if (!isMatch) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 401);
+      if (!user.verifiedEmail) throw new HttpError('Email not verified', 400);
       const token = this.getSignedToken(user);
 
       // create a session
@@ -96,16 +97,33 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
     }
   }
 
+  async ResendVerificationEmail(data: Partial<UserInterface>) {
+    try {
+      const userData = { $or: [{ email: <string>data.email }, { username: <string>data.username }] } as any;
+      const user = await this._userService().findOne(userData);
+      if (!user) throw new HttpError('User Not Found', 404);
+      if (user.verifiedEmail) throw new HttpError('User is Already Verified', 404);
+
+      this._emailing ? this._emailing.verifyEmail(user) : logger.info(['email not enabled']);
+      const result = { info: 'Email Sent' };
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getResetToken(email: string) {
     try {
-      let resetToken: string;
+      // let resetToken: string;
       const user = await this._userService().findOne({ email });
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
-      if (!user.resetToken) {
-        await this._userService().update(user._id, { resetToken: generateToken() });
-      } else {
-        resetToken = user.resetToken;
-      }
+      // if (!user.resetToken) {
+      const FIVE_MINUTES: any = Date.now() + 5 * 60 * 1000;
+      await this._userService().update(user._id, { resetToken: generateToken(), resetTokenExpiry: FIVE_MINUTES });
+
+      // } else {
+      //   resetToken = user.resetToken;
+      // }
       this._emailing ? this._emailing.sendResetPassword(user) : logger.info(['email not enabled']);
     } catch (error) {
       throw error;

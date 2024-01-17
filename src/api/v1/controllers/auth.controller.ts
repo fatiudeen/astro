@@ -23,6 +23,11 @@ class AuthController extends Controller<AuthSessionInterface> {
     return result;
   }, AuthResponseDTO.User);
 
+  resendVerifyEmail = this.control(async (req: Request) => {
+    const result = await this.service.ResendVerificationEmail(req.body);
+    return result;
+  }, undefined);
+
   forgotPassword = this.control(async (req: Request) => {
     await this.service.getResetToken(req.body.email);
     return { _message: 'Email Sent' };
