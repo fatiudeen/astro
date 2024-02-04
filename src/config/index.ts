@@ -3,6 +3,8 @@ import path from 'path';
 
 if (process.env.NODE_ENV === 'development') {
   config({ path: '.env.dev' });
+} else if (process.env.NODE_ENV === 'test') {
+  config({ path: '.env.test' });
 } else config();
 
 export const MESSAGES = {

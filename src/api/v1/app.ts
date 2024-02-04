@@ -86,7 +86,7 @@ class App {
       }),
     );
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(morgan('dev'));
+    this.app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' }));
     this.app.use(express.json());
     this.app.use(hpp());
     this.app.use(helmet());

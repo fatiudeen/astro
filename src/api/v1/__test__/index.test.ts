@@ -8,6 +8,8 @@ describe('index test', () => {
     const { statusCode, body } = await instance.get('/');
 
     expect(statusCode).toBe(200);
-    expect(body.message).toEqual('WELCOME');
+    expect(body.message).toEqual(
+      'We both know you are not supposed to be here, but since you are, have a cup of coffee ☕',
+    );
   });
 });

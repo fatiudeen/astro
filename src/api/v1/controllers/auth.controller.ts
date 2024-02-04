@@ -19,7 +19,7 @@ class AuthController extends Controller<AuthSessionInterface> {
   }, AuthResponseDTO.signUp);
 
   verifyEmail = this.control(async (req: Request) => {
-    const result = await this.service.verifyEmail(req.params.token);
+    const result = await this.service.verifyEmail(req.query.token as string, req.query.email as string);
     return result;
   }, AuthResponseDTO.User);
 
