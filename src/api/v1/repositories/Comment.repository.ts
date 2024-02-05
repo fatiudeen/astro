@@ -120,6 +120,10 @@ export default class CommentRepository extends Repository<CommentInterface> {
       if ('postId' in query) {
         query.postId = new Types.ObjectId(query.postId);
       }
+
+      if ('parentId' in query) {
+        query.parentId = new Types.ObjectId(query.parentId);
+      }
       const q = [
         {
           $match: query,
@@ -135,7 +139,9 @@ export default class CommentRepository extends Repository<CommentInterface> {
         },
       ];
 
-      this.userLike(q, currentUser);
+      if (currentUser) {
+        this.userLike(q, currentUser);
+      }
       this.populate(q, true, true, true);
       this.project(q);
 

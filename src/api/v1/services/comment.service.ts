@@ -13,7 +13,7 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
       this._postService()
         .findOne(data.postId.toString())
         .then((post) => {
-          if (!post) reject(new HttpError('invalid post'));
+          if (!post) reject(new HttpError('invalid post', 404));
           if (post?.hideComment) reject(new HttpError('commenting is disabled on this post'));
           return this.repository.create(data);
         })
@@ -28,7 +28,7 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
     return new Promise<DocType<CommentInterface>>((resolve, reject) => {
       this.findOne(data.parentId.toString())
         .then((comment) => {
-          if (!comment) reject(new HttpError('invalid comment'));
+          if (!comment) reject(new HttpError('invalid comment', 404));
           return this.repository.create(data);
         })
         .then((comment) => {
@@ -43,9 +43,9 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
 
   thread(query: Partial<CommentInterface>) {
     return new Promise((resolve, reject) => {
-      this.findOne(query)
+      this.findOne((query as any)._id)
         .then((comment) => {
-          if (!comment) reject(new HttpError('invalid comment'));
+          if (!comment) reject(new HttpError('invalid comment', 404));
           // return this.getThread(comment!, (query as any).currentUser);
           return this.repository.findThreadId(query);
         })
@@ -61,6 +61,17 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
         .catch((error) => reject(error));
     });
     // return this.repository.findOne(query);
+  }
+  async isPostExist(postId: string) {
+    const post = await this._postService().findOne(postId);
+    if (!post) throw new HttpError('invalid post', 404);
+    return post;
+  }
+
+  async isCommentExist(commentId: string) {
+    const comment = await this.findOne(commentId);
+    if (!comment) throw new HttpError('invalid comment', 404);
+    return comment;
   }
 }
 export default CommentService;

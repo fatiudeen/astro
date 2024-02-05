@@ -111,7 +111,7 @@ class App {
   private initErrorHandlers() {
     this.app.use(errorHandler);
     this.app.use('*', (req, res) => {
-      res.status(404).json({ msg: 'Route not found' });
+      res.status(404).json({ success: false, message: 'Route not found' });
     });
   }
 

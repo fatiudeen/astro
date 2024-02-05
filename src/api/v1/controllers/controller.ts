@@ -108,7 +108,8 @@ export default abstract class Controller<T> {
     'limit' in query ? delete query.limit : false;
     const startIndex = limit * (page - 1);
     const sort = query.sortBy ? { [query.sortBy]: query.sortOrder || -1 } : { createdAt: -1 };
-    const totalDocs = await service.count(param);
+    const countParam = { ...param, currentUser: undefined };
+    const totalDocs = await service.count(countParam as T);
     const totalPages = Math.floor(totalDocs / limit) + 1;
     // eslint-disable-next-line newline-per-chained-call
     const docs = await service.PaginatedFind(param, <any>sort, startIndex, limit);

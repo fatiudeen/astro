@@ -15,7 +15,7 @@ class LikeService extends Service<LikeInterface, LikeRepository> {
       post ? Object.assign(data, { postId: id }) : Object.assign(data, { commentId: id });
       q.findOne(id)
         .then((post) => {
-          if (!post) reject(new HttpError('invalid post'));
+          if (!post) reject(new HttpError('invalid post', 404));
           return this.findOne(data);
         })
         .then((like) => {

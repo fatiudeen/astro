@@ -23,7 +23,7 @@ class PostService extends Service<PostInterface, PostRepository> {
     return new Promise<DocType<PostInterface>>((resolve, reject) => {
       this.findOne(data.sharedPost)
         .then((post) => {
-          if (!post) reject(new HttpError('invalid post'));
+          if (!post) reject(new HttpError('invalid post', 404));
           return this.create(data);
         })
         .then((post) => {

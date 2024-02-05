@@ -14,7 +14,7 @@ class BookmarkService extends Service<BookmarkInterface, BookmarkRepository> {
       const data = { userId, postId };
       q.findOne(postId)
         .then((post) => {
-          if (!post) reject(new HttpError('invalid post'));
+          if (!post) reject(new HttpError('invalid post', 404));
           return this.findOne(data);
         })
         .then((bookmark) => {

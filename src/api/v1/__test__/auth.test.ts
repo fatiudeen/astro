@@ -17,12 +17,14 @@ const deepLog = (data: any) => {
 const authService = new AuthService();
 const app = new App().instance();
 
+let baseUrl = '/api/v1';
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
 describe('authorization ::', () => {
-  describe('login ==========>>>>', () => {
+  describe(`POST ${baseUrl}/signin ==========>>>>`, () => {
     describe('given a valid email and password', () => {
       it('should send otp return 201', async () => {
         await authService.createUser({ ...validUser });
@@ -63,7 +65,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('sign up  ==========>>>>', () => {
+  describe(`POST ${baseUrl}/signup ==========>>>>`, () => {
     describe('given a valid email and password', () => {
       it('should return 201', async () => {
         const { statusCode, body } = await supertest(app)
@@ -75,7 +77,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('verify otp  ==========>>>>', () => {
+  describe(`GET ${baseUrl}/verifyEmail ==========>>>>`, () => {
     describe('given a valid otp', () => {
       it('should verify otp, sends jwt and return 201', async () => {
         const user = await authService.createUser({ ...validUser });
@@ -92,7 +94,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('forgot password  ==========>>>>', () => {
+  describe(`POST ${baseUrl}/forgotPassword ==========>>>>`, () => {
     describe('given a user forgot auth password', () => {
       it('should send otp and return 201', async () => {
         await authService.createUser({ ...validUser });
@@ -110,7 +112,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('resend email verification ==========>>>>', () => {
+  describe(`POST ${baseUrl}/resendVerifyEmail ==========>>>>`, () => {
     describe('given a users unverified email address', () => {
       it('should resend verification otp and return 201', async () => {
         await authService.createUser({ ...validUser });
@@ -161,7 +163,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('reset password ==========>>>>', () => {
+  describe(`POST ${baseUrl}/resetPassword ==========>>>>`, () => {
     describe('given a valid otp and email', () => {
       it('should verify otp, sends jwt and return 201', async () => {
         await authService.createUser({ ...validUser });
@@ -177,7 +179,7 @@ describe('authorization ::', () => {
       });
     });
   });
-  describe('generate oAuth uri ==========>>>>', () => {
+  describe(`GET ${baseUrl}/oAuthUrls ==========>>>>`, () => {
     // it('should return oauth url and return 200', async () => {
     //   //     googleapisMock.auth.OAuth2.mockImplementation(() => ({
     //   //     generateAuthUrl: jest.fn(() => 'your-generated-auth-url'),
@@ -190,7 +192,7 @@ describe('authorization ::', () => {
     //   expect(body.data.verifiedEmail).toEqual(true);
     // });
   });
-  describe('convert google code to token ==========>>>>', () => {
+  describe(`GET ${baseUrl}/google ==========>>>>`, () => {
     describe('given a valid otp', () => {
       //   it('should verify otp, sends jwt and return 201', async () => {
       //     const code = '12345';
@@ -202,7 +204,7 @@ describe('authorization ::', () => {
       //   });
     });
   });
-  describe('get access token using refresh token ==========>>>>', () => {
+  describe(`GET ${baseUrl}/refreshToken ==========>>>>`, () => {
     describe('given a valid refresh token', () => {
       if (Config.OPTIONS.USE_REFRESH_TOKEN) {
         it('should sends jwt and return 201', async () => {
