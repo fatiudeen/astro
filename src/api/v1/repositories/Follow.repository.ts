@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import { FollowInterface } from '@interfaces/Follow.Interface';
 import Follow from '@models/Follow';
 import Repository from '@repositories/repository';
@@ -34,7 +35,7 @@ export default class FollowRepository extends Repository<FollowInterface> {
 
   PaginatedFind(_query: Partial<FollowInterface>, sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<FollowInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
       const populateQuery = Object.keys(query)[0] === 'userId' ? 'followed' : 'userId';
       const q = this.model
         .find(query)

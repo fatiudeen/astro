@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class WalletController extends Controller<WalletInterface> {
   service = new WalletService();
-  responseDTO = undefined; //WalletResponseDTO.Wallet;
+  responseDTO = undefined; // WalletResponseDTO.Wallet;
   getOne = this.control(async (req: Request) => {
     const params = req.params[this.resourceId] || req.user?._id!;
 

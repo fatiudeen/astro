@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable array-callback-return */
 /* eslint-disable import/prefer-default-export */
 import { Server, Socket } from 'socket.io';

@@ -1,23 +1,19 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
+import FollowService from '@services/follow.service';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
 import { validUser, validUser2, invalidUserId } from './data/user';
-import { logger } from '@utils/logger';
-import FollowService from '@services/follow.service';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const followService = new FollowService();
 const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/follow';
+const baseUrl = '/api/v1/follow';
 let userId: string;
 let userId2: string;
 

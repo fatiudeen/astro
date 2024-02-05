@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { JWT_KEY } from '@config';
@@ -11,7 +12,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   const collections = await mongoose.connection.db.collections();
-  for (let collection of collections) {
+
+  for await (const collection of collections) {
     await collection.deleteMany({});
   }
 });

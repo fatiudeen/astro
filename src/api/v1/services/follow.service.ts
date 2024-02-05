@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import HttpError from '@helpers/HttpError';
 import { FollowInterface } from '@interfaces/Follow.Interface';
 import FollowRepository from '@repositories/Follow.repository';

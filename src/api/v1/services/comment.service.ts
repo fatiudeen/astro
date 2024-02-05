@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { CommentInterface } from '@interfaces/Comment.Interface';
 import CommentRepository from '@repositories/Comment.repository';
 import Service from '@services/service';

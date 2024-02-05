@@ -1,19 +1,15 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
+import PostService from '@services/post.service';
 import App from '../app';
 import CommentService from '../services/comment.service';
 import AuthService from '../services/auth.service';
 
 import { validUser } from './data/user';
-import { logger } from '@utils/logger';
 import { invalidComment, invalidCommentId, validComment } from './data/comment';
-import PostService from '@services/post.service';
 import { invalidPostId, validPost } from './data/post';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const postService = new PostService();
 const commentService = new CommentService();
@@ -21,7 +17,7 @@ const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/comments';
+const baseUrl = '/api/v1/comments';
 let postId: string;
 let commentId: string;
 let userId: string;

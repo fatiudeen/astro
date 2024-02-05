@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-restricted-syntax */
 import HttpError from '@helpers/HttpError';
 import { IMedia } from '@interfaces/Common.Interface';
 import { PostInterface } from '@interfaces/Post.Interface';
@@ -35,11 +37,11 @@ class PostService extends Service<PostInterface, PostRepository> {
 
   async sortUserByInfluence(users: string[]) {
     const influenceMap: Record<string, number> = {};
-    for (const user of users) {
+    for await (const user of users) {
       const [likesCount, commentCount, sharedCount] = await Promise.all([
-        await this.repository.countUserLikes(user),
-        await this.repository.countUserComments(user),
-        await this.repository.countUserSharedPosts(user),
+        this.repository.countUserLikes(user),
+        this.repository.countUserComments(user),
+        this.repository.countUserSharedPosts(user),
       ]);
 
       const influence = 1 * likesCount + 1 * commentCount + 1 * sharedCount;

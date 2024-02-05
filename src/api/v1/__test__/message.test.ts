@@ -1,25 +1,21 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
 import App from '../app';
 import MessageService from '../services/message.service';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
 
-import { validUser, invalidEmail, invalidPassword, validUser2 } from './data/user';
-import { logger } from '@utils/logger';
+import { validUser, validUser2 } from './data/user';
 import { invalidConversationId, invalidMessage, validMessage } from './data/message';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const messageService = new MessageService();
 const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/messages';
+const baseUrl = '/api/v1/messages';
 let conversationId: string;
 let userId;
 let userId2: string;

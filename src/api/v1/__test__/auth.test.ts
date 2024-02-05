@@ -1,23 +1,20 @@
 import supertest from 'supertest';
+import * as Config from '@config';
+import { logger } from '@utils/logger';
 import App from '../app';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
-import * as Config from '@config';
 
 import { validUser, invalidEmail, invalidPassword } from './data/user';
-import { logger } from '@utils/logger';
+
 jest.mock('googleapis');
 
 logger.silent = true;
 
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
-
 const authService = new AuthService();
 const app = new App().instance();
 
-let baseUrl = '/api/v1';
+const baseUrl = '/api/v1';
 
 beforeEach(() => {
   jest.clearAllMocks();

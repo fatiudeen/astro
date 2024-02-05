@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class BookmarkController extends Controller<BookmarkInterface> {
   service = new BookmarkService();
-  responseDTO = undefined; //BookmarkResponseDTO.Bookmark;
+  responseDTO = undefined; // BookmarkResponseDTO.Bookmark;
   toggle = this.control(async (req: Request) => {
     const result = await this.service.toggle(req.user?._id!, req.params.postId);
     return result;

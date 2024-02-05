@@ -1,8 +1,9 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable indent */
 // import { OPTIONS } from '@config';
-import { Model, Query, Types } from 'mongoose';
+import { Model } from 'mongoose';
 // import shortUUID from 'short-uuid';
 
 export default abstract class Repository<T> {
@@ -33,7 +34,7 @@ export default abstract class Repository<T> {
 
   PaginatedFind(_query: Partial<T>, sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<T>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
 
       const q = this.model.find(query).sort(sort).skip(startIndex).limit(limit);
       q.lean()
@@ -66,7 +67,7 @@ export default abstract class Repository<T> {
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.then((r) => {
         if (!r) {
-          reject(new Error(this.model.modelName + ' not found'));
+          reject(new Error(`${this.model.modelName} not found`));
         } else resolve(<DocType<T>>r.toObject());
       }).catch((e) => {
         reject(e);
@@ -141,6 +142,7 @@ export default abstract class Repository<T> {
     return this.model.countDocuments(query);
   }
 
+  // eslint-disable-next-line no-unused-vars
   increment(_query: string | Partial<T>, data: { [key in keyof Partial<DocType<T>>]: number }) {
     return new Promise<DocType<T> | null>((resolve, reject) => {
       const query = _query;

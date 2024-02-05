@@ -71,10 +71,10 @@ const userSchema = new Schema<UserInterface>(
   {
     timestamps: true,
     toObject: {
-      transform(doc, ret) {
-        // delete ret._id;
-        // ret.id = shortUUID().fromUUID(doc._id);
-      },
+      // transform(doc, ret) {
+      // delete ret._id;
+      // ret.id = shortUUID().fromUUID(doc._id);
+      // },
     },
   },
 );

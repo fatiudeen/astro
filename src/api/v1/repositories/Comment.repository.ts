@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-underscore-dangle */
 import { CommentInterface } from '@interfaces/Comment.Interface';
 import Comment from '@models/Comment';
 import Repository from '@repositories/repository';
@@ -106,7 +108,7 @@ export default class CommentRepository extends Repository<CommentInterface> {
 
   PaginatedFind(_query: Partial<CommentInterface>, sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
       let currentUser;
       if ('currentUser' in query) {
         currentUser = query.currentUser;
@@ -173,7 +175,7 @@ export default class CommentRepository extends Repository<CommentInterface> {
 
   findOneThread(_query: string | Partial<CommentInterface>) {
     return new Promise<DocType<CommentInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
+      const query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
       let currentUser;
       if ('currentUser' in query) {
         currentUser = query.currentUser;
@@ -223,7 +225,7 @@ export default class CommentRepository extends Repository<CommentInterface> {
 
   findThreadId(_query: string | Partial<CommentInterface>) {
     return new Promise<{ post: string; comments: string[] }>((resolve, reject) => {
-      let query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
+      const query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
 
       if ('_id' in query) {
         query._id = new Types.ObjectId(query._id);

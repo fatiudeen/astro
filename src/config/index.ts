@@ -1,3 +1,4 @@
+/* eslint-disable import/no-dynamic-require */
 import { config } from 'dotenv';
 import path from 'path';
 
@@ -83,7 +84,8 @@ export const OPTIONS: {
   USE_ANALYTICS: boolean;
   USE_REDIS: boolean;
   USE_DATABASE: 'mongodb' | 'postgresql' | 'sqlite';
-} = require(CONSTANTS.ROOT + '/appConfig.json');
+  // eslint-disable-next-line global-require
+} = require(`${CONSTANTS.ROOT}/appConfig.json`);
 
 export function optionsValidation() {
   if (!PORT || !DB_URI || !JWT_KEY || !JWT_TIMEOUT) {

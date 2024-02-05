@@ -169,7 +169,7 @@ export default class BookmarkRepository extends Repository<BookmarkInterface> {
 
   find(_query?: Partial<BookmarkInterface>) {
     return new Promise<DocType<BookmarkInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
 
       const q = this.model.find(query).populate('postId').sort({ createdAt: -1 });
       q.lean()
@@ -184,7 +184,7 @@ export default class BookmarkRepository extends Repository<BookmarkInterface> {
 
   PaginatedFind(_query: Partial<BookmarkInterface>, _sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<BookmarkInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
       let currentUser;
       if ('currentUser' in query) {
         currentUser = query.currentUser;
@@ -197,7 +197,7 @@ export default class BookmarkRepository extends Repository<BookmarkInterface> {
       // if ('deleted' in query) {
       //   query.deleted = { $ne: true };
       // }
-      let sort = _sort || { createAt: -1 };
+      const sort = _sort || { createAt: -1 };
 
       const q = [
         {

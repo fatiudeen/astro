@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class CommentController extends Controller<CommentInterface> {
   service = new CommentService();
-  responseDTO = undefined; //CommentResponseDTO.Comment;
+  responseDTO = undefined; // CommentResponseDTO.Comment;
   create = this.control(async (req: Request) => {
     const data = req.body;
     data.userId = req.user?._id;

@@ -1,21 +1,17 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
 import { validUser, validUserUpdateData, validUser2, invalidUserId } from './data/user';
-import { logger } from '@utils/logger';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/users';
+const baseUrl = '/api/v1/users';
 let userId: string;
 
 beforeEach(async () => {

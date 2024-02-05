@@ -1,20 +1,16 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
+import PostService from '@services/post.service';
+import CommentService from '@services/comment.service';
 import App from '../app';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
 
 import { validUser } from './data/user';
-import { logger } from '@utils/logger';
-import PostService from '@services/post.service';
-import CommentService from '@services/comment.service';
 import { invalidPostId, validPost } from './data/post';
 import { invalidCommentId, validComment } from './data/comment';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const postService = new PostService();
 const commentService = new CommentService();
@@ -22,7 +18,7 @@ const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/likes';
+const baseUrl = '/api/v1/likes';
 let postId: string;
 let commentId: string;
 let userId;

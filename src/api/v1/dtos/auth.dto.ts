@@ -1,7 +1,7 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
-import { UserResponseDTO } from './user.dto';
 import { UserInterface, UserSex } from '@interfaces/User.Interface';
+import { UserResponseDTO } from './user.dto';
 
 export const authRequestDTO = {
   login: [

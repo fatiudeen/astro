@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class LikeController extends Controller<LikeInterface> {
   service = new LikeService();
-  responseDTO = undefined; //LikeResponseDTO.Like;
+  responseDTO = undefined; // LikeResponseDTO.Like;
   toggle = this.control(async (req: Request) => {
     const result = await this.service.toggle(
       req.user?._id!,

@@ -1,24 +1,20 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
+import MessageService from '@services/message.service';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
 import { validUser, validUser2 } from './data/user';
-import { logger } from '@utils/logger';
 import { validMessage } from './data/message';
-import MessageService from '@services/message.service';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const messageService = new MessageService();
 const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/conversations';
+const baseUrl = '/api/v1/conversations';
 let userId: string;
 
 beforeEach(async () => {

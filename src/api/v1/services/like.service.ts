@@ -1,9 +1,12 @@
+/* eslint-disable no-shadow */
+/* eslint-disable no-underscore-dangle */
 import { LikeInterface } from '@interfaces/Like.Interface';
 import LikeRepository from '@repositories/Like.repository';
 import Service from '@services/service';
 import PostService from '@services/post.service';
 import HttpError from '@helpers/HttpError';
 import CommentService from './comment.service';
+
 class LikeService extends Service<LikeInterface, LikeRepository> {
   protected repository = new LikeRepository();
   private readonly _postService = Service.instance(PostService);

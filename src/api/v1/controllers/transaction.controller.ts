@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class TransactionController extends Controller<TransactionInterface> {
   service = new TransactionService();
-  responseDTO = undefined; //TransactionResponseDTO.Transaction;
+  responseDTO = undefined; // TransactionResponseDTO.Transaction;
   getOne = this.control(async (req: Request) => {
     const params = req.params[this.resourceId] || req.user?._id!;
 

@@ -138,7 +138,7 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       const user = await this._userService().findOne({ resetToken: token });
 
       if (!user) throw new HttpError(Config.MESSAGES.INVALID_CREDENTIALS, 404);
-      await this._userService().update(user._id, { resetToken: undefined, password: password });
+      await this._userService().update(user._id, { resetToken: undefined, password });
       return;
     } catch (error) {
       throw error;

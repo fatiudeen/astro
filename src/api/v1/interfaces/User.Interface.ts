@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 
 import { IMedia, IPhoneNumber } from '@interfaces/Common.Interface';

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { ConversationInterface } from '@interfaces/Conversation.Interface';
 import ConversationRepository from '@repositories/Conversation.repository';
 import Service from '@services/service';
@@ -11,7 +12,7 @@ class ConversationService extends Service<ConversationInterface, ConversationRep
   private readonly _userService = Service.instance(UserService);
 
   async fetch(id: string) {
-    let convo = await this.repository.findRecipients(id);
+    const convo = await this.repository.findRecipients(id);
 
     if (convo.length === 0) return [];
 
@@ -23,10 +24,10 @@ class ConversationService extends Service<ConversationInterface, ConversationRep
         });
 
         val.unreadMessages = _count;
-        let x = val.recipients.filter((value) => {
+        const x = val.recipients.filter((value) => {
           return value.toString() !== id.toString();
         });
-        let user = await this._userService().findOne(x[0].toString());
+        const user = await this._userService().findOne(x[0].toString());
         // if (!user) throw new HttpError('user error');
         if (!user) return val;
         // if (!user) {
@@ -34,7 +35,7 @@ class ConversationService extends Service<ConversationInterface, ConversationRep
         //   user!.firstName = 'deleted';
         //   user!.lastName = 'user';
         // }
-        val.alias = user!.firstName + ' ' + user!.lastName;
+        val.alias = `${user!.firstName} ${user!.lastName}`;
         // val.aliasAvatar = user.avatar;
         // val.state = user.state;
         return val;

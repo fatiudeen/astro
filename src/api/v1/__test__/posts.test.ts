@@ -1,26 +1,20 @@
 import supertest from 'supertest';
+import { logger } from '@utils/logger';
 import App from '../app';
 import PostService from '../services/post.service';
 import AuthService from '../services/auth.service';
-import mailMock from './__mocks__/mailMock';
-import * as Config from '@config';
 
 import { validUser } from './data/user';
-import { logger } from '@utils/logger';
 import { invalidPost, invalidSharedPost, validPost, validSharedPost, invalidPostId } from './data/post';
 
 logger.silent = true;
-
-const deepLog = (data: any) => {
-  console.dir(data, { depth: null });
-};
 
 const postService = new PostService();
 const authService = new AuthService();
 const app = new App().instance();
 
 let authentication: object;
-let baseUrl = '/api/v1/posts';
+const baseUrl = '/api/v1/posts';
 let postId: string;
 let userId: string;
 
