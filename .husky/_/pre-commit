@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "${0%/*}/h"
+
+npm test
+npm run build
+nyc --cache --check-coverage --lines 80 npm test
