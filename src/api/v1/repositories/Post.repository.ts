@@ -172,7 +172,7 @@ export default class PostRepository extends Repository<PostInterface> {
 
   PaginatedFind(_query: Partial<PostInterface>, _sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<PostInterface>[]>((resolve, reject) => {
-      let query: Record<string, any> = _query || {};
+      const query: Record<string, any> = _query || {};
       let currentUser;
       if ('currentUser' in query) {
         currentUser = query.currentUser;
@@ -185,7 +185,7 @@ export default class PostRepository extends Repository<PostInterface> {
       // if ('deleted' in query) {
       //   query.deleted = { $ne: true };
       // }
-      let sort = _sort || { createAt: -1 };
+      const sort = _sort || { createAt: -1 };
 
       const q = [
         {
@@ -339,7 +339,7 @@ export default class PostRepository extends Repository<PostInterface> {
 
   findOneWithAllData(_query: string | Partial<PostInterface>) {
     return new Promise<DocType<PostInterface> | null>((resolve, reject) => {
-      let query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
+      const query: Record<string, any> = typeof _query === 'string' ? { _id: _query } : _query;
       let currentUser;
       if ('currentUser' in query) {
         currentUser = query.currentUser;

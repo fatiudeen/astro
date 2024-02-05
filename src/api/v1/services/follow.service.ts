@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import HttpError from '@helpers/HttpError';
 import { FollowInterface } from '@interfaces/Follow.Interface';
 import FollowRepository from '@repositories/Follow.repository';
@@ -13,7 +14,7 @@ class FollowService extends Service<FollowInterface, FollowRepository> {
       this._userService()
         .findOne(follow)
         .then((user) => {
-          if (!user) reject(new HttpError('invalid user'));
+          if (!user) reject(new HttpError('invalid user', 404));
           return this.findOne({ userId, followed: follow });
         })
         .then((_follow) => {

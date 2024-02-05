@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-unused-vars */
 
 import { IMedia, IPhoneNumber } from '@interfaces/Common.Interface';
@@ -22,10 +23,11 @@ export interface UserInterface {
   verifiedPhoneNumber: boolean;
   verificationToken?: string;
   resetToken?: string;
+  resetTokenExpiry?: Date;
   avatar?: IMedia;
   hasPassword: boolean;
   username: string;
-  dob: number;
+  dob: string;
   sex: UserSex;
   phoneNumber: IPhoneNumber;
   location: string; // TODO:

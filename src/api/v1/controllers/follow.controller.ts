@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class FollowController extends Controller<FollowInterface> {
   service = new FollowService();
-  responseDTO = undefined; //FollowResponseDTO.Follow;
+  responseDTO = undefined; // FollowResponseDTO.Follow;
   toggle = this.control(async (req: Request) => {
     const result = await this.service.toggle(req.user?._id!, req.params.userId);
     return result;

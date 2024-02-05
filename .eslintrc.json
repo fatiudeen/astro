@@ -1,7 +1,8 @@
 {
     "env": {
         "browser": true,
-        "es2021": true
+        "es2021": true,
+        "jest": true
     },
     "extends": [
         "airbnb-base", "prettier"
@@ -27,7 +28,22 @@
       "no-param-reassign": "off",
       "keyword-spacing": "off",
       "class-methods-use-this": "off",
-      "prettier/prettier": ["error"]
+      "no-undef": "off",
+      "no-underscore-dangle": "off",
+      " no-restricted-syntax": "off",
+      "import/prefer-default-export": "off",
+      "import/no-extraneous-dependencies": "off",
+      "prettier/prettier": ["error"],
+      "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          "js": "never",
+          "jsx": "never",
+          "ts": "never",
+          "tsx": "never"
+        }
+     ]
     },
     "settings": {
         "import/resolver": {

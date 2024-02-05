@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class PostController extends Controller<PostInterface> {
   service = new PostService();
-  responseDTO = undefined; //PostResponseDTO.Post;
+  responseDTO = undefined; // PostResponseDTO.Post;
   get = this.control((req: Request) => {
     const param: Record<string, any> = req.params.userId ? { userId: req.params.userId } : { userId: req.user?._id };
     param.currentUser = req.user?._id;

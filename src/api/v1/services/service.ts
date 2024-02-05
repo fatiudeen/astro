@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-underscore-dangle */
 import Repository from '@repositories/repository';
 import observer from '@helpers/observer';
-import { UserInterface } from '@interfaces/User.Interface';
 // single model methods
 export default abstract class Service<T, R extends Repository<T>> {
   protected abstract repository: R;
@@ -51,12 +52,14 @@ export default abstract class Service<T, R extends Repository<T>> {
     return this.repository.increment(query, data);
   }
 
+  // eslint-disable-next-line no-shadow
   static instance<T, A extends Array<any>>(obj: new (...args: A) => T) {
     const instance = (...args: A): T => {
       const _obj = obj as unknown as { _instance: null | T } & (new () => T);
       if (_obj._instance) {
         return _obj._instance;
       }
+      // eslint-disable-next-line new-cap
       _obj._instance = new obj(...args);
       return _obj._instance;
     };

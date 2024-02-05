@@ -4,6 +4,7 @@
         "fieldname",
         "rerequest",
         "SENDGRID",
-        "Signin"
+        "Signin",
+        "unfollow"
     ]
 }

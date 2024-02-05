@@ -7,9 +7,11 @@ const counterSchema = new Schema({
 
 const Counter = model('Counter', counterSchema);
 
+// eslint-disable-next-line import/prefer-default-export
 export const customIdPlugin = (schema: Schema, options: { modelName: string; code: string }) => {
   const { modelName, code } = options;
 
+  // eslint-disable-next-line func-names
   schema.pre('save', async function (next) {
     const doc = this;
 

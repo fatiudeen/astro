@@ -7,8 +7,8 @@ import { MailtrapClient } from 'mailtrap';
 class Mailer {
   // private transporter;
   private templates = {
-    verifyEmail: '',
-    forgotPassword: '',
+    verifyEmail: '786d3d80-98cb-494a-801b-4b8a9466c2ae',
+    forgotPassword: '702fd4c0-e159-4bd2-aabd-771cc2fb42a3',
   } as const;
   client;
 
@@ -27,7 +27,7 @@ class Mailer {
   async verifyEmail(user: UserInterface) {
     // eslint-disable-next-line no-useless-catch
     try {
-      await this.send(user.email, 'verifyEmail');
+      await this.send(user.email, 'verifyEmail', { token: user.verificationToken });
     } catch (error) {
       throw error;
     }
@@ -36,7 +36,7 @@ class Mailer {
   async sendResetPassword(user: UserInterface) {
     // eslint-disable-next-line no-useless-catch
     try {
-      await this.send(user.email, 'forgotPassword');
+      await this.send(user.email, 'forgotPassword', { token: user.resetToken });
     } catch (error) {
       throw error;
     }

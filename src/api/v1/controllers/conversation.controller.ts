@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class ConversationController extends Controller<ConversationInterface> {
   service = new ConversationService();
-  responseDTO = undefined; //ConversationResponseDTO.Conversation;
+  responseDTO = undefined; // ConversationResponseDTO.Conversation;
   get = this.control((req: Request) => {
     return this.service.fetch(<string>req.user?._id.toString());
   });

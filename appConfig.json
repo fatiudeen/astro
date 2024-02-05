@@ -1,10 +1,10 @@
 {
     "USE_ADMIN_SEED": true,
-    "USE_SMTP": false,
+    "USE_SMTP": true,
     "USE_S3": true,
     "USE_SOCKETS": true,
     "USE_AUTH_SESSIONS": true,
-    "USE_REFRESH_TOKEN": false,
+    "USE_REFRESH_TOKEN": true,
     "USE_MULTER": true,
     "USE_DIGITALOCEAN_SPACE": true,
     "USE_MULTER_DISK_STORAGE": false,

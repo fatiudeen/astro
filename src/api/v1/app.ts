@@ -1,5 +1,5 @@
 /* eslint-disable object-curly-newline */
-import express, { Application, Request } from 'express';
+import express, { Application } from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
@@ -73,7 +73,7 @@ class App {
       this.app.use(`${this.apiVersion}/${url}`, route.initRoutes());
     });
     this.app.use('/docs', docs);
-    this.app.get('/', (req, res) => {
+    this.app.get('/', (_req, res) => {
       res
         .status(200)
         .json({ message: 'We both know you are not supposed to be here, but since you are, have a cup of coffee ☕' });
@@ -86,7 +86,8 @@ class App {
       }),
     );
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(morgan('dev'));
+    // eslint-disable-next-line no-unused-vars
+    this.app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' }));
     this.app.use(express.json());
     this.app.use(hpp());
     this.app.use(helmet());
@@ -111,7 +112,7 @@ class App {
   private initErrorHandlers() {
     this.app.use(errorHandler);
     this.app.use('*', (req, res) => {
-      res.status(404).json({ msg: 'Route not found' });
+      res.status(404).json({ success: false, message: 'Route not found' });
     });
   }
 

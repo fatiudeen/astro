@@ -66,14 +66,15 @@ const userSchema = new Schema<UserInterface>(
       frequency: String,
       betPerformance: String,
     },
+    resetTokenExpiry: Date,
   },
   {
     timestamps: true,
     toObject: {
-      transform(doc, ret) {
-        // delete ret._id;
-        // ret.id = shortUUID().fromUUID(doc._id);
-      },
+      // transform(doc, ret) {
+      // delete ret._id;
+      // ret.id = shortUUID().fromUUID(doc._id);
+      // },
     },
   },
 );

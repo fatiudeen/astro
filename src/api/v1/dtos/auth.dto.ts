@@ -1,11 +1,14 @@
 import { check, param } from 'express-validator';
 import { MESSAGES } from '@config';
-import { UserResponseDTO } from './user.dto';
 import { UserInterface, UserSex } from '@interfaces/User.Interface';
+import { UserResponseDTO } from './user.dto';
 
 export const authRequestDTO = {
-  login: [check('username').exists(), check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD)],
-  email: [check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL)],
+  login: [
+    check('username').exists().toLowerCase(),
+    check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
+  ],
+  email: [check('email').toLowerCase().isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL)],
   code: [param('code').exists()],
   password: [
     check('password').isLength({ min: 8 }).withMessage(MESSAGES.SHORT_PASSWORD),
@@ -18,7 +21,7 @@ export const authRequestDTO = {
     }),
   ],
   register: [
-    check('email').isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
+    check('email').toLowerCase().isEmail().normalizeEmail().withMessage(MESSAGES.INVALID_EMAIL),
     check('firstName').exists(),
     check('lastName').exists(),
     check('username').exists(),

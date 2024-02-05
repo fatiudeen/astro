@@ -1,5 +1,4 @@
 import { check, param } from 'express-validator';
-import { MESSAGES } from '@config';
 import { UserInterface, UserSex } from '@interfaces/User.Interface';
 
 export const userRequestDTO = {

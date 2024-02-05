@@ -32,11 +32,16 @@ module.exports = {
   modulePathIgnorePatterns: ['./src/api/v1/__test__/mocks', './dist', './node_modules'],
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
-  setupFilesAfterEnv: ['./src/api/v1/__test__/__mocks__/mockDb.ts'],
+  setupFilesAfterEnv: [
+    './src/api/v1/__test__/__mocks__/mockDb.ts',
+    './src/api/v1/__test__/__mocks__/googleapisMock.ts',
+    './src/api/v1/__test__/__mocks__/mailMock.ts',
+  ],
   // globals: {
   //   'ts-jest': {
   //     // relative path to the ts-jest-keys-transformer.js file
   //     astTransformers: { before: ['ts-jest-keys-transformer.js'] },
   //   },
   // },
+  coverageThreshold: { global: { lines: 80 } },
 };
