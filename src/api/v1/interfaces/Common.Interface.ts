@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-shadow */
 export enum MediaTypeEnum {
   VIDEO = 'video',
   IMAGE = 'image',

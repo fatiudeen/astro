@@ -44,9 +44,7 @@ class Paystack {
     // }
     // eslint-disable-next-line object-curly-newline
     const data = { email: user?.email, amount: '500000', plan: this.plans[plan], metaData };
-    return <Promise<PaystackInitializeResponse>>(
-      this.paystackService('post', '/initialize', data, this.options)
-    );
+    return <Promise<PaystackInitializeResponse>>this.paystackService('post', '/initialize', data, this.options);
   }
   subscribe(plan: Plan, user: Request['user']) {
     // if (!this.usePaystack) {
@@ -62,9 +60,7 @@ class Paystack {
         plan,
       },
     };
-    return <Promise<PaystackSubscriptionResponse>>(
-      this.paystackService('post', '/subscription', data, this.options)
-    );
+    return <Promise<PaystackSubscriptionResponse>>this.paystackService('post', '/subscription', data, this.options);
   }
 
   disableSubscription(plan: Plan, user: Request['user']) {
@@ -83,9 +79,7 @@ class Paystack {
     //   logger.error(MESSAGES.PAYSTACK_NOT_INITIALIZED);
     //   return null;
     // }
-    return <Promise<BankInterface[]>>(
-      this.paystackService('get', '/bank?currency=NGN', this.options)
-    );
+    return <Promise<BankInterface[]>>this.paystackService('get', '/bank?currency=NGN', this.options);
   }
 
   confirmAccount(accountNumber: string, bankCode: string) {
@@ -94,11 +88,7 @@ class Paystack {
     //   return null;
     // }
     return <Promise<AccountDetails>>(
-      this.paystackService(
-        'get',
-        `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
-        this.options,
-      )
+      this.paystackService('get', `/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`, this.options)
     );
   }
 
@@ -109,9 +99,7 @@ class Paystack {
     // }
     (<CreateRecipient>data).currency = 'NGN';
     (<CreateRecipient>data).type = 'nuban';
-    return <Promise<CreateRecipientResponse>>(
-      this.paystackService('post', '/transferrecipient', data, this.options)
-    );
+    return <Promise<CreateRecipientResponse>>this.paystackService('post', '/transferrecipient', data, this.options);
   }
 
   // Verify the account number
@@ -125,9 +113,7 @@ class Paystack {
     // }
     (<TransferData>data).reference = uuid4();
     (<TransferData>data).source = 'balance';
-    return <Promise<TransferResponse>>(
-      this.paystackService('post', '/transfer', <TransferData>data, this.options)
-    );
+    return <Promise<TransferResponse>>this.paystackService('post', '/transfer', <TransferData>data, this.options);
   }
   verifyTransaction(reference: string) {
     // if (!this.usePaystack) {

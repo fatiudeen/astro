@@ -1,19 +1,28 @@
+/* eslint-disable no-underscore-dangle */
 import { MessageInterface } from '@interfaces/Messages.Interface';
 import MessageRepository from '@repositories/Message.repository';
 import Service from '@services/service';
 import ConversationService from '@services/conversation.service';
 import { ConversationInterface } from '@interfaces/Conversation.Interface';
+import UserService from '@services/user.service';
+import HttpError from '@helpers/HttpError';
+import { logger } from '@utils/logger';
 
 class MessageService extends Service<MessageInterface, MessageRepository> {
   protected repository = new MessageRepository();
   private readonly _conversationService = Service.instance(ConversationService);
+  private readonly _userService = Service.instance(UserService);
 
   async createMessage(data: MessageInterface) {
+    if (!data.to) throw new HttpError('invalid recipient', 400);
+
+    const _user = await this._userService().findOne(data.to.toString());
+    if (!_user) throw new HttpError('invalid recipient', 400);
     let convo = await this._conversationService().findOne(<any>{
       $and: [{ recipients: data.to }, { recipients: data.from }],
     });
 
-    let lastMessage = data.message ? data.message : (data.message = '');
+    const lastMessage = data.message ? data.message : (data.message = '');
     if (!convo) {
       convo = await this._conversationService().create({
         recipients: <ConversationInterface['recipients']>[data.to, data.from],
@@ -42,7 +51,7 @@ class MessageService extends Service<MessageInterface, MessageRepository> {
       false,
       true,
     ).then((doc) => {
-      // logger.info(doc);
+      logger.info(doc);
     });
     return this.repository.find({ conversationId });
   }

@@ -77,9 +77,11 @@ class Multer {
           },
         })
       : multer.memoryStorage();
-    if (this.message) {
-      logger.info([this.message]);
-    } else if (this.useMulter) logger.info('FILE_STORAGE: using memory storage');
+    if (Config.NODE_ENV !== 'test') {
+      if (this.message) {
+        logger.info([this.message]);
+      } else if (this.useMulter) logger.info('FILE_STORAGE: using memory storage');
+    }
   }
 
   async getObject(key: string) {

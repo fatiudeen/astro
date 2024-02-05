@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { UserInterface } from '@interfaces/User.Interface';
 import UserRepository from '@repositories/User.repository';
 import Service from '@services/service';

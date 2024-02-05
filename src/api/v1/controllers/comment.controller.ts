@@ -7,7 +7,7 @@ import Controller from '@controllers/controller';
 
 class CommentController extends Controller<CommentInterface> {
   service = new CommentService();
-  responseDTO = undefined; //CommentResponseDTO.Comment;
+  responseDTO = undefined; // CommentResponseDTO.Comment;
   create = this.control(async (req: Request) => {
     const data = req.body;
     data.userId = req.user?._id;
@@ -15,14 +15,21 @@ class CommentController extends Controller<CommentInterface> {
     return result;
   });
 
-  get = this.control((req: Request) => {
+  get = this.control(async (req: Request) => {
     const param: Record<string, any> = { postId: req.params.postId };
+    if (param.postId) {
+      await this.service.isPostExist(req.params.postId);
+    }
     param.currentUser = req.user?._id;
     return this.paginate(req, this.service, param);
   });
 
-  replies = this.control((req: Request) => {
+  replies = this.control(async (req: Request) => {
     const param: Record<string, any> = { userId: req.user?._id, parentId: req.params.commentId };
+    if (param.parentId) {
+      await this.service.isCommentExist(req.params.commentId);
+    }
+    param.currentUser = req.user?._id;
     return this.paginate(req, this.service, param);
   });
   // get one == thread

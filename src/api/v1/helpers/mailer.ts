@@ -27,7 +27,7 @@ class Mailer {
   async verifyEmail(user: UserInterface) {
     // eslint-disable-next-line no-useless-catch
     try {
-      await this.send(user.email, 'verifyEmail', { token: '' });
+      await this.send(user.email, 'verifyEmail', { token: user.verificationToken });
     } catch (error) {
       throw error;
     }

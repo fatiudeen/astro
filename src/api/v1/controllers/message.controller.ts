@@ -8,7 +8,7 @@ import { OPTIONS } from '@config';
 
 class MessageController extends Controller<MessageInterface> {
   service = new MessageService();
-  responseDTO = undefined; //MessageResponseDTO.Message;
+  responseDTO = undefined; // MessageResponseDTO.Message;
   create = this.control(async (req: Request) => {
     this.processFile(req);
     const data = <MessageInterface>req.body;

@@ -1,6 +1,5 @@
 import { model, Schema } from 'mongoose';
 import { TransactionInterface } from '@interfaces/Transaction.Interface';
-import { customIdPlugin } from './IdPlugin';
 
 const transactionSchema = new Schema<TransactionInterface>(
   {

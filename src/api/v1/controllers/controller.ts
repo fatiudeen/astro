@@ -25,11 +25,11 @@ export default abstract class Controller<T> {
   private categorizeFileType(mimeType: string) {
     if (mimeType.startsWith('image/')) {
       return MediaTypeEnum.IMAGE;
-    } else if (mimeType.startsWith('video/')) {
-      return MediaTypeEnum.VIDEO;
-    } else {
-      return null;
     }
+    if (mimeType.startsWith('video/')) {
+      return MediaTypeEnum.VIDEO;
+    }
+    return null;
   }
   protected processFile = (req: Request, create = false) => {
     if (!this.fileProcessor) return;
@@ -85,6 +85,7 @@ export default abstract class Controller<T> {
 
   protected control =
     (fn: (req: Request) => Promise<any>, responseDTO?: Function) =>
+    // eslint-disable-next-line consistent-return
     async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = await fn(req);
@@ -108,7 +109,8 @@ export default abstract class Controller<T> {
     'limit' in query ? delete query.limit : false;
     const startIndex = limit * (page - 1);
     const sort = query.sortBy ? { [query.sortBy]: query.sortOrder || -1 } : { createdAt: -1 };
-    const totalDocs = await service.count(param);
+    const countParam = { ...param, currentUser: undefined };
+    const totalDocs = await service.count(countParam as T);
     const totalPages = Math.floor(totalDocs / limit) + 1;
     // eslint-disable-next-line newline-per-chained-call
     const docs = await service.PaginatedFind(param, <any>sort, startIndex, limit);
