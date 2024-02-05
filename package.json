@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test TS_NODE_FILES=true AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 jest --detectOpenHandles --debug --coverage --updateSnapshot",
+    "test": "cross-env NODE_ENV=test TS_NODE_FILES=true AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 jest --detectOpenHandles --debug --coverage --updateSnapshot --forceExit",
     "dev": "cross-env NODE_ENV=development TS_NODE_FILES=true nodemon src/index.ts",
     "build": "tsc -p . && tsc-alias",
     "start": "node index.js",

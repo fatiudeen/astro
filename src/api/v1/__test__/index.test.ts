@@ -22,3 +22,12 @@ describe('GET /non/existent/route', () => {
     expect(body.message).toEqual('Route not found');
   });
 });
+
+describe('GET /docs', () => {
+  it('should return 404', async () => {
+    const { statusCode, body } = await instance.get('/docs');
+
+    expect(statusCode).toBe(404);
+    expect(body.message).toEqual('documentation url not found');
+  });
+});
