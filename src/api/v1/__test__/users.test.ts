@@ -3,7 +3,7 @@ import { logger } from '@utils/logger';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
-import { validUser, validUserUpdateData, validUser2, invalidUserId } from './data/user';
+import { validUser, validUserUpdateData, validUser2, invalidUserId } from './__fixtures__/user';
 
 logger.silent = true;
 

@@ -6,9 +6,9 @@ import App from '../app';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
 
-import { validUser } from './data/user';
-import { invalidPostId, validPost } from './data/post';
-import { invalidCommentId, validComment } from './data/comment';
+import { validUser } from './__fixtures__/user';
+import { invalidPostId, validPost } from './__fixtures__/post';
+import { invalidCommentId, validComment } from './__fixtures__/comment';
 
 logger.silent = true;
 

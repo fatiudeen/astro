@@ -5,8 +5,8 @@ import MessageService from '../services/message.service';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
 
-import { validUser, validUser2 } from './data/user';
-import { invalidConversationId, invalidMessage, validMessage } from './data/message';
+import { validUser, validUser2 } from './__fixtures__/user';
+import { invalidConversationId, invalidMessage, validMessage } from './__fixtures__/message';
 
 logger.silent = true;
 

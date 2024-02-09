@@ -1,0 +1,566 @@
+{
+  "info": {
+    "_postman_id": "ef6ca854-e532-4a9f-89af-4dc404c5ec92",
+    "name": "OddsJam",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Upcoming Games & Odds",
+      "item": [
+        {
+          "name": "Games",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/games/?key={{ApiKey}}",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "games", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "The sport you want to receive games for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "league",
+                  "value": "ncaa",
+                  "description": "The league you want to receive games for (e.g. NCAA)\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "is_live",
+                  "value": "0",
+                  "description": "Flag to filter for odds for live games (supports values true, yes, t, 1, false, no, f, 0)",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date_before",
+                  "value": "10-30-2021",
+                  "description": "Specify this value if you want to receive all games before a specific date. Please pass in an ISO 8601 date for the best results.",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date_after",
+                  "value": "10-01-2020",
+                  "description": "Specify this value if you want to receive all games after a specific date. Please pass in an ISO 8601 date for the best results.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leagues",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "key",
+                "value": "{{ApiKey}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/leagues/?key={{ApiKey}}",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "leagues", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "The sport you want to receive leagues for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "is_live",
+                  "value": "false",
+                  "description": "Flag to filter for odds for live leagues (supports values true, yes, t, 1, false, no, f, 0)",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Odds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/game-odds/?key={{ApiKey}}&sportsbook=oddsjam&marketName=&sport=football&league=&start_date_after=&is_main",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "game-odds", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}"
+                },
+                {
+                  "key": "sportsbook",
+                  "value": "oddsjam"
+                },
+                {
+                  "key": "marketName",
+                  "value": ""
+                },
+                {
+                  "key": "sport",
+                  "value": "football"
+                },
+                {
+                  "key": "league",
+                  "value": ""
+                },
+                {
+                  "key": "gameId",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "isLive",
+                  "value": "false",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date_before",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "start_date_after",
+                  "value": ""
+                },
+                {
+                  "key": "is_main",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Futures & Odds",
+      "item": [
+        {
+          "name": "Futures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/futures/?key={{ApiKey}}&sport=basketball&league=ncaa",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "futures", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "basketball",
+                  "description": "The sport you want to receive futures for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported."
+                },
+                {
+                  "key": "league",
+                  "value": "ncaa",
+                  "description": "The league you want to receive futures for (e.g. NBA)\n\nMultiple inputs supported."
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Odds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/future-odds/?key={{ApiKey}}",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "future-odds", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "golf",
+                  "description": "The sport you want to receive odds for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "league",
+                  "value": "Golf",
+                  "description": "The league you want to receive odds for (e.g. NBA)\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "sportsbook",
+                  "value": "Pinnacle",
+                  "description": "The sportsbook(s) you want to receive odds for. We support the following:\n5Dimes\n10bet\n888sport\n888sport (Canada)\nAction 24/7\nBally Bet\nBarstool\nBetAnySports\nBetfair\nBetfred\nBetMGM\nBetOnline\nBetRivers\nBetUS\nBetway\nBodog\nBookMaker\nBorgota\nBovada\nbwin\nCaesars\nCasumo\nCirca Sports\nCirca Vegas\nComeOn!\nDraftKings\nElite Sportsbook\nFanDuel\nFOX Bet\nFour Winds\nGolden Nugget\nHeritage\nLadbrokes\nLeoVegas\nMyBookie\nOddsJam (OddsJam's inferred odds)\nParx\nPinnacle\nPointsBet\nSI\nSugarHouse\nSuperBook\ntheScore\nTwinSpires\nUnibet\nWestgate\nWilliam Hill\nWind Creek\nWynnBET\nSports Interaction\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "future_name",
+                  "value": "Tournament Winner",
+                  "description": "The future name you want to receive odds for (e.g. Regular Season Wins)\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "future_id",
+                  "value": "5",
+                  "description": "The OddsJam future ID you want to receive odds for (e.g. type:regular_season_wins-sport:basketball-league:nba)\n\nMultiple inputs supported.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        {
+          "name": "Bet Grader",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/grader/?key={{ApiKey}}&game_id=16341-13602-2022-01-23&market_name=Moneyline&bet_name",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "grader", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "Required: The sport you want to receive a graded result for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "league",
+                  "value": "ncaa",
+                  "description": "Required: The league you want to receive a graded result for (e.g. NFL)",
+                  "disabled": true
+                },
+                {
+                  "key": "game_id",
+                  "value": "16341-13602-2022-01-23",
+                  "description": "Required: The game ID you want to receive a graded result for (e.g. 16341-13602-2022-01-23)"
+                },
+                {
+                  "key": "market_name",
+                  "value": "Moneyline",
+                  "description": "Required: The market name you want to receive a graded result for (e.g. Moneyline)"
+                },
+                {
+                  "key": "bet_name",
+                  "value": null,
+                  "description": "Required: The bet name you want to receive a graded result for (e.g. Buffalo Bills)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Game Scores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/scores/?key={{ApiKey}}",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "scores", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "The sport you want to receive scores for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "league",
+                  "value": "ncaa",
+                  "description": "The league you want to receive scores for (e.g. NBA)\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "game_id",
+                  "value": "39341-78014-2022-01-17",
+                  "description": "The OddsJam game ID you want to receive scores for (e.g. 39341-78014-2022-01-17)\n\nMultiple inputs supported.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Player Results",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api-external.oddsjam.com/api/v2/player-results/?key={{ApiKey}}&game_id",
+              "protocol": "https",
+              "host": ["api-external", "oddsjam", "com"],
+              "path": ["api", "v2", "player-results", ""],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{ApiKey}}",
+                  "description": "Required: Your OddsJam API license key."
+                },
+                {
+                  "key": "sport",
+                  "value": "football",
+                  "description": "The sport you want to receive player results for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "league",
+                  "value": "ncaa",
+                  "description": "The league you want to receive player results for (e.g. NBA)\n\nMultiple inputs supported.",
+                  "disabled": true
+                },
+                {
+                  "key": "game_id",
+                  "value": null,
+                  "description": "The OddsJam game ID you want to receive player results for (e.g. 39341-78014-2022-01-17)\n\nMultiple inputs supported."
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schedules",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api-external.oddsjam.com/api/v2/schedules/?key={{ApiKey}}",
+          "protocol": "https",
+          "host": ["api-external", "oddsjam", "com"],
+          "path": ["api", "v2", "schedules", ""],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{ApiKey}}",
+              "description": "Required: Your OddsJam API license key."
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "The sport you want to receive schedule data for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+              "disabled": true
+            },
+            {
+              "key": "league",
+              "value": "ncaa",
+              "description": "The league you want to receive schedule data for (e.g. NBA)\n\nMultiple inputs supported.",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Teams",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api-external.oddsjam.com/api/v2/teams/?key={{ApiKey}}",
+          "protocol": "https",
+          "host": ["api-external", "oddsjam", "com"],
+          "path": ["api", "v2", "teams", ""],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{ApiKey}}",
+              "description": "Required: Your OddsJam API license key."
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "The sport you want to receive teams for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+              "disabled": true
+            },
+            {
+              "key": "league",
+              "value": "ncaa",
+              "description": "The league you want to receive teams for (e.g. NBA)\n\nMultiple inputs supported.",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Players",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api-external.oddsjam.com/api/v2/players/?key={{ApiKey}}&team_id=E89B6AABD4C6",
+          "protocol": "https",
+          "host": ["api-external", "oddsjam", "com"],
+          "path": ["api", "v2", "players", ""],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{ApiKey}}",
+              "description": "Required: Your OddsJam API license key."
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "The sport you want to receive players for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported",
+              "disabled": true
+            },
+            {
+              "key": "league",
+              "value": "ncaa",
+              "description": "The league you want to receive players for (e.g. NBA).\n\nMultiple inputs supported.",
+              "disabled": true
+            },
+            {
+              "key": "team_id",
+              "value": "E89B6AABD4C6",
+              "description": "The team ID you want to receive players for (e.g. E89B6AABD4C6)\n\nMultiple inputs supported."
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Injuries",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api-external.oddsjam.com/api/v2/injuries/?key={{ApiKey}}",
+          "protocol": "https",
+          "host": ["api-external", "oddsjam", "com"],
+          "path": ["api", "v2", "injuries", ""],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{ApiKey}}",
+              "description": "Required: Your OddsJam API license key."
+            },
+            {
+              "key": "sport",
+              "value": "football",
+              "description": "The sport you want to receive teams for. We support the following:\n\nfootball\nbasketball\nbaseball\nmma\nboxing\nhockey\nsoccer\ntennis\ngolf\nmotorsports\nesports\n\nMultiple inputs supported.",
+              "disabled": true
+            },
+            {
+              "key": "league",
+              "value": "ncaa",
+              "description": "The league you want to receive teams for (e.g. NBA)\n\nMultiple inputs supported.",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ApiKey",
+      "value": ""
+    }
+  ]
+}

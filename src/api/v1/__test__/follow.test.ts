@@ -4,7 +4,7 @@ import FollowService from '@services/follow.service';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
-import { validUser, validUser2, invalidUserId } from './data/user';
+import { validUser, validUser2, invalidUserId } from './__fixtures__/user';
 
 logger.silent = true;
 

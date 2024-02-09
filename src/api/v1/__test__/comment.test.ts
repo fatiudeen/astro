@@ -5,9 +5,9 @@ import App from '../app';
 import CommentService from '../services/comment.service';
 import AuthService from '../services/auth.service';
 
-import { validUser } from './data/user';
-import { invalidComment, invalidCommentId, validComment } from './data/comment';
-import { invalidPostId, validPost } from './data/post';
+import { validUser } from './__fixtures__/user';
+import { invalidComment, invalidCommentId, validComment } from './__fixtures__/comment';
+import { invalidPostId, validPost } from './__fixtures__/post';
 
 logger.silent = true;
 

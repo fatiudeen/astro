@@ -4,8 +4,8 @@ import MessageService from '@services/message.service';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
-import { validUser, validUser2 } from './data/user';
-import { validMessage } from './data/message';
+import { validUser, validUser2 } from './__fixtures__/user';
+import { validMessage } from './__fixtures__/message';
 
 logger.silent = true;
 

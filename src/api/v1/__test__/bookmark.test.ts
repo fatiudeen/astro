@@ -5,8 +5,8 @@ import App from '../app';
 import BookmarkService from '../services/bookmark.service';
 import AuthService from '../services/auth.service';
 
-import { validUser } from './data/user';
-import { invalidPostId, validPost } from './data/post';
+import { validUser } from './__fixtures__/user';
+import { invalidPostId, validPost } from './__fixtures__/post';
 
 logger.silent = true;
 

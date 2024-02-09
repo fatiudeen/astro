@@ -29,7 +29,12 @@ module.exports = {
   verbose: true,
   clearMocks: true,
   moduleDirectories: ['node_modules', '<rootDir>/src'],
-  modulePathIgnorePatterns: ['./src/api/v1/__test__/mocks', './dist', './node_modules'],
+  modulePathIgnorePatterns: [
+    './src/api/v1/__test__/__mocks__',
+    './src/api/v1/__test__/__utils__',
+    './dist',
+    './node_modules',
+  ],
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
   setupFilesAfterEnv: [
@@ -37,11 +42,12 @@ module.exports = {
     './src/api/v1/__test__/__mocks__/googleapisMock.ts',
     './src/api/v1/__test__/__mocks__/mailMock.ts',
   ],
-  // globals: {
-  //   'ts-jest': {
-  //     // relative path to the ts-jest-keys-transformer.js file
-  //     astTransformers: { before: ['ts-jest-keys-transformer.js'] },
-  //   },
-  // },
+  globals: {
+    'ts-jest': {
+      // relative path to the ts-jest-keys-transformer.js file
+      // astTransformers: { before: ['ts-jest-keys-transformer.js'] },
+      tsconfig: 'tsconfig.test.json',
+    },
+  },
   coverageThreshold: { global: { lines: 80 } },
 };

@@ -4,8 +4,8 @@ import App from '../app';
 import PostService from '../services/post.service';
 import AuthService from '../services/auth.service';
 
-import { validUser } from './data/user';
-import { invalidPost, invalidSharedPost, validPost, validSharedPost, invalidPostId } from './data/post';
+import { validUser } from './__fixtures__/user';
+import { invalidPost, invalidSharedPost, validPost, validSharedPost, invalidPostId } from './__fixtures__/post';
 
 logger.silent = true;
 

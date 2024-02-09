@@ -1,0 +1,4 @@
+{
+    "extends": "./tsconfig.json",
+    "files": [".src/api/v1/__test__/__utils__/customExpects.d.ts"]
+}

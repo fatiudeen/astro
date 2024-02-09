@@ -5,7 +5,7 @@ import App from '../app';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
 
-import { validUser, invalidEmail, invalidPassword } from './data/user';
+import { validUser, invalidEmail, invalidPassword } from './__fixtures__/user';
 
 jest.mock('googleapis');
 
