@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import { PostInterface } from '@interfaces/Post.Interface';
 import Post from '@models/Post';
 import Repository from '@repositories/repository';
@@ -5,170 +6,7 @@ import { Types } from 'mongoose';
 
 export default class PostRepository extends Repository<PostInterface> {
   protected model = Post;
-
-  userLike = (q: Array<Record<string, any>>, currentUser: string) => {
-    q.push(
-      {
-        $lookup: {
-          from: 'likes',
-          let: { postId: '$_id' },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [{ $eq: ['$postId', '$$postId'] }, { $eq: ['$userId', new Types.ObjectId(currentUser)] }],
-                },
-              },
-            },
-          ],
-          as: 'userLike',
-        },
-      },
-      {
-        $set: { liked: { $cond: { if: { $gt: [{ $size: '$userLike' }, 0] }, then: true, else: false } } },
-      },
-    );
-  };
-
-  populate = (
-    q: Array<Record<string, any>>,
-    user: boolean,
-    comment: boolean,
-    like: boolean,
-    bookmarks: boolean,
-    shared: boolean,
-  ) => {
-    const set: any = {};
-    if (user) {
-      q.push(
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'userData',
-          },
-        },
-        {
-          $unwind: '$userData',
-        },
-      );
-      set.user = {
-        _id: '$userData._id',
-        username: '$userData.username',
-        avatar: '$userData.avatar',
-        firstName: '$userData.firstName',
-        lastName: '$userData.lastName',
-      };
-    }
-
-    if (like) {
-      q.push({
-        $lookup: {
-          from: 'likes',
-          localField: '_id',
-          foreignField: 'postId',
-          as: 'postLikes',
-        },
-      });
-      set.likes = { $size: '$postLikes' };
-    }
-
-    if (comment) {
-      q.push({
-        $lookup: {
-          from: 'comments',
-          localField: '_id',
-          foreignField: 'postId',
-          as: 'postComment',
-        },
-      });
-      set.comments = { $size: '$postComment' };
-    }
-
-    if (bookmarks) {
-      q.push({
-        $lookup: {
-          from: 'bookmarks',
-          localField: '_id',
-          foreignField: 'postId',
-          as: 'postsBookmarks',
-        },
-      });
-      set.bookmarks = { $size: '$postsBookmarks' };
-    }
-
-    if (shared) {
-      q.push({
-        $lookup: {
-          from: 'posts',
-          localField: '_id',
-          foreignField: 'sharedPost',
-          as: 'sharedPosts',
-        },
-      });
-      set.shared = { $size: '$sharedPosts' };
-    }
-    q.push({
-      $set: set,
-    });
-  };
-
-  populateSharedPost = (q: Array<Record<string, any>>, user?: string) => {
-    const p: Array<any> = [];
-    if (user) {
-      this.userLike(p, user);
-    }
-    this.populate(p, true, true, true, true, true);
-    this.project(p);
-
-    q.push(
-      {
-        $lookup: {
-          from: 'posts',
-          localField: 'sharedPost',
-          foreignField: '_id',
-          pipeline: p,
-          as: 'sharedPost',
-        },
-      },
-      {
-        $unwind: {
-          path: '$sharedPost',
-          // includeArrayIndex: <string>,
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-    );
-  };
-
-  project = (q: Array<Record<string, any>>) => {
-    q.push({
-      $project: {
-        _id: 1,
-        user: {
-          _id: '$userData._id',
-          username: '$userData.username',
-          avatar: '$userData.avatar',
-          firstName: '$userData.firstName',
-          lastName: '$userData.lastName',
-        },
-        liked: 1,
-        media: 1,
-        hideComment: 1,
-        likes: 1,
-        comments: 1,
-        shared: 1,
-        bookmarks: 1,
-        // followersWhoLiked: string, // TODO: not implemented
-        deleted: 1,
-        sharedPost: 1,
-        content: 1,
-        createdAt: 1,
-        updatedAt: 1,
-      },
-    });
-  };
+  private reusableQueries = Repository.reusableQueries();
 
   PaginatedFind(_query: Partial<PostInterface>, _sort: any, startIndex: number, limit: number) {
     return new Promise<DocType<PostInterface>[]>((resolve, reject) => {
@@ -202,13 +40,13 @@ export default class PostRepository extends Repository<PostInterface> {
         },
       ];
       if (currentUser) {
-        this.userLike(q, currentUser);
+        this.reusableQueries.getUserLikesOnPost(q, currentUser);
       }
-      this.populate(q, true, true, true, true, true);
+      this.reusableQueries.populatePostProperties(q, true, true, true, true, true);
 
-      this.populateSharedPost(q, currentUser);
+      this.reusableQueries.populateSharedPost(q, currentUser);
 
-      this.project(q);
+      this.reusableQueries.projectPost(q);
 
       this.model
         .aggregate<PostInterface>(q as Array<any>)
@@ -296,9 +134,9 @@ export default class PostRepository extends Repository<PostInterface> {
         $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
       },
     ];
-    this.userLike(q, userId);
-    this.populate(q, true, true, true, true, true);
-    this.populateSharedPost(q);
+    this.reusableQueries.getUserLikesOnPost(q, userId);
+    this.reusableQueries.populatePostProperties(q, true, true, true, true, true);
+    this.reusableQueries.populateSharedPost(q);
     q.push(
       {
         $addFields: {
@@ -317,7 +155,7 @@ export default class PostRepository extends Repository<PostInterface> {
       { $sort: { influenceScore: -1, timestamp: -1 } },
       { $limit: limit },
     );
-    this.project(q);
+    this.reusableQueries.projectPost(q);
     return <DocType<PostInterface>[]>(<unknown>this.model.aggregate(q));
   }
 
@@ -353,12 +191,12 @@ export default class PostRepository extends Repository<PostInterface> {
       ];
 
       if (currentUser) {
-        this.userLike(q, currentUser);
+        this.reusableQueries.getUserLikesOnPost(q, currentUser);
       }
-      this.populate(q, true, true, true, true, true);
+      this.reusableQueries.populatePostProperties(q, true, true, true, true, true);
 
-      this.populateSharedPost(q);
-      this.project(q);
+      this.reusableQueries.populateSharedPost(q);
+      this.reusableQueries.projectPost(q);
 
       this.model
         .aggregate<PostInterface>(q)

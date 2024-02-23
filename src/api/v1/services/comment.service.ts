@@ -64,14 +64,14 @@ class CommentService extends Service<CommentInterface, CommentRepository> {
     // return this.repository.findOne(query);
   }
   async isPostExist(postId: string) {
-    const post = await this._postService().findOne(postId);
-    if (!post) throw new HttpError('invalid post', 404);
+    const post = await this._postService().findOneWithException(postId);
+    // if (!post) throw new HttpError('invalid post', 404);
     return post;
   }
 
   async isCommentExist(commentId: string) {
-    const comment = await this.findOne(commentId);
-    if (!comment) throw new HttpError('invalid comment', 404);
+    const comment = await this.findOneWithException(commentId);
+    // if (!comment) throw new HttpError('invalid comment', 404);
     return comment;
   }
 }

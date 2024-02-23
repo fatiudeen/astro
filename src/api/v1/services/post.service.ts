@@ -35,7 +35,7 @@ class PostService extends Service<PostInterface, PostRepository> {
     });
   }
 
-  async sortUserByInfluence(users: string[]) {
+  sortUserByInfluence = async (users: string[]) => {
     const influenceMap: Record<string, number> = {};
     for await (const user of users) {
       const [likesCount, commentCount, sharedCount] = await Promise.all([
@@ -48,9 +48,9 @@ class PostService extends Service<PostInterface, PostRepository> {
       influenceMap[user] = influence;
     }
     return users.sort((a, b) => influenceMap[b] - influenceMap[a]);
-  }
+  };
 
-  calculateRelevanceScore(post: DocType<PostInterface>) {
+  calculateRelevanceScore = (post: DocType<PostInterface>) => {
     // const [likes, comments, shared] = await Promise.all([
     //   this._likeService().count({ postId: post._id }),
     //   this._commentService().count({ postId: post._id }),
@@ -61,11 +61,11 @@ class PostService extends Service<PostInterface, PostRepository> {
     const timeDecay = Math.exp(-((Date.now() - new Date(post.createdAt).getTime()) / (24 * 60 * 60 * 1000))); // 1-day time decay
     const engagementScore = 1 * likes + 1 * comments + 1 * shared; // Adjust weights as needed
     return timeDecay * engagementScore;
-  }
+  };
 
-  sortPosts(posts: DocType<PostInterface>[]) {
+  sortPosts = (posts: DocType<PostInterface>[]) => {
     return posts.sort((a, b) => this.calculateRelevanceScore(b) - this.calculateRelevanceScore(a));
-  }
+  };
 
   feeds(userId: string, startIndex: number, limit: number) {
     return new Promise<{ feeds: DocType<PostInterface>[]; count: number }>((resolve, reject) => {

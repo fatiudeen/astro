@@ -4,6 +4,7 @@ import App from '../app';
 import AuthService from '../services/auth.service';
 
 import { validUser, validUserUpdateData, validUser2, invalidUserId } from './__fixtures__/user';
+import deepLog from '@utils/deepLog';
 
 logger.silent = true;
 
@@ -53,13 +54,30 @@ describe('users API', () => {
 
   describe(`PUT ${baseUrl}/me ==========>>>>`, () => {
     describe('given a the user exists', () => {
-      it('should add the slot return 200 and the user', async () => {
+      it('should update user, return 200 and the user', async () => {
         const { statusCode, body } = await supertest(app)
           .put(`${baseUrl}/me`)
           .set(authentication)
           .send({ ...validUserUpdateData });
 
         // deepLog(body);
+
+        expect(statusCode).toBe(200);
+        expect(body.success).toEqual(true);
+        expect(body.data).toEqual(
+          expect.objectContaining({
+            ...validUserUpdateData,
+          }),
+        );
+      });
+
+      it('should update user avatar, return 200 and the user', async () => {
+        const { statusCode, body } = await supertest(app)
+          .put(`${baseUrl}/me`)
+          .set(authentication)
+          .send({ ...validUserUpdateData, avatar: Buffer.from('random val') });
+
+        deepLog(body);
 
         expect(statusCode).toBe(200);
         expect(body.success).toEqual(true);

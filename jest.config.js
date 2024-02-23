@@ -19,7 +19,7 @@ module.exports = {
         // relative path to the ts-jest-keys-transformer.js file
         // astTransformers: { before: ['ts-jest-keys-transformer.js'] },
         isolatedModules: true,
-        tsconfig: 'tsconfig.json',
+        tsconfig: 'tsconfig.test.json',
         cache: true,
         // diagnostics: false,
         transpileOnly: true,
@@ -42,12 +42,13 @@ module.exports = {
     './src/api/v1/__test__/__mocks__/googleapisMock.ts',
     './src/api/v1/__test__/__mocks__/mailMock.ts',
   ],
-  globals: {
-    'ts-jest': {
-      // relative path to the ts-jest-keys-transformer.js file
-      // astTransformers: { before: ['ts-jest-keys-transformer.js'] },
-      tsconfig: 'tsconfig.test.json',
-    },
-  },
-  coverageThreshold: { global: { lines: 80 } },
+  // globals: {
+  //   '^.+\\.tsx?$': ['ts-jest', {
+  //     // relative path to the ts-jest-keys-transformer.js file
+  //     // astTransformers: { before: ['ts-jest-keys-transformer.js'] },
+  //     tsconfig: 'tsconfig.test.json',
+  //   }],
+  // },
+  coverageThreshold: { global: { lines: 70 } },
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
 };

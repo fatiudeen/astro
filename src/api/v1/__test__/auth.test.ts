@@ -1,9 +1,11 @@
 import supertest from 'supertest';
 import * as Config from '@config';
 import { logger } from '@utils/logger';
+// import deepLog from '@utils/deepLog';
 import App from '../app';
 import AuthService from '../services/auth.service';
 import mailMock from './__mocks__/mailMock';
+import expectation from './__utils__/customExpects';
 
 import { validUser, invalidEmail, invalidPassword } from './__fixtures__/user';
 
@@ -30,9 +32,12 @@ describe('authorization ::', () => {
           .post('/api/v1/signin')
           .send({ username: validUser.email, password: validUser.password });
 
+        // deepLog(body.data);
+
         expect(statusCode).toBe(201);
         expect(body.success).toEqual(true);
         expect(mailMock).toHaveBeenCalled();
+        expect(body.data).toMatchObject(expectation.isLoginData);
       });
     });
 
@@ -46,6 +51,7 @@ describe('authorization ::', () => {
 
         expect(statusCode).toBe(401);
         expect(body.success).toEqual(false);
+        // expect(body.data).not.toMatchObject(expect.objectContaining(expectation.isLoginData));
       });
     });
 
@@ -71,6 +77,7 @@ describe('authorization ::', () => {
 
         expect(statusCode).toBe(201);
         expect(body.success).toEqual(true);
+        expect(body.data).toMatchObject(expectation.isSignUpData);
       });
     });
   });

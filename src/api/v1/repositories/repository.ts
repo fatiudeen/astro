@@ -3,7 +3,9 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable indent */
 // import { OPTIONS } from '@config';
-import { Model } from 'mongoose';
+import HttpError from '@helpers/HttpError';
+import { Model, Types } from 'mongoose';
+
 // import shortUUID from 'short-uuid';
 
 export default abstract class Repository<T> {
@@ -61,19 +63,19 @@ export default abstract class Repository<T> {
     });
   }
 
-  findOneWithException(_query: string | Partial<T>): Promise<DocType<T>> {
+  findOneWithException = (_query: string | Partial<T>): Promise<DocType<T>> => {
     return new Promise<DocType<T>>((resolve, reject) => {
       const query = _query;
       const q = typeof query === 'object' ? this.model.findOne(query) : this.model.findById(query);
       q.then((r) => {
         if (!r) {
-          reject(new Error(`${this.model.modelName} not found`));
+          reject(new HttpError(`${this.model.modelName} not found`, 404));
         } else resolve(<DocType<T>>r.toObject());
       }).catch((e) => {
         reject(e);
       });
     });
-  }
+  };
 
   /**
    *  NOTE: update many will always return null
@@ -161,5 +163,310 @@ export default abstract class Repository<T> {
         reject(e);
       });
     });
+  }
+
+  static reusableQueries() {
+    const getUserLikesOnPost = (q: Array<Record<string, any>>, currentUser: string) => {
+      q.push(
+        {
+          $lookup: {
+            from: 'likes',
+            let: { postId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ['$postId', '$$postId'] }, { $eq: ['$userId', new Types.ObjectId(currentUser)] }],
+                  },
+                },
+              },
+            ],
+            as: 'userLike',
+          },
+        },
+        {
+          $set: { liked: { $cond: { if: { $gt: [{ $size: '$userLike' }, 0] }, then: true, else: false } } },
+        },
+      );
+    };
+    const populatePostProperties = (
+      q: Array<Record<string, any>>,
+      user: boolean,
+      comment: boolean,
+      like: boolean,
+      bookmarks: boolean,
+      shared: boolean,
+    ) => {
+      const set: any = {};
+      if (user) {
+        q.push(
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'userData',
+            },
+          },
+          {
+            $unwind: '$userData',
+          },
+        );
+        set.user = {
+          _id: '$userData._id',
+          username: '$userData.username',
+          avatar: '$userData.avatar',
+          firstName: '$userData.firstName',
+          lastName: '$userData.lastName',
+        };
+      }
+
+      if (like) {
+        q.push({
+          $lookup: {
+            from: 'likes',
+            localField: '_id',
+            foreignField: 'postId',
+            as: 'postLikes',
+          },
+        });
+        set.likes = { $size: '$postLikes' };
+      }
+
+      if (comment) {
+        q.push({
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'postId',
+            as: 'postComment',
+          },
+        });
+        set.comments = { $size: '$postComment' };
+      }
+
+      if (bookmarks) {
+        q.push({
+          $lookup: {
+            from: 'bookmarks',
+            localField: '_id',
+            foreignField: 'postId',
+            as: 'postsBookmarks',
+          },
+        });
+        set.bookmarks = { $size: '$postsBookmarks' };
+      }
+
+      if (shared) {
+        q.push({
+          $lookup: {
+            from: 'posts',
+            localField: '_id',
+            foreignField: 'sharedPost',
+            as: 'sharedPosts',
+          },
+        });
+        set.shared = { $size: '$sharedPosts' };
+      }
+      q.push({
+        $set: set,
+      });
+    };
+    const projectPost = (q: Array<Record<string, any>>) => {
+      q.push({
+        $project: {
+          _id: 1,
+          user: {
+            _id: '$userData._id',
+            username: '$userData.username',
+            avatar: '$userData.avatar',
+            firstName: '$userData.firstName',
+            lastName: '$userData.lastName',
+          },
+          liked: 1,
+          media: 1,
+          hideComment: 1,
+          likes: 1,
+          comments: 1,
+          shared: 1,
+          bookmarks: 1,
+          // followersWhoLiked: string, // TODO: not implemented
+          deleted: 1,
+          sharedPost: 1,
+          content: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      });
+    };
+    const populateSharedPost = (q: Array<Record<string, any>>, user?: string) => {
+      const p: Array<any> = [];
+      if (user) {
+        getUserLikesOnPost(p, user);
+      }
+      populatePostProperties(p, true, true, true, true, true);
+      projectPost(p);
+
+      q.push(
+        {
+          $lookup: {
+            from: 'posts',
+            localField: 'sharedPost',
+            foreignField: '_id',
+            pipeline: p,
+            as: 'sharedPost',
+          },
+        },
+        {
+          $unwind: {
+            path: '$sharedPost',
+            // includeArrayIndex: <string>,
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      );
+    };
+    const getUserLikesOnComment = (q: Array<Record<string, any>>, currentUser: string) => {
+      q.push(
+        {
+          $lookup: {
+            from: 'likes',
+            let: { commentId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$commentId', '$$commentId'] },
+                      { $eq: ['$userId', new Types.ObjectId(currentUser)] },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: 'userLike',
+          },
+        },
+        {
+          $set: {
+            liked: { $cond: { if: { $gt: [{ $size: '$userLike' }, 0] }, then: true, else: false } },
+          },
+        },
+      );
+    };
+    const projectComment = (q: Array<Record<string, any>>) => {
+      q.push({
+        $project: {
+          _id: 1,
+          postId: 1,
+          liked: 1,
+          likes: 1,
+          text: 1,
+          media: 1,
+          parentId: 1,
+          replies: 1,
+          user: 1,
+          thread: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      });
+    };
+    const populateCommentProperties = (
+      q: Array<Record<string, any>>,
+      user: boolean,
+      like: boolean,
+      replies: boolean,
+    ) => {
+      const set: any = {};
+      if (user) {
+        q.push(
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'userId',
+              foreignField: '_id',
+              as: 'userData',
+            },
+          },
+          {
+            $unwind: '$userData',
+          },
+        );
+        set.user = {
+          _id: '$userData._id',
+          username: '$userData.username',
+          avatar: '$userData.avatar',
+          firstName: '$userData.firstName',
+          lastName: '$userData.lastName',
+        };
+      }
+
+      if (like) {
+        q.push({
+          $lookup: {
+            from: 'likes',
+            localField: '_id',
+            foreignField: 'commentId',
+            as: 'commentLikes',
+          },
+        });
+        set.likes = { $size: '$commentLikes' };
+      }
+
+      if (replies) {
+        q.push({
+          $lookup: {
+            from: 'comments',
+            localField: '_id',
+            foreignField: 'parentId',
+            as: 'commentChild',
+          },
+        });
+        set.replies = { $size: '$commentChild' };
+      }
+      q.push({
+        $set: set,
+      });
+    };
+
+    const populateBookmarkedPost = (q: Array<Record<string, any>>, user?: string) => {
+      const p: Array<any> = [];
+      if (user) {
+        getUserLikesOnPost(p, user);
+      }
+      populatePostProperties(p, true, true, true, true, true);
+      projectPost(p);
+
+      q.push(
+        {
+          $lookup: {
+            from: 'posts',
+            localField: 'postId',
+            foreignField: '_id',
+            pipeline: p,
+            as: 'postId',
+          },
+        },
+        {
+          $unwind: {
+            path: '$postId',
+            // includeArrayIndex: <string>,
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      );
+    };
+
+    return {
+      projectPost,
+      populateSharedPost,
+      getUserLikesOnPost,
+      populatePostProperties,
+      getUserLikesOnComment,
+      projectComment,
+      populateCommentProperties,
+      populateBookmarkedPost,
+    };
   }
 }
