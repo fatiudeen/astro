@@ -9,26 +9,27 @@ export enum BetSlipOutcome {
   WON = 'won',
 }
 
-export interface SelectionInterface {
-  id: string;
-  odds: string;
-  homeTeam: string;
-  awayTeam: string;
-  isLive: boolean;
-  marketName: string;
-  league: string;
-  price: string;
-  outcome: BetSlipOutcome;
-}
+// export interface SelectionInterface {
+//   id: string;
+//   odds: string;
+//   homeTeam: string;
+//   awayTeam: string;
+//   isLive: boolean;
+//   marketName: string;
+//   league: string;
+//   price: string;
+//   outcome: BetSlipOutcome;
+// }
 
 export interface BetSlipInterface {
   // slip
   userId: string | Types.ObjectId;
-  games: SelectionInterface[];
+  // games: SelectionInterface[];
+  games: any[];
   stake: number;
   totalOdds: number;
-  startDate: string;
-  endDate: string;
+  // startDate: string;
+  // endDate: string;
   completed: boolean;
   outcome: BetSlipOutcome;
 }

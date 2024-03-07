@@ -15,3 +15,7 @@ Types of Bets:
 https://sportsapi.bwin.com/restapi/generatedeeplink.html
 
 ### tracking
+
+
+
+send string of market id, get gmaes based on market

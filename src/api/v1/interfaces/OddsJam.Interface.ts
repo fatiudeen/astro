@@ -163,3 +163,32 @@ export declare type ScoresAPIParams = {
   sport: Sports | Sports[];
   league: string | string[];
 };
+
+export interface CombinedGamesOdds {
+  id: string;
+  start_date: string;
+  home_team: string;
+  away_team: string;
+  is_live: boolean;
+  is_popular: boolean;
+  tournament: string | null;
+  status: string;
+  sport: string;
+  league: string;
+  sports_book_name: string;
+  name: string;
+  price: number;
+  timestamp: number;
+  bet_points: number | null;
+  is_main: boolean;
+  market_name: string;
+  market: string;
+  home_rotation_number: number | null;
+  away_rotation_number: number | null;
+  deep_link_url: string;
+  player_id: string | null;
+  selection: string;
+  normalized_selection: string;
+  selection_line: number | null;
+  selection_points: number | null;
+}

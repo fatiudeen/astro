@@ -1,6 +1,12 @@
 import HttpError from '@helpers/HttpError';
 import OddsJam from '@helpers/oddsJam';
-import { GameOddsAPIParams, GamesAPIParams, Leagues, MarketsAPIParams } from '@interfaces/OddsJam.Interface';
+import {
+  CombinedGamesOdds,
+  GameOddsAPIParams,
+  GamesAPIParams,
+  Leagues,
+  MarketsAPIParams,
+} from '@interfaces/OddsJam.Interface';
 import { BetSlipInterface } from '@interfaces/BetSlip.Interface';
 import BetSlipRepository from '@repositories/BetSlip.repository';
 import Service from '@services/service';
@@ -151,6 +157,16 @@ class BetSlipService extends Service<BetSlipInterface, BetSlipRepository> {
       Object.assign(data, { isLive });
     }
     return (await this.oddsJamClient.getGames(data as GamesAPIParams)).data;
+  }
+
+  async QueryGameWithMarketId(id: string): Promise<CombinedGamesOdds> {
+    // eslint-disable-next-line no-unused-vars
+    const [gameId, sportsBook, market, marketName] = id.split(':');
+    const capitalized = 'DraftKings' || sportsBook.charAt(0).toUpperCase() + sportsBook.slice(1);
+    const odds = (await this.odds(capitalized, gameId))[0];
+    const odd = odds.odds.find((v: any) => id === v.id);
+    // delete odds.odds;
+    return { ...odds, ...odd, odds: undefined };
   }
 
   // findOne(query: string | Partial<BetSlipInterface>): Promise<DocType<BetSlipInterface> | null> {

@@ -8,7 +8,7 @@ export default class BetSlipRoute extends Route<BetSlipInterface> {
   controller = new BetSlipController('betSlip');
   dto = betSlipRequestDTO;
   initRoutes() {
-    this.router.route('/').get(this.controller.get);
+    this.router.route('/').get(this.controller.get).post(this.controller.create);
     this.router.route('/sports').get(this.controller.sports);
     this.router.route('/leagues').get(this.controller.leagues);
     this.router.route('/games').get(this.controller.games);

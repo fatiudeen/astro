@@ -1,8 +1,11 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-underscore-dangle */
 import { Request } from 'express';
 import BetSlipService from '@services/betSlip.service';
 import { BetSlipInterface } from '@interfaces/BetSlip.Interface';
 import Controller from '@controllers/controller';
+import toBase64 from '@utils/toBase64';
+import calculateCumulativeOdds from '@utils/calculateCumulativeOdds';
 // import { BetSlipResponseDTO } from '@dtos/betSlip.dto';
 
 class BetSlipController extends Controller<BetSlipInterface> {
@@ -60,6 +63,25 @@ class BetSlipController extends Controller<BetSlipInterface> {
     const q = this.safeQuery(req);
     const result = await this.service.odds(q.sportsBook, req.params.gameId);
     return result;
+  });
+
+  create = this.control(async (req: Request) => {
+    const { games: _games, stake }: { games: Array<string>; stake: number } = req.body;
+    const userId = req.user?._id;
+
+    // const games = _games.map((game) => {
+
+    const games: Array<any> = [];
+    const odds: Array<number> = [];
+
+    for await (const game of _games) {
+      const _game = await this.service.QueryGameWithMarketId(game);
+      odds.push((_games as any).price);
+
+      games.push({ ..._game, _id: toBase64(game) });
+    }
+    const totalOdds = calculateCumulativeOdds(odds);
+    return this.service.create({ userId, games, stake, totalOdds });
   });
 }
 
