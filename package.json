@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test TS_NODE_FILES=true AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 jest --detectOpenHandles --debug --coverage --updateSnapshot --forceExit",
-    "dev": "cross-env NODE_ENV=development TS_NODE_FILES=true nodemon src/index.ts",
+    "dev": "cross-env NODE_ENV=development TS_NODE_FILES=true AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 nodemon src/index.ts",
     "build": "tsc -p . && tsc-alias",
     "start": "node index.js",
     "check-types": "tsc --noEmit",
@@ -48,6 +48,7 @@
     "multer-s3": "^3.0.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.1",
+    "oddsjam-js-wrapper": "^1.0.2",
     "short-uuid": "^4.2.2",
     "socket.io": "^4.6.1",
     "supertest": "^6.3.3",

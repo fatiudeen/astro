@@ -59,6 +59,7 @@ export const {
   MULTER_STORAGE_PATH,
   NODE_ENV,
   REDIS_URI,
+  ODDS_JAM_API_KEY,
 } = <Record<string, string>>process.env;
 
 export const CONSTANTS = {

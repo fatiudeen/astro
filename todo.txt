@@ -1,0 +1,17 @@
+convert ext api id to base64
+
+convert response from snake to camel case 
+
+use class converter to add toObject prop to all instance 
+
+
+Types of Bets:
+	• Money line - Out right winner. Example winning team
+	• Spread - Winning margin. How much you win or lose by.  
+	• Total - Total number of points scored (over and under). 
+	• Prop bets - Series of categories, like assist, rebounds, goals scored, even/odd final scores, points, corners etc.
+
+
+https://sportsapi.bwin.com/restapi/generatedeeplink.html
+
+### tracking
