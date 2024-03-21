@@ -11,7 +11,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint --fix \"**/*.ts\" --quiet",
     "prepare": "husky",
-    "prettier": "prettier --write"
+    "prettier": "prettier --write",
+    "crud": "node generateFiles.js --"
   },
   "keywords": [],
   "author": "Shehu-Fatiudeen Lawal",

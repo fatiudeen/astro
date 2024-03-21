@@ -37,11 +37,11 @@ const paths = {
     export default <Model<<Keyword>Interface>>model('<Keyword>', <Keyword>Schema);
 `,
   'src/api/v1/controllers/<keyword>.controller.ts': `/* eslint-disable no-underscore-dangle */
-    import { Request } from 'express';
+    // import { Request } from 'express';
     import <Keyword>Service from '@services/<keyword>.service';
-    import { <Keyword>Interface } from '@interfaces/<Keyword>s.Interface';
+    import { <Keyword>Interface } from '@interfaces/<Keyword>.Interface';
     import Controller from '@controllers/controller';
-    import { OPTIONS } from '@config';
+    // import { OPTIONS } from '@config';
     // import { <keyword>ResponseDTO } from '@dtos/<keyword>.dto';
 
     class <Keyword>Controller extends Controller<<Keyword>Interface> {
@@ -55,11 +55,11 @@ const paths = {
     export const invalid<Keyword>Id = faker.database.mongodbObjectId().toString();
     export const valid<Keyword>Id = faker.database.mongodbObjectId().toString();
 
-    export const valid<Keyword>Data = {
+    export const valid<Keyword> = {
     example: faker.random.word()
     };
 
-    export const invalid<Keyword>Data = {
+    export const invalid<Keyword> = {
     examples: faker.random.word()
     };
 
@@ -68,34 +68,40 @@ const paths = {
     };`,
   'src/api/v1/__test__/<keyword>.test.ts': `import supertest from 'supertest';
     import { logger } from '@utils/logger';
+    import <Keyword>Service from '@services/<keyword>.service';
     import App from '../app';
     import AuthService from '../services/auth.service';
     import { validUser } from './__fixtures__/user';
-    import { valid<keyword>, invalid<keyword>, valid<keyword>UpdateData } from './__fixtures__/<keyword>';
+    import { valid<Keyword>, invalid<Keyword>, valid<Keyword>UpdateData } from './__fixtures__/<keyword>';
     
     logger.silent = true;
     
     const authService = new AuthService();
+    const <keyword>Service = new <Keyword>Service();
     const app = new App().instance();
     
     let authentication: object;
     const baseUrl = '/api/v1/likes';
+    // let userId: string;
+    let <keyword>Id: string;
     
     beforeEach(async () => {
       jest.clearAllMocks();
-      userId = (await authService.createUser({ ...validUser }))._id;
+      // userId = (await authService.createUser({ ...validUser }))._id;
       const user = await authService.login({ username: validUser.email, password: validUser.password });
       authentication = { Authorization: \`Bearer \${user.token}\` };
+      <keyword>Id = (await <keyword>Service.create({ ...valid<Keyword>} as any))._id;
+
     });
     
-    describe(\`\${<keyword>.toUpperCase()} ::\`, () => {
+    describe(\`\${'<keyword>'.toUpperCase()} ::\`, () => {
       describe(\`POST \${baseUrl} ==========>>>>\`, () => {
         describe('given a valid <keyword> create a <keyword>, ', () => {
           it('should create <keyword> return 200', async () => {
             const { statusCode, body } = await supertest(app)
               .post(baseUrl)
               .set(authentication)
-              .send({ ...valid<keyword> });
+              .send({ ...valid<Keyword> });
     
             //   deepLog(body)
     
@@ -109,7 +115,7 @@ const paths = {
             const { statusCode, body } = await supertest(app)
               .post(baseUrl)
               .set(authentication)
-              .send({ ...invalid<keyword> });
+              .send({ ...invalid<Keyword> });
     
             // deepLog(body);
     
@@ -137,10 +143,10 @@ const paths = {
           });
         });
       });
-      describe(\`GET \${baseUrl}/<keyword>Id ==========>>>>\`, () => {
+      describe(\`GET \${baseUrl}/:<keyword>Id ==========>>>>\`, () => {
         describe('given a valid token a valid <keyword>Id', () => {
           it('should return 200 and a ', async () => {
-            const { statusCode, body } = await supertest(app).get(baseUrl).set(authentication);
+            const { statusCode, body } = await supertest(app).get(\`\${baseUrl}/\${<keyword>Id}\`).set(authentication);
     
             expect(statusCode).toBe(200);
             expect(body.success).toEqual(true);
@@ -149,30 +155,30 @@ const paths = {
     
         describe('given a valid token and an invalid <keyword>Id', () => {
           it('should return 404', async () => {
-            const { statusCode, body } = await supertest(app).get(baseUrl).set(authentication);
+            const { statusCode, body } = await supertest(app).get(\`\${baseUrl}/\${<keyword>Id}\`).set(authentication);
     
             expect(statusCode).toBe(404);
             expect(body.success).toEqual(false);
           });
         });
       });
-      describe(\`PUT \${baseUrl}/<keyword>Id ==========>>>>\`, () => {
+      describe(\`PUT \${baseUrl}/:<keyword>Id ==========>>>>\`, () => {
         describe('given a valid token a valid <keyword>Id', () => {
           it('should update and return 200 and a ', async () => {
             const { statusCode, body } = await supertest(app)
-              .put(baseUrl)
+              .put(\`\${baseUrl}/\${<keyword>Id}\`)
               .set(authentication)
-              .send({ ...valid<keyword>UpdateData });
+              .send({ ...valid<Keyword>UpdateData });
     
             expect(statusCode).toBe(200);
             expect(body.success).toEqual(true);
           });
         });
       });
-      describe(\`DELETE \${baseUrl}/<keyword>Id ==========>>>>\`, () => {
+      describe(\`DELETE \${baseUrl}/:<keyword>Id ==========>>>>\`, () => {
         describe('given a valid token a valid <keyword>Id', () => {
           it('should delete and return 200 and a ', async () => {
-            const { statusCode, body } = await supertest(app).delete(baseUrl).set(authentication);
+            const { statusCode, body } = await supertest(app).delete(\`\${baseUrl}/\${<keyword>Id}\`).set(authentication);
     
             expect(statusCode).toBe(200);
             expect(body.success).toEqual(true);
@@ -224,6 +230,41 @@ const paths = {
     export default <Keyword>Route;`,
 };
 
+function updateAppTs(input, remove = false) {
+  const file = 'src/api/v1/app.ts';
+  try {
+    const data = fs.readFileSync(file, 'utf8');
+    let updatedContent;
+    if (remove) {
+      updatedContent = data.replace(input, ``);
+    } else {
+      updatedContent = data.replace(`'': new AuthRoute(),`, `'': new AuthRoute(), ${input}`);
+    }
+    fs.writeFileSync(file, updatedContent, 'utf8');
+    console.log('File updated successfully.');
+  } catch (error) {
+    console.error('Error writing file:', error);
+  }
+}
+
+// Read the content of the JavaScript file
+// fs.readFile(file, 'utf8', (err, data) => {
+//   if (err) {
+//     console.error('Error reading file:', err);
+//     return;
+//   }
+
+// Modify the content as needed
+
+// fs.writeFile(file, updatedContent, 'utf8', (error) => {
+//   if (error) {
+//     console.error('Error writing file:', error);
+//     return;
+//   }
+//   console.log('File updated successfully.');
+// });
+// });
+
 function createFile(filepath, content) {
   if (fs.existsSync(filepath)) {
     console.log(`File ${filepath} already exists. Skipping...`);
@@ -254,7 +295,8 @@ program
       createFile(_path, content.replaceAll('<keyword>', keyword).replaceAll('<Keyword>', Keyword));
       _paths = `${_paths} ${_path}`;
     }
-    // console.log(_path);
+    updateAppTs(`${keyword}: new ${Keyword}Route()`);
+
     // eslint-disable-next-line no-unused-vars
     exec(`npm run prettier -- ${_paths}`, (error, stdout, stderr) => {
       if (error) {
