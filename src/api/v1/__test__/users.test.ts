@@ -1,10 +1,10 @@
 import supertest from 'supertest';
 import { logger } from '@utils/logger';
+import deepLog from '@utils/deepLog';
 import App from '../app';
 import AuthService from '../services/auth.service';
 
 import { validUser, validUserUpdateData, validUser2, invalidUserId } from './__fixtures__/user';
-import deepLog from '@utils/deepLog';
 
 logger.silent = true;
 
