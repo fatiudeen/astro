@@ -72,7 +72,7 @@ const paths = {
     import App from '../app';
     import AuthService from '../services/auth.service';
     import { validUser } from './__fixtures__/user';
-    import { valid<Keyword>, invalid<Keyword>, valid<Keyword>UpdateData } from './__fixtures__/<keyword>';
+    import { valid<Keyword>, invalid<Keyword>, valid<Keyword>UpdateData, invalid<Keyword>Id } from './__fixtures__/<keyword>';
     
     logger.silent = true;
     
@@ -81,13 +81,13 @@ const paths = {
     const app = new App().instance();
     
     let authentication: object;
-    const baseUrl = '/api/v1/likes';
+    const baseUrl = '/api/v1/<keyword>s';
     // let userId: string;
     let <keyword>Id: string;
     
     beforeEach(async () => {
       jest.clearAllMocks();
-      // userId = (await authService.createUser({ ...validUser }))._id;
+      await authService.createUser({ ...validUser });
       const user = await authService.login({ username: validUser.email, password: validUser.password });
       authentication = { Authorization: \`Bearer \${user.token}\` };
       <keyword>Id = (await <keyword>Service.create({ ...valid<Keyword>} as any))._id;
@@ -119,7 +119,7 @@ const paths = {
     
             // deepLog(body);
     
-            expect(statusCode).toBe(404);
+            expect(statusCode).toBe(400);
             expect(body.success).toEqual(false);
           });
         });
@@ -155,7 +155,7 @@ const paths = {
     
         describe('given a valid token and an invalid <keyword>Id', () => {
           it('should return 404', async () => {
-            const { statusCode, body } = await supertest(app).get(\`\${baseUrl}/\${<keyword>Id}\`).set(authentication);
+            const { statusCode, body } = await supertest(app).get(\`\${baseUrl}/\${invalid<Keyword>Id}\`).set(authentication);
     
             expect(statusCode).toBe(404);
             expect(body.success).toEqual(false);
@@ -232,7 +232,7 @@ const paths = {
 
 function updateAppTs(keyword, Keyword, remove = false) {
   const file = 'src/api/v1/app.ts';
-  input = `${keyword}: new ${Keyword}Route(true),`;
+  input = `${keyword}s: new ${Keyword}Route(true),`;
   const importLine = `import ${Keyword}Route from '@routes/${keyword}.route';`;
   try {
     const data = fs.readFileSync(file, 'utf8');
