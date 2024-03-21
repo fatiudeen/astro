@@ -230,15 +230,19 @@ const paths = {
     export default <Keyword>Route;`,
 };
 
-function updateAppTs(input, remove = false) {
+function updateAppTs(keyword, Keyword, remove = false) {
   const file = 'src/api/v1/app.ts';
+  input = `${keyword}: new ${Keyword}Route(true),`;
+  const importLine = `import ${Keyword}Route from '@routes/${keyword}.route';`;
   try {
     const data = fs.readFileSync(file, 'utf8');
     let updatedContent;
     if (remove) {
-      updatedContent = data.replace(input, ``);
+      updatedContent = data.replace(`${input}\n`, '').replace(`${importLine}\n`, '');
     } else {
-      updatedContent = data.replace(`'': new AuthRoute(),`, `'': new AuthRoute(), ${input}`);
+      updatedContent = data
+        .replace(`'': new AuthRoute(),`, `'': new AuthRoute(), ${input}`)
+        .replace(`import Route from '@routes/route';`, `import Route from '@routes/route'; ${importLine}`);
     }
     fs.writeFileSync(file, updatedContent, 'utf8');
     console.log('File updated successfully.');
@@ -246,24 +250,6 @@ function updateAppTs(input, remove = false) {
     console.error('Error writing file:', error);
   }
 }
-
-// Read the content of the JavaScript file
-// fs.readFile(file, 'utf8', (err, data) => {
-//   if (err) {
-//     console.error('Error reading file:', err);
-//     return;
-//   }
-
-// Modify the content as needed
-
-// fs.writeFile(file, updatedContent, 'utf8', (error) => {
-//   if (error) {
-//     console.error('Error writing file:', error);
-//     return;
-//   }
-//   console.log('File updated successfully.');
-// });
-// });
 
 function createFile(filepath, content) {
   if (fs.existsSync(filepath)) {
@@ -295,10 +281,10 @@ program
       createFile(_path, content.replaceAll('<keyword>', keyword).replaceAll('<Keyword>', Keyword));
       _paths = `${_paths} ${_path}`;
     }
-    updateAppTs(`${keyword}: new ${Keyword}Route()`);
+    updateAppTs(keyword, Keyword);
 
     // eslint-disable-next-line no-unused-vars
-    exec(`npm run prettier -- ${_paths}`, (error, stdout, stderr) => {
+    exec(`npm run prettier -- ${_paths} src/api/v1/app.ts`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error Formatting Files: ${error}`);
         return;
@@ -316,6 +302,15 @@ program
     for (const path of Object.keys(paths)) {
       removeFile(path.replace('<keyword>', keyword).replace('<Keyword>', Keyword));
     }
+    updateAppTs(keyword, Keyword, true);
+    // eslint-disable-next-line no-unused-vars
+    exec(`npm run prettier -- src/api/v1/app.ts`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error Formatting Files: ${error}`);
+        return;
+      }
+      console.log(`Files Formatted: ${stdout}`);
+    });
   });
 
 program.parse(process.argv);
