@@ -13,6 +13,7 @@ export const validUser = {
   lastName: faker.name.lastName(),
   username: faker.internet.userName(),
   dob: faker.date.past().toISOString(),
+  location: faker.address.cityName(),
   sex: faker.helpers.arrayElement(Object.values(UserSex)),
   phoneNumber: {
     countryCode: '+234',

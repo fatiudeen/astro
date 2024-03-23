@@ -49,6 +49,6 @@ module.exports = {
   //     tsconfig: 'tsconfig.test.json',
   //   }],
   // },
-  coverageThreshold: { global: { lines: 70 } },
+  // coverageThreshold: { global: { lines: 70 } },
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
 };

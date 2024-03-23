@@ -75,6 +75,8 @@ describe('authorization ::', () => {
           .post('/api/v1/signup')
           .send({ ...validUser });
 
+        // deepLog(body);
+
         expect(statusCode).toBe(201);
         expect(body.success).toEqual(true);
         expect(body.data).toMatchObject(expectation.isSignUpData);

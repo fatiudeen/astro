@@ -5,6 +5,8 @@
         "rerequest",
         "SENDGRID",
         "Signin",
+        "sportsbook",
         "unfollow"
-    ]
+    ],
+    "testing.openTesting": "neverOpen"
 }

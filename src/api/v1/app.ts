@@ -27,6 +27,7 @@ import FollowRoute from '@routes/follow.route';
 import LikeRoute from '@routes/like.route';
 import MessageRoute from '@routes/message.route';
 import PostRoute from '@routes/post.route';
+import BetSlipRoute from '@routes/betSlip.route';
 // import visitCount from '@middlewares/visitCount';
 
 // eslint-disable-next-line import/no-extraneous-dependencies, import/no-unresolved
@@ -48,6 +49,7 @@ class App {
     likes: new LikeRoute(true),
     messages: new MessageRoute(true),
     posts: new PostRoute(true),
+    betSlips: new BetSlipRoute(true),
   };
   httpServer;
   constructor() {
