@@ -77,7 +77,8 @@ class AuthService extends Service<AuthSessionInterface, AuthSessionRepository> {
       data.password = await this.toHash(data.password!);
       const result = await this._userService().create(data);
       this._emailing ? this._emailing.verifyEmail(result) : logger.info(['email not enabled']);
-      return result;
+      const accessToken = this.getSignedToken(result);
+      return { ...result, token: accessToken };
     } catch (error) {
       throw error;
     }
