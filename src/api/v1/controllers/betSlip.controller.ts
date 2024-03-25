@@ -83,6 +83,12 @@ class BetSlipController extends Controller<BetSlipInterface> {
     const totalOdds = calculateCumulativeOdds(odds);
     return this.service.create({ userId, games, stake, totalOdds });
   });
+
+  results = this.control(async (req: Request) => {
+    // const q = this.safeQuery(req);
+    const result = await this.service.results(req.params.gameId);
+    return result;
+  });
 }
 
 export default BetSlipController;

@@ -9,12 +9,14 @@ export default class BetSlipRoute extends Route<BetSlipInterface> {
   dto = betSlipRequestDTO;
   initRoutes() {
     this.router.route('/').get(this.controller.get).post(this.controller.create);
+    this.router.route('/:betSlipId').get(this.controller.getOne);
     this.router.route('/sports').get(this.controller.sports);
     this.router.route('/leagues').get(this.controller.leagues);
     this.router.route('/games').get(this.controller.games);
     this.router.route('/markets/:gameId').get(this.controller.markets);
     this.router.route('/sportsBook').get(this.controller.sportsBook);
     this.router.route('/games/:gameId').get(this.controller.odds);
+    this.router.route('/results/:gameId').get(this.controller.results);
     // this.router.route('/odds').get(this.controller.odds);
     // this.router
     //   .route('/bank')

@@ -1,4 +1,18 @@
 {
+  "results": {
+    "data": {
+      "gameUID": "33152-30886-2022-02-17",
+      "awayTeam": "Washington Wizards",
+      "homeTeam": "Brooklyn Nets",
+      "gameStatus": "Completed",
+      "awayScore": 117,
+      "homeScore": 103,
+      "playerScore": null,
+      "betType": "Total Points",
+      "betName": "Under 215.5",
+      "betResult": "Lost"
+    }
+  },
   "markets": [
     {
       "id": "32825-86230-2024-03-01",

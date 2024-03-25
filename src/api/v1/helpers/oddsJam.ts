@@ -1,7 +1,14 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-restricted-syntax */
 import { NODE_ENV, ODDS_JAM_API_KEY } from '@config';
-import { GameOddsAPIParams, GamesAPIParams, Leagues, MarketsAPIParams } from '@interfaces/OddsJam.Interface';
+import {
+  GameOddsAPIParams,
+  GameResultAPIParams,
+  GameResultAPIResponse,
+  GamesAPIParams,
+  Leagues,
+  MarketsAPIParams,
+} from '@interfaces/OddsJam.Interface';
 import axios from 'axios';
 import mockData from 'src/mock.json';
 // import { createURL } from './constants.js';
@@ -105,6 +112,13 @@ const OddsJamClient = (apiKey: string) => {
     const res = await sendRequest(fullURL);
     return res.data;
   };
+  const getGameResult = async (params: GameResultAPIParams): Promise<GameResultAPIResponse> => {
+    const gameOddsURL = baseUrl('grader');
+    const fullURL = createUrlWithParams(gameOddsURL, params);
+    const res = await sendRequest(fullURL);
+    return res.data;
+  };
+
   return {
     getGames,
     getLeagues,
@@ -113,6 +127,7 @@ const OddsJamClient = (apiKey: string) => {
     getFutures,
     getFutureOdds,
     getScores,
+    getGameResult,
   };
 };
 export default OddsJamClient(ODDS_JAM_API_KEY);

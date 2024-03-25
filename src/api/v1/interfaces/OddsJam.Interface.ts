@@ -192,3 +192,28 @@ export interface CombinedGamesOdds {
   selection_line: number | null;
   selection_points: number | null;
 }
+
+export declare type GameResultAPIParams = {
+  page?: number;
+  market_name: string;
+  bet_name: string;
+  sport: string;
+  league: string;
+  game_id: string;
+  show_live_result?: boolean;
+  player_id?: string;
+};
+type BetResult = 'Won' | 'Lost' | 'Refunded' | 'Pending' | 'Half Won' | 'Half Lost';
+
+export declare type GameResultAPIResponse = {
+  gameUID: string;
+  awayTeam: string;
+  homeTeam: string;
+  gameStatus: string;
+  awayScore: number;
+  homeScore: number;
+  playerScore: number | null;
+  betType: string;
+  betName: string;
+  betResult: BetResult;
+};

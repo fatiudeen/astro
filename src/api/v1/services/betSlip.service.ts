@@ -3,6 +3,8 @@ import OddsJam from '@helpers/oddsJam';
 import {
   CombinedGamesOdds,
   GameOddsAPIParams,
+  GameResultAPIParams,
+  GameResultAPIResponse,
   GamesAPIParams,
   Leagues,
   MarketsAPIParams,
@@ -172,6 +174,32 @@ class BetSlipService extends Service<BetSlipInterface, BetSlipRepository> {
   // findOne(query: string | Partial<BetSlipInterface>): Promise<DocType<BetSlipInterface> | null> {
   //   return this.repository.findOne(query);
   // }
+
+  async slipResults(id: string[]) {
+    const result: GameResultAPIResponse[] = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const gameId of id) {
+      const game = await this.QueryGameWithMarketId(gameId);
+
+      const data: GameResultAPIParams = {
+        market_name: game.market_name,
+        bet_name: game.name,
+        sport: game.sport,
+        league: game.league,
+        game_id: gameId,
+      };
+
+      const r = await this.oddsJamClient.getGameResult(data);
+      result.push(r);
+    }
+    return result;
+  }
+
+  async results(betSlipId: string) {
+    const betSlip = await this.findOneWithException(betSlipId);
+    const results = await this.slipResults(betSlip.games);
+    return { ...betSlip, results };
+  }
 }
 
 export default BetSlipService;
