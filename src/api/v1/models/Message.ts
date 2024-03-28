@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { MessageInterface } from '@interfaces/Messages.Interface';
+import { MessageInterface } from '@interfaces/Message.Interface';
 import { IMedia, MediaTypeEnum } from '@interfaces/Common.Interface';
 
 const MessageSchema = new Schema<MessageInterface>(

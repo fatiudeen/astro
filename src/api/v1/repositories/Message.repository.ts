@@ -1,4 +1,4 @@
-import { MessageInterface } from '@interfaces/Messages.Interface';
+import { MessageInterface } from '@interfaces/Message.Interface';
 import Message from '@models/Message';
 import Repository from '@repositories/repository';
 

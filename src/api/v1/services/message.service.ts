@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { MessageInterface } from '@interfaces/Messages.Interface';
+import { MessageInterface } from '@interfaces/Message.Interface';
 import MessageRepository from '@repositories/Message.repository';
 import Service from '@services/service';
 import ConversationService from '@services/conversation.service';

@@ -2,7 +2,7 @@
 import MessageController from '@controllers/message.controller';
 import { messageRequestDTO } from '@dtos/message.dto';
 import Route from '@routes/route';
-import { MessageInterface } from '@interfaces/Messages.Interface';
+import { MessageInterface } from '@interfaces/Message.Interface';
 
 export default class MessageRoute extends Route<MessageInterface> {
   controller = new MessageController('message');

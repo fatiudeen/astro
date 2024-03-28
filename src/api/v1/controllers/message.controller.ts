@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { Request } from 'express';
 import MessageService from '@services/message.service';
-import { MessageInterface } from '@interfaces/Messages.Interface';
+import { MessageInterface } from '@interfaces/Message.Interface';
 import Controller from '@controllers/controller';
 import { OPTIONS } from '@config';
 // import { MessageResponseDTO } from '@dtos/message.dto';
