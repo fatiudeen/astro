@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-shadow */
 export declare type isLiveOptions = true | 'yes' | 't' | 1;
 export declare type Sports =
   | 'football'
@@ -203,7 +205,14 @@ export declare type GameResultAPIParams = {
   show_live_result?: boolean;
   player_id?: string;
 };
-type BetResult = 'Won' | 'Lost' | 'Refunded' | 'Pending' | 'Half Won' | 'Half Lost';
+export enum BetResult {
+  WON = 'Won',
+  LOST = 'Lost',
+  REFUNDED = 'Refunded',
+  PENDING = 'Pending',
+  HALF_WON = 'Half Won',
+  HALF_LOST = 'Half Lost',
+}
 
 export declare type GameResultAPIResponse = {
   gameUID: string;

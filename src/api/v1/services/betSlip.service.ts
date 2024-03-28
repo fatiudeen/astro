@@ -1,6 +1,8 @@
+/* eslint-disable no-nested-ternary */
 import HttpError from '@helpers/HttpError';
 import OddsJam from '@helpers/oddsJam';
 import {
+  BetResult,
   CombinedGamesOdds,
   GameOddsAPIParams,
   GameResultAPIParams,
@@ -9,7 +11,7 @@ import {
   Leagues,
   MarketsAPIParams,
 } from '@interfaces/OddsJam.Interface';
-import { BetSlipInterface } from '@interfaces/BetSlip.Interface';
+import { BetSlipInterface, BetSlipOutcome } from '@interfaces/BetSlip.Interface';
 import BetSlipRepository from '@repositories/BetSlip.repository';
 import Service from '@services/service';
 
@@ -197,8 +199,21 @@ class BetSlipService extends Service<BetSlipInterface, BetSlipRepository> {
 
   async results(betSlipId: string) {
     const betSlip = await this.findOneWithException(betSlipId);
-    const results = await this.slipResults(betSlip.games);
-    return { ...betSlip, results };
+    const results = await this.slipResults(betSlip.games.map((v) => v.id));
+    // return { ...betSlip, results };
+    const outcomes = results.map((v) => v.betResult);
+    const outcome = [BetResult.LOST, BetResult.HALF_LOST, BetResult.HALF_WON].some((str) => outcomes.includes(str))
+      ? BetSlipOutcome.LOST
+      : outcomes.includes(BetResult.PENDING)
+      ? BetSlipOutcome.ONGOING
+      : BetSlipOutcome.WON;
+    const completed = results.filter((v) => v.gameStatus === 'Completed').length === results.length;
+    betSlip.games = results.map((v, i) => {
+      return { ...betSlip.games[i], ...v };
+    });
+    betSlip.outcome = outcome;
+    betSlip.completed = completed;
+    return betSlip;
   }
 }
 

@@ -1,13 +1,8 @@
-// import { body, check, param, query } from 'express-validator';
+import { body } from 'express-validator';
 
 export const betSlipRequestDTO = {
   //   id: [param('betSlipId').exists()],
-  //   addBank: [
-  //     body('accountName').exists(),
-  //     body('accountNumber').exists(),
-  //     body('bankName').exists(),
-  //     body('bankCode').exists(),
-  //   ],
+  create: [body('games').exists().isArray()],
   //   confirmAccount: [body('accountNumber').exists(), body('bankCode').exists()],
   //   removeBank: [param('accountId').exists()],
   //   withdraw: [body('accountId').exists(), body('amount').exists()],
