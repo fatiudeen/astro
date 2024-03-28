@@ -2,6 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable import/no-unresolved */
 const fs = require('fs');
+const nodePath = require('path');
 const { program } = require('commander');
 const { exec } = require('child_process');
 
@@ -269,6 +270,28 @@ function removeFile(filePath) {
   }
 }
 
+function getAllFilesInDir(ignore = []) {
+  if (!Array.isArray(ignore)) {
+    console.error(`Error:`, 'ignore must be an array');
+  }
+  const dirPath = 'src/api/v1/models';
+  try {
+    // Read the directory
+    const files = fs.readdirSync(dirPath);
+
+    // Filter out directories, leaving only files
+    const fileNames = files
+      .filter((file) => fs.statSync(nodePath.join(dirPath, file)).isFile())
+      .map((file) => file.split('.')[0])
+      .filter((file) => !ignore.includes(file));
+
+    return fileNames;
+  } catch (error) {
+    console.error('Error reading directory:', error);
+    return [];
+  }
+}
+
 program
   .command('new')
   .arguments('<keyword>')
@@ -312,5 +335,21 @@ program
       console.log(`Files Formatted: ${stdout}`);
     });
   });
+
+program.command('fix').action(() => {
+  const ignoreFiles = ['IdPlugin, AuthSession'];
+  console.log();
+
+  for (const file of getAllFilesInDir(ignoreFiles)) {
+    // eslint-disable-next-line no-unused-vars
+    exec(`npm run crud new -- ${file}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error Fixing File: ${error}`);
+        return;
+      }
+      console.log(`Files Fixed: ${stdout}`);
+    });
+  }
+});
 
 program.parse(process.argv);
