@@ -37,8 +37,10 @@ class PostController extends Controller<PostInterface> {
     'page' in query ? delete query.page : false;
     const limit: number = 'limit' in query ? parseInt(query.limit, 10) : 10;
     'limit' in query ? delete query.limit : false;
+    const paid: boolean = 'paid' in query;
+    'paid' in query ? delete query.paid : false;
     const startIndex = limit * (page - 1);
-    const { feeds, count } = await this.service.feeds(req.user?._id, startIndex, limit);
+    const { feeds, count } = await this.service.feeds(req.user?._id, startIndex, limit, paid);
     const totalPages = Math.floor(count / limit) + 1;
 
     return {

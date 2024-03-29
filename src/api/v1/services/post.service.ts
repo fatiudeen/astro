@@ -7,6 +7,7 @@ import PostRepository from '@repositories/Post.repository';
 import Service from '@services/service';
 // import UserService from '@services/user.service';
 import FollowService from '@services/follow.service';
+import SubscriptionService from './subscription.service';
 // import LikeService from '@services/like.service';
 // import CommentService from '@services/comment.service';
 
@@ -14,6 +15,7 @@ class PostService extends Service<PostInterface, PostRepository> {
   protected repository = new PostRepository();
   // private readonly _userService = Service.instance(UserService);
   private readonly _followService = Service.instance(FollowService);
+  private readonly _subscriptionService = Service.instance(SubscriptionService);
   // private readonly _likeService = Service.instance(LikeService);
   // private readonly _commentService = Service.instance(CommentService);
 
@@ -67,17 +69,20 @@ class PostService extends Service<PostInterface, PostRepository> {
     return posts.sort((a, b) => this.calculateRelevanceScore(b) - this.calculateRelevanceScore(a));
   };
 
-  feeds(userId: string, startIndex: number, limit: number) {
+  feeds(userId: string, startIndex: number, limit: number, paid = false) {
     return new Promise<{ feeds: DocType<PostInterface>[]; count: number }>((resolve, reject) => {
-      this._followService()
-        .getFollowedUsers(userId)
+      const getUserList = paid
+        ? this._subscriptionService().getSubscribedUsers
+        : this._followService().getFollowedUsers;
+
+      getUserList(userId)
         .then((users) => {
           return this.sortUserByInfluence(users);
         })
         .then((users) => {
           return Promise.all([
-            this.repository.getInfluentialFollowedUsersPosts(userId, users, startIndex, limit),
-            this.repository.countPosts(users),
+            this.repository.getInfluentialFollowedUsersPosts(userId, users, startIndex, limit, paid),
+            this.repository.countPosts(users, paid),
           ]);
         })
         .then(([posts, count]) => {

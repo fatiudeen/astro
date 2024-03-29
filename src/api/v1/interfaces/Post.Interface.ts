@@ -14,4 +14,5 @@ export interface PostInterface {
   sharedPost: string | Types.ObjectId;
   content: string;
   currentUser: string;
+  paid: boolean;
 }

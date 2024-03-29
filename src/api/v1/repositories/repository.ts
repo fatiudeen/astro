@@ -290,6 +290,7 @@ export default abstract class Repository<T> {
           comments: 1,
           shared: 1,
           bookmarks: 1,
+          paid: 1,
           // followersWhoLiked: string, // TODO: not implemented
           deleted: 1,
           sharedPost: 1,

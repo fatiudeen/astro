@@ -27,9 +27,9 @@ class SubscriptionService extends Service<SubscriptionInterface, SubscriptionRep
     });
   }
 
-  async getSubscribedUsers(userId: string) {
+  getSubscribedUsers = async (userId: string) => {
     return (await this.find({ userId })).map((v) => (<any>v.subscribed)._id.toString());
-  }
+  };
 }
 
 export default SubscriptionService;

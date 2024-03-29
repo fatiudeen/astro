@@ -23,6 +23,7 @@ const PostSchema = new Schema<PostInterface>(
     followersWhoLiked: String,
     content: String,
     deleted: { type: Boolean, default: false },
+    paid: { type: Boolean, default: false },
     sharedPost: { type: Schema.Types.ObjectId, ref: 'Post' },
   },
   {

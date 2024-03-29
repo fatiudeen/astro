@@ -128,10 +128,14 @@ export default class PostRepository extends Repository<PostInterface> {
     return (result[0]?.shared || 0) as number;
   }
 
-  getInfluentialFollowedUsersPosts(userId: string, users: string[], startIndex: number, limit: number) {
+  getInfluentialFollowedUsersPosts(userId: string, users: string[], startIndex: number, limit: number, paid = false) {
+    const match = { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } };
+    if (paid) {
+      Object.assign(match, { paid });
+    }
     const q: any = [
       {
-        $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
+        $match: match,
       },
     ];
     this.reusableQueries.getUserLikesOnPost(q, userId);
@@ -159,10 +163,14 @@ export default class PostRepository extends Repository<PostInterface> {
     return <DocType<PostInterface>[]>(<unknown>this.model.aggregate(q));
   }
 
-  async countPosts(users: string[]) {
+  async countPosts(users: string[], paid = false) {
+    const match = { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } };
+    if (paid) {
+      Object.assign(match, { paid });
+    }
     const q: any = [
       {
-        $match: { userId: { $in: users.map((v) => new Types.ObjectId(v)) }, deleted: { $ne: true } },
+        $match: match,
       },
       {
         $group: {
