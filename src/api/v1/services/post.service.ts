@@ -46,7 +46,7 @@ class PostService extends Service<PostInterface, PostRepository> {
         this.repository.countUserSharedPosts(user),
       ]);
 
-      const influence = 1 * likesCount + 1 * commentCount + 1 * sharedCount;
+      const influence = 1 * likesCount + 1.5 * commentCount + 2 * sharedCount;
       influenceMap[user] = influence;
     }
     return users.sort((a, b) => influenceMap[b] - influenceMap[a]);

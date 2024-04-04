@@ -27,7 +27,8 @@ export interface BetSlipInterface {
   // games: SelectionInterface[];
   games: any[];
   stake: number;
-  totalOdds: number;
+  totalOdds: string;
+  payout: string;
   // startDate: string;
   // endDate: string;
   completed: boolean;

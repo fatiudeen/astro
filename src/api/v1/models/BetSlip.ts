@@ -20,7 +20,9 @@ const betSlipSchema = new Schema<BetSlipInterface>(
 
     games: [Schema.Types.Mixed],
     stake: Number,
-    totalOdds: Number,
+    totalOdds: String,
+    payout: String,
+
     // startDate: String,
     // endDate: String,
     completed: { type: Boolean, default: false },

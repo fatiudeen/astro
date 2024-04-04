@@ -1,19 +1,12 @@
-export default (oddsArray: Array<number>) => {
-  let cumulativeOdds = 1;
+import * as oddslib from 'oddslib';
 
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < oddsArray.length; i++) {
-    const odds = oddsArray[i];
-
-    if (odds > 0) {
-      cumulativeOdds *= odds / 100 + 1;
-    } else if (odds < 0) {
-      cumulativeOdds *= 100 / -odds + 1;
-    } else {
-      // Handle even odds (e.g., +100, -100)
-      cumulativeOdds *= 2;
-    }
-  }
-
-  return cumulativeOdds;
+export default (_bets: Array<number>, _stake: string) => {
+  const bets = _bets; // .map((bet) => parseInt(bet, 10));
+  const stake = parseFloat(_stake);
+  const totalOdds = bets.reduce((acc, bet) => {
+    return acc * oddslib.from('moneyline', bet).to('decimal'); // Convert positive odds to decimal
+  }, 1);
+  const payout = (totalOdds - 1) * stake;
+  const moneyLineOdds = oddslib.from('decimal', totalOdds).to('moneyline');
+  return { payout: payout.toFixed(2), totalOdds: moneyLineOdds.toFixed() };
 };

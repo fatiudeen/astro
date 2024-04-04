@@ -80,8 +80,8 @@ class BetSlipController extends Controller<BetSlipInterface> {
 
       games.push({ ..._game, _id: toBase64(game) });
     }
-    const totalOdds = calculateCumulativeOdds(odds);
-    return this.service.create({ userId, games, stake, totalOdds });
+    const { payout, totalOdds } = calculateCumulativeOdds(odds, stake.toString());
+    return this.service.create({ userId, games, stake, totalOdds, payout });
   });
 
   results = this.control(async (req: Request) => {
