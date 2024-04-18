@@ -5,6 +5,7 @@ const SubscriptionSchema = new Schema<SubscriptionInterface>(
   {
     // add schema here
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    eventId: { type: Schema.Types.ObjectId, ref: 'Event' },
     subscribed: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   {

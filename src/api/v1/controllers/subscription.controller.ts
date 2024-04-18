@@ -10,7 +10,9 @@ class SubscriptionController extends Controller<SubscriptionInterface> {
   service = new SubscriptionService();
   responseDTO = undefined; // subscriptionResponseDTO.subscription;
   toggle = this.control(async (req: Request) => {
-    const result = await this.service.toggle(req.user?._id!, req.params.userId);
+    const result = req.params.userId
+      ? await this.service.toggle(req.user?._id!, req.params.userId)
+      : await this.service.toggleEvent(req.user?._id!, req.params.eventId);
     return result;
   });
   subscribers = this.control(async (req: Request) => {

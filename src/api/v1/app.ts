@@ -19,6 +19,7 @@ import UsersRoute from '@routes/user.route';
 import * as Config from '@config';
 import { rateLimiter } from '@middlewares/rateLimiter';
 import Route from '@routes/route';
+import EventRoute from '@routes/event.route';
 import SubscriptionRoute from '@routes/subscription.route';
 import session from 'express-session';
 import BookmarkRoute from '@routes/bookmark.route';
@@ -42,6 +43,7 @@ class App {
   private apiVersion = '/api/v1';
   private routes: Record<string, Route<any>> = {
     '': new AuthRoute(),
+    events: new EventRoute(true),
     subscriptions: new SubscriptionRoute(true),
     users: new UsersRoute(true),
     bookmarks: new BookmarkRoute(true),

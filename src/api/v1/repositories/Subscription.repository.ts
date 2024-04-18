@@ -37,15 +37,22 @@ export default class SubscriptionRepository extends Repository<SubscriptionInter
     return new Promise<DocType<SubscriptionInterface>[]>((resolve, reject) => {
       const query: Record<string, any> = _query || {};
       const populateQuery = Object.keys(query)[0] === 'userId' ? 'subscribed' : 'userId';
-      const q = this.model
-        .find(query)
-        .sort(sort)
-        .skip(startIndex)
-        .limit(limit)
-        .populate(populateQuery, 'username avatar firstName lastName');
+      const q = this.model.find(query).sort(sort).skip(startIndex).limit(limit);
+
+      q.populate(populateQuery, 'username avatar firstName lastName');
+      if (populateQuery === 'subscribed') {
+        q.populate('eventId', 'name price description expires');
+        // userId: string | Types.ObjectId;
+      }
       q.lean()
         .then((r) => {
-          resolve(<DocType<SubscriptionInterface>[]>(<unknown>r.map((v) => v[populateQuery])));
+          resolve(
+            <DocType<SubscriptionInterface>[]>(<unknown>r.map((v) => {
+              return v.eventId
+                ? { ...(v.eventId as object), type: 'event' }
+                : { ...(v[populateQuery] as object), type: 'user' };
+            })),
+          );
         })
         .catch((e) => {
           reject(e);

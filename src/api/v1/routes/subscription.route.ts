@@ -13,6 +13,7 @@ class SubscriptionRoute extends Route<SubscriptionInterface> {
     this.router.route('/subscribed').get(this.controller.subscribed);
     this.router.route('/:userId/subscribed').get(this.validator(this.dto.id), this.controller.subscribed);
     this.router.route('/:userId/subscribe').put(this.validator(this.dto.id), this.controller.toggle);
+    this.router.route('/:eventId/subscribe/events').put(this.validator(this.dto.eventId), this.controller.toggle);
 
     return this.router;
   }

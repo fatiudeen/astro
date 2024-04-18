@@ -76,7 +76,7 @@ class BetSlipController extends Controller<BetSlipInterface> {
 
     for await (const game of _games) {
       const _game = await this.service.QueryGameWithMarketId(game);
-      odds.push((_games as any).price);
+      odds.push(_game.price);
 
       games.push({ ..._game, _id: toBase64(game) });
     }
